@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 import 'package:safir_passengers/appInfo/app_info.dart';
 import 'package:safir_passengers/global/global_var.dart';
@@ -66,7 +66,7 @@ class MapControllerLogic {
           String durationText = TimeHelper.formatDuration(durationInSeconds);
           String arrivalTime = TimeHelper.getArrivalTime(durationInSeconds);
 
-          // 🔴 تبدیل GeoJSON [lng, lat] به FlutterMap LatLng(lat, lng)
+          // 🔴 تبدیل GeoJSON [lng, lat] به MapLibre GL LatLng(lat, lng)
           List<LatLng> points = coordinates.map<LatLng>((coord) {
             return LatLng(
               (coord[1] as num).toDouble(), // Latitude
