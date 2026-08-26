@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // اضافه شده برای لغو در فایربیس
 import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/global/trip_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
@@ -177,7 +178,6 @@ class MapBottomSheets {
               ],
               const SizedBox(height: 16),
               
-              // 🔹 ۳ گزینه جدید با قابلیت کلیک
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -250,6 +250,7 @@ class MapBottomSheets {
     required String destinationAddress,
     required double fareAmount,
     required VoidCallback onCancel,
+    String? currentRideId, // اضافه شده برای شناسه سفر
     VoidCallback? onBidPricePressed,
   }) {
     return DraggableScrollableSheet(
@@ -409,7 +410,7 @@ class MapBottomSheets {
                 ),
                 onPressed: () {
                   HapticFeedback.mediumImpact();
-                  _showCancelReasonDialog(context, onCancel);
+                  _showCancelReasonDialog(context, onCancel, currentRideId: currentRideId);
                 },
                 child: Text(
                   'cancel_request_title'.tr(),
@@ -423,8 +424,12 @@ class MapBottomSheets {
     );
   }
 
-  // 🔴 دیالوگ دلایل لغو
-  static void _showCancelReasonDialog(BuildContext context, VoidCallback onConfirmCancel) {
+  // 🔴 دیالوگ دلایل لغو (متصل شده به فایربیس)
+  static void _showCancelReasonDialog(
+    BuildContext context, 
+    VoidCallback onConfirmCancel, {
+    String? currentRideId,
+  }) {
     String? selectedReasonKey;
     
     final List<Map<String, String>> reasons = [
@@ -498,8 +503,20 @@ class MapBottomSheets {
                           ),
                           onPressed: selectedReasonKey == null
                               ? null
-                              : () {
+                              : () async {
                                   HapticFeedback.mediumImpact();
+                                  
+                                  // ثبت وضعیت لغو در فایربیس
+                                  if (currentRideId != null && currentRideId.isNotEmpty) {
+                                    await FirebaseFirestore.instance
+                                        .collection('rides')
+                                        .doc(currentRideId)
+                                        .update({
+                                      'status': 'cancelled',
+                                      'cancelReason': selectedReasonKey,
+                                    });
+                                  }
+
                                   Navigator.pop(context);
                                   onConfirmCancel();
                                 },
