@@ -1,14 +1,15 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-// ایمپورت‌های پکیج سفیر مسافر
+// ایمپورت‌های پکیج سفیر مسافر و تم‌ها
 import 'package:safir_passengers/appInfo/auth_provider.dart';
 import 'package:safir_passengers/authentication/user_information_screen.dart';
 import 'package:safir_passengers/methods/common_methods.dart';
 import 'package:safir_passengers/pages/blocked_screen.dart';
 import 'package:safir_passengers/pages/safir_home_screen.dart';
-import 'package:safir_passengers/global/global_var.dart';
+import 'package:safir_passengers/theme/app_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -19,17 +20,10 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController phoneController = TextEditingController();
-  
-  // پالت رنگی اختصاصی و مدرن سفیر
-  final Color safirBrandColor = const Color(0xFF145A41);
-  final Color successColor = const Color(0xFF10B981);
-  final Color surfaceBg = const Color(0xFFF9FAFB);
 
   @override
   void initState() {
     super.initState();
-    
-    // 🇦🇫 قفل کردن زبان پیش‌فرض برنامه روی فارسی (دری) در بدو ورود
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.locale.languageCode == 'en') {
         context.setLocale(const Locale('fa'));
@@ -45,129 +39,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   CommonMethods commonMethods = CommonMethods();
 
-  // 🌐 نمایش منوی شیک انتخاب زبان
-  void showLanguageBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 20),
-              
-              const Text(
-                'انتخاب زبان / ژبه غوره کړئ / Select Language',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
-              ),
-              const SizedBox(height: 20),
-
-              _buildLanguageTile(
-                context: ctx,
-                flag: '🇦🇫',
-                title: 'فارسی (دری)',
-                code: 'fa',
-              ),
-              const SizedBox(height: 8),
-
-              _buildLanguageTile(
-                context: ctx,
-                flag: '🇦🇫',
-                title: 'پښتو',
-                code: 'ps',
-              ),
-              const SizedBox(height: 8),
-
-              _buildLanguageTile(
-                context: ctx,
-                flag: '🇬🇧',
-                title: 'English',
-                code: 'en',
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildLanguageTile({
-    required BuildContext context,
-    required String flag,
-    required String title,
-    required String code,
-  }) {
-    bool isSelected = context.locale.languageCode == code;
-    return InkWell(
-      onTap: () {
-        context.setLocale(Locale(code));
-        Navigator.pop(context);
-      },
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? safirBrandColor.withOpacity(0.08) : Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? safirBrandColor : Colors.grey.shade200,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Text(flag, style: const TextStyle(fontSize: 22)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 15,
-                  color: isSelected ? safirBrandColor : Colors.black87,
-                ),
-              ),
-            ),
-            if (isSelected)
-              Icon(Icons.check_circle_rounded, color: safirBrandColor, size: 22),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 🔍 بررسی صحت شماره موبایل افغانستان (۱۰ رقم شروع با 07)
   bool _isPhoneValid(String input) {
     String clean = input.trim();
-    return RegExp(r'^0[7][0-9]{8}$').hasMatch(clean);
+    return RegExp(r'^[7][0-9]{8}$').hasMatch(clean);
+  }
+
+  // تابع ارتباط از طریق واتساپ برای تست فامیل‌ها در افغانستان
+  Future<void> sendCodeViaWhatsApp() async {
+    String rawPhoneNumber = phoneController.text.trim();
+    if (rawPhoneNumber.startsWith('0')) {
+      rawPhoneNumber = rawPhoneNumber.substring(1);
+    }
+
+    if (!_isPhoneValid(rawPhoneNumber)) {
+      commonMethods.displaySnackBar(
+        'register.invalid_phone_warning'.tr(),
+        context,
+      );
+      return;
+    }
+
+    String fullNumber = '93$rawPhoneNumber';
+    String message = Uri.encodeComponent('register.whatsapp_default_message'.tr());
+    Uri whatsappUri = Uri.parse("https://wa.me/$fullNumber?text=$message");
+
+    try {
+      if (await canLaunchUrl(whatsappUri)) {
+        await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+      } else {
+        commonMethods.displaySnackBar('register.whatsapp_not_installed'.tr(), context);
+      }
+    } catch (e) {
+      debugPrint("WhatsApp launch error: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationProvider>(context);
-
-    bool isRtl = context.locale.languageCode == 'fa' || context.locale.languageCode == 'ps';
-
-    String currentLangName = 'فارسی';
-    if (context.locale.languageCode == 'ps') {
-      currentLangName = 'پښتو';
-    } else if (context.locale.languageCode == 'en') {
-      currentLangName = 'English';
-    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -179,144 +88,152 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🌐 هدر بالای صفحه (انتخاب زبان و نشان سفیر)
+                // هدر بالای صفحه
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // آیکون هویت برند
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: safirBrandColor.withOpacity(0.1),
+                        color: AppColors.primaryBrand.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.local_taxi_rounded,
-                        color: safirBrandColor,
+                        color: AppColors.primaryBrand,
                         size: 24,
-                      ),
-                    ),
-
-                    // دکمه انتخاب زبان
-                    InkWell(
-                      onTap: () => showLanguageBottomSheet(context),
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: surfaceBg,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.grey.shade300, width: 0.8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.language_rounded, size: 18, color: safirBrandColor),
-                            const SizedBox(width: 6),
-                            Text(
-                              currentLangName,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: safirBrandColor,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: safirBrandColor),
-                          ],
-                        ),
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 28),
                 
                 // عناوین خوش‌آمدگویی
                 Text(
-                  getTranslation(context, "register_title"),
-                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                  'register.title'.tr(),
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: Colors.black87,
+                    color: AppColors.textPrimary,
                     height: 1.2,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  getTranslation(context, "register_subtitle"),
-                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
-                  style: TextStyle(
+                  'register.subtitle'.tr(),
+                  style: const TextStyle(
                     fontSize: 13.5,
-                    color: Colors.grey.shade600,
+                    color: AppColors.textSecondary,
                     height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 32),
                 
-                // 📱 فیلد ورود شماره ساده (شروع با 07 و ۱۰ رقم)
-                TextFormField(
-                  controller: phoneController,
-                  maxLength: 10,
-                  textInputAction: TextInputAction.done,
-                  keyboardType: TextInputType.phone,
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
-                    color: Colors.black87,
-                  ),
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                  decoration: InputDecoration(
-                    counterText: '',
-                    hintText: '0781234567',
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade400,
-                      fontSize: 16,
-                      letterSpacing: 1.5,
-                      fontWeight: FontWeight.normal,
+                // 📱 کادر شماره موبایل قفل شده روی افغانستان (+93)
+                Row(
+                  children: [
+                    Container(
+                      height: 56,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade300, width: 1),
+                      ),
+                      child: const Row(
+                        children: [
+                          Text('🇦🇫', style: TextStyle(fontSize: 20)),
+                          SizedBox(width: 6),
+                          Text(
+                            '+93',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    filled: true,
-                    fillColor: surfaceBg,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextFormField(
+                        controller: phoneController,
+                        maxLength: 9,
+                        textInputAction: TextInputAction.done,
+                        keyboardType: TextInputType.phone,
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                          color: AppColors.textPrimary,
+                        ),
+                        onChanged: (value) => setState(() {}),
+                        decoration: InputDecoration(
+                          counterText: '',
+                          hintText: '781234567',
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade400,
+                            fontSize: 15,
+                            letterSpacing: 1.0,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.8),
+                          ),
+                          suffixIcon: _isPhoneValid(phoneController.text)
+                              ? const Icon(Icons.check_circle_rounded, color: Colors.green, size: 22)
+                              : null,
+                        ),
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: safirBrandColor, width: 1.8),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.phone_android_rounded,
-                      color: Colors.grey.shade500,
-                      size: 22,
-                    ),
-                    suffixIcon: _isPhoneValid(phoneController.text)
-                        ? Icon(
-                            Icons.check_circle_rounded,
-                            color: successColor,
-                            size: 22,
-                          )
-                        : null,
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 
-                // دکمه اصلی دریافت کد تایید
+                // 🟢 دکمه واتساپ
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: sendPhoneNumber,
+                    onPressed: sendCodeViaWhatsApp,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: safirBrandColor,
-                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFFA6E300),
+                      foregroundColor: Colors.black,
                       elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      'register.receive_whatsapp'.tr(),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // 📱 دکمه ارسال پیامک فایربیس
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: OutlinedButton(
+                    onPressed: authProvider.isLoading ? null : sendPhoneNumberViaFirebase,
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.grey[100],
+                      side: BorderSide(color: Colors.grey.shade300, width: 1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -325,32 +242,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ? const SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.white,
-                            ),
+                            child: CircularProgressIndicator(color: AppColors.primaryBrand, strokeWidth: 2.5),
                           )
                         : Text(
-                            getTranslation(context, "get_otp_btn"),
+                            'register.send_sms_instead'.tr(),
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                   ),
                 ),
                 const SizedBox(height: 28),
                 
-                // جداکننده مدرن
                 Row(
                   children: [
                     Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14.0),
                       child: Text(
-                        getTranslation(context, "or_continue_with"),
-                        style: TextStyle(color: Colors.grey.shade500, fontSize: 12.5, fontWeight: FontWeight.w500),
+                        'register.or_continue_with'.tr(),
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5, fontWeight: FontWeight.w500),
                       ),
                     ),
                     Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
@@ -358,120 +271,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 
-                // دکمه ورود با گوگل
+                // ورود با گوگل
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: OutlinedButton(
-                    onPressed: authProvider.isLoading
-                        ? null
-                        : () async {
-                            if (!authProvider.isLoading) {
-                              await authProvider.signInWithGoogle(
-                                context,
-                                () async {
-                                  bool userExits = await authProvider.checkUserExistById();
-                                  bool userExistInDatabse = await authProvider
-                                      .checkUserExistByEmail(authProvider
-                                          .firebaseAuth.currentUser!.email!
-                                          .toString());
-                                  if (userExits) {
-                                    if (userExistInDatabse) {
-                                      bool isBlocked = await authProvider.checkIfUserIsBlocked();
-                                      if (isBlocked) {
-                                        if (!mounted) return;
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => const BlockedScreen()),
-                                        );
-                                      } else {
-                                        await authProvider.getUserDataFromFirebaseDatabase();
-                                        navigate(isSingedIn: true);
-                                      }
-                                    }
-                                  } else {
-                                    navigate(isSingedIn: false);
-                                  }
-                                },
-                              );
-                            }
-                          },
+                    onPressed: authProvider.isLoading ? null : () => signInWithGoogleProcess(authProvider),
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: surfaceBg,
+                      backgroundColor: Colors.grey[100],
                       side: BorderSide(color: Colors.grey.shade300, width: 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
-                    child: authProvider.isGoogleSigInLoading
-                        ? SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(color: safirBrandColor, strokeWidth: 2),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.network(
-                                'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
-                                height: 20,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.g_mobiledata_rounded, color: Colors.redAccent, size: 28),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                getTranslation(context, "google_sign_in_btn"),
-                                style: const TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                
-                // دکمه ورود با اپل
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: surfaceBg,
-                      side: BorderSide(color: Colors.grey.shade300, width: 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    label: Text(
-                      getTranslation(context, "apple_sign_in_btn"),
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    icon: const Icon(
-                      Icons.apple,
-                      color: Colors.black,
-                      size: 22,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                
-                // متن قوانین و حریم خصوصی
-                Center(
-                  child: Text(
-                    getTranslation(context, "terms_and_privacy_notice"),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 11.5,
-                      height: 1.5,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                          height: 20,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.g_mobiledata_rounded, color: Colors.redAccent, size: 28),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'register.google_sign_in'.tr(),
+                          style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -483,46 +308,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void sendPhoneNumber() {
+  void sendPhoneNumberViaFirebase() {
     final authRepo = Provider.of<AuthenticationProvider>(context, listen: false);
     String rawPhoneNumber = phoneController.text.trim();
+    if (rawPhoneNumber.startsWith('0')) rawPhoneNumber = rawPhoneNumber.substring(1);
 
-    // حذف صفر ابتدایی برای ساخت فرمت بین‌المللی
-    if (rawPhoneNumber.startsWith('0')) {
-      rawPhoneNumber = rawPhoneNumber.substring(1);
-    }
-
-    // بررسی صحت شماره ۹ رقمی بعد از حذف صفر (مثلاً 781234567)
-    if (rawPhoneNumber.isEmpty ||
-        rawPhoneNumber.length != 9 ||
-        !RegExp(r'^[7][0-9]{8}$').hasMatch(rawPhoneNumber)) {
-      commonMethods.displaySnackBar(
-        getTranslation(context, "invalid_phone_warning"),
-        context,
-      );
+    if (!_isPhoneValid(rawPhoneNumber)) {
+      commonMethods.displaySnackBar('register.invalid_phone_warning'.tr(), context);
       return;
     }
 
-    // تبدیل اتوماتیک به +93 در پشت صحنه برای فایربیس
     String fullPhoneNumber = '+93$rawPhoneNumber';
+    authRepo.signInWithPhone(context: context, phoneNumber: fullPhoneNumber);
+  }
 
-    authRepo.signInWithPhone(
-      context: context,
-      phoneNumber: fullPhoneNumber,
+    Future<void> signInWithGoogleProcess(AuthenticationProvider authProvider) async {
+    await authProvider.signInWithGoogle(
+      context,
+      () async {
+        bool userExits = await authProvider.checkUserExistById();
+        bool userExistInDatabse = await authProvider.checkUserExistByEmail(
+            authProvider.firebaseAuth.currentUser!.email!.toString());
+        if (userExits && userExistInDatabse) {
+          bool isBlocked = await authProvider.checkIfUserIsBlocked();
+          if (isBlocked) {
+            if (!mounted) return;
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BlockedScreen()));
+          } else {
+            await authProvider.getUserDataFromFirebaseDatabase();
+            navigate(isSingedIn: true);
+          }
+        } else {
+          navigate(isSingedIn: false);
+        }
+      },
     );
   }
 
   void navigate({required bool isSingedIn}) {
     if (isSingedIn) {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const SafirHomeScreen()),
-          (route) => false);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const SafirHomeScreen()), (route) => false);
     } else {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const UserInformationScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const UserInformationScreen()));
     }
   }
 }
