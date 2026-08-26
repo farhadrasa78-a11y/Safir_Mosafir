@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // جهت بازخورد لمسی (Haptic)
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:safir_passengers/appInfo/app_info.dart';
@@ -20,20 +20,21 @@ class SearchDestinationPlace extends StatefulWidget {
 class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
   List<PredictedPlaces> placesPredictedList = [];
   bool isLoading = false;
-  Timer? _searchDebounce; // ⚡ تایمر کنترلی برای جلوگیری از درخواست‌های پیاپی
+  Timer? _searchDebounce;
+  http.Client? _activeClient; // ⚡ کلینت برای لغو درخواست‌های قبلی
 
   TextEditingController pickupTextEditingController = TextEditingController();
   TextEditingController destinationTextEditingController = TextEditingController();
 
   @override
   void dispose() {
-    _searchDebounce?.cancel(); // آزادسازی حافظه تایمر
+    _searchDebounce?.cancel();
+    _activeClient?.close(); // بسته شدن درخواست‌های باز هنگام خروج
     pickupTextEditingController.dispose();
     destinationTextEditingController.dispose();
     super.dispose();
   }
 
-  // 🔍 متد بهینه‌شده جستجوی آدرس با کنترل Debounce (کاهش بار اینترنت و سرور)
   void _onSearchTextChanged(String inputText) {
     if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
 
@@ -47,15 +48,18 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
       return;
     }
 
-    // ⏱️ صبر ۵۰۰ میلی‌ثانیه‌ای پس از آخرین کلید تایپ‌شده توسط کاربر
-    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () {
       findPlaceAutoCompleteSearch(inputText);
     });
   }
 
-  // 📡 متد واقعی دریافت پیشنهادها از Nominatim
+  // 📡 متد بهینه‌شده جستجو با محدودسازی جغرافیایی شهر کاربر
   void findPlaceAutoCompleteSearch(String inputText) async {
     if (!mounted) return;
+
+    // لغو درخواست قبلی در صورت تایپ سریع کاربر
+    _activeClient?.close();
+    _activeClient = http.Client();
 
     setState(() {
       isLoading = true;
@@ -68,20 +72,28 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
 
       final encodedQuery = Uri.encodeComponent(inputText.trim());
 
-      // 📍 اولویت‌دهی جغرافیایی بر اساس موقعیت فعلی مسافر
-      String locationBias = "";
+      String boundingBoxParams = "";
       if (userLat != null && userLng != null) {
-        locationBias = "&lat=$userLat&lon=$userLng";
+        // ایجاد محدوده جغرافیایی (شعاع حدوداً ۳۰ کیلومتری حول موقعیت کاربر)
+        double delta = 0.3; // مقدار تقریبی مختصات شهری
+        double left = userLng - delta;
+        double bottom = userLat - delta;
+        double right = userLng + delta;
+        double top = userLat + delta;
+
+        // viewbox=left,top,right,bottom & bounded=1 باعث می‌شود نتایج فقط از همین محدوده برگردند
+        boundingBoxParams = "&viewbox=$left,$top,$right,$bottom&bounded=1&lat=$userLat&lon=$userLng";
       }
 
+      // افزودن countrycodes=af جهت اطمینان از جستجو در محدوده کشور
       final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/search?format=json&q=$encodedQuery$locationBias&addressdetails=1&limit=10&accept-language=fa,ps,en',
+        'https://nominatim.openstreetmap.org/search?format=json&q=$encodedQuery$boundingBoxParams&countrycodes=af&addressdetails=1&limit=15&accept-language=fa,ps,en',
       );
 
-      final response = await http.get(
+      final response = await _activeClient!.get(
         url,
         headers: {'User-Agent': 'safir_passengers_app'},
-      ).timeout(const Duration(seconds: 8)); // اضافه شدن Timeout جهت جلوگیری از معطلی
+      ).timeout(const Duration(seconds: 6));
 
       if (response.statusCode == 200 && mounted) {
         final List<dynamic> responseData = json.decode(response.body);
@@ -103,7 +115,6 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
     }
   }
 
-  // 🎯 انتخاب مکان و ثبت در Provider
   void _onPlaceSelected(PredictedPlaces place) {
     HapticFeedback.lightImpact();
 
@@ -115,11 +126,9 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
         longitudePosition: place.lng,
       );
 
-      // ذخیره مقصد در AppInfo Provider
       Provider.of<AppInfo>(context, listen: false)
           .updateDropOffLocation(selectedDestination);
 
-      // بازگشت به نقشه
       Navigator.pop(context, "placeSelected");
     }
   }
@@ -159,13 +168,12 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
       ),
       body: Column(
         children: [
-          // کارت ورودی‌های مبدأ و مقصد
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // 🔵 ۱. ورودی مبدأ
+                // مبدأ
                 Row(
                   children: [
                     Expanded(
@@ -189,7 +197,6 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // آیکون دایره آبی مبدأ
                     Container(
                       width: 16,
                       height: 16,
@@ -213,7 +220,7 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
 
                 const SizedBox(height: 10),
 
-                // 🟩 ۲. ورودی مقصد
+                // مقصد
                 Row(
                   children: [
                     Expanded(
@@ -225,7 +232,7 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
                         child: TextField(
                           controller: destinationTextEditingController,
                           autofocus: true,
-                          onChanged: _onSearchTextChanged, // 👈 متد بهینه‌شده با Debounce
+                          onChanged: _onSearchTextChanged,
                           style: const TextStyle(fontSize: 14),
                           decoration: InputDecoration(
                             hintText: getTranslation(context, "where_to_destination_hint"),
@@ -239,7 +246,6 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // آیکون مربع سبز مقصد
                     Container(
                       width: 16,
                       height: 16,
@@ -272,7 +278,7 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
 
           const SizedBox(height: 10),
 
-          // نمایش نتایج
+          // لیست نتایج
           (placesPredictedList.isNotEmpty)
               ? Expanded(
                   child: ListView.separated(
