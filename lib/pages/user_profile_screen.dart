@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
@@ -26,6 +29,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String _userName = '';
   String _userPhone = '';
   String _userRating = '4.5';
+  String _photoUrl = '';
 
   @override
   void initState() {
@@ -38,6 +42,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (currentUser != null) {
       _userName = currentUser.displayName ?? '';
       _userPhone = currentUser.phoneNumber ?? '';
+      _photoUrl = currentUser.photoURL ?? '';
 
       try {
         DatabaseEvent event = await _userRef
@@ -60,6 +65,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 '';
             _userRating = userData["rating"]?.toString() ?? '4.5';
             _useWheelchair = userData["useWheelchair"] ?? false;
+            _photoUrl = userData["photoUrl"] ?? currentUser.photoURL ?? '';
           });
         }
       } catch (e) {
@@ -89,12 +95,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("sign_out".tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text("sign_out_confirm_msg".tr()),
+        title: Text("sign_out".tr().isEmpty ? "خروج از حساب" : "sign_out".tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Text("sign_out_confirm_msg".tr().isEmpty ? "آیا مایل به خروج از حساب کاربری هستید؟" : "sign_out_confirm_msg".tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text("cancel".tr(), style: TextStyle(color: Colors.grey.shade600)),
+            child: Text("cancel".tr().isEmpty ? "انصراف" : "cancel".tr(), style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -102,7 +108,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: Text("exit".tr(), style: const TextStyle(color: Colors.white)),
+            child: Text("exit".tr().isEmpty ? "خروج" : "exit".tr(), style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -122,12 +128,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("switch_account_title".tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text("switch_account_confirm_msg".tr()),
+        title: Text("switch_account_title".tr().isEmpty ? "تغییر حساب کاربری" : "switch_account_title".tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Text("switch_account_confirm_msg".tr().isEmpty ? "برای ورود با حساب دیگر باید از حساب فعلی خارج شوید. ادامه می‌دهید؟" : "switch_account_confirm_msg".tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text("cancel".tr(), style: TextStyle(color: Colors.grey.shade600)),
+            child: Text("cancel".tr().isEmpty ? "انصراف" : "cancel".tr(), style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -135,7 +141,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: Text("confirm".tr(), style: const TextStyle(color: Colors.white)),
+            child: Text("confirm".tr().isEmpty ? "تایید" : "confirm".tr(), style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -157,7 +163,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          "user_account_title".tr(),
+          "user_account_title".tr().isEmpty ? "حساب کاربری" : "user_account_title".tr(),
           style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
@@ -178,7 +184,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         CircleAvatar(
                           radius: 45,
                           backgroundColor: Colors.grey[200],
-                          child: Icon(Icons.person, size: 50, color: Colors.grey[400]),
+                          backgroundImage: _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
+                          child: _photoUrl.isEmpty ? Icon(Icons.person, size: 50, color: Colors.grey[400]) : null,
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -200,7 +207,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "user_info_section_title".tr(),
+                        "user_info_section_title".tr().isEmpty ? "اطلاعات کاربری" : "user_info_section_title".tr(),
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                       TextButton(
@@ -210,7 +217,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           _loadProfileData();
                         },
                         child: Text(
-                          "edit_button_label".tr(),
+                          "edit_button_label".tr().isEmpty ? "ویرایش" : "edit_button_label".tr(),
                           style: const TextStyle(color: AppColors.originBlue, fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -228,7 +235,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          _userName.isEmpty ? "default_user_name".tr() : _userName, 
+                          _userName.isEmpty ? ("default_user_name".tr().isEmpty ? "کاربر سفیر" : "default_user_name".tr()) : _userName, 
                           style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.bold),
                         ),
                         Text(
@@ -242,7 +249,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
-                      "badges_section_title".tr(),
+                      "badges_section_title".tr().isEmpty ? "نشان‌های افتخار" : "badges_section_title".tr(),
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                     ),
                   ),
@@ -251,7 +258,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     children: [
                       Expanded(
                         child: Container(
-                          height: 150,
+                          height: 120,
                           margin: const EdgeInsetsDirectional.only(end: 6),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
@@ -263,13 +270,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.stars, size: 50, color: Colors.amber),
-                              const SizedBox(height: 12),
+                              const Icon(Icons.stars, size: 40, color: Colors.amber),
+                              const SizedBox(height: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                                 child: Text(
-                                  "badge_polite_label".tr(),
+                                  "badge_polite_label".tr().isEmpty ? "مسافر باخلاق" : "badge_polite_label".tr(),
                                   style: const TextStyle(color: Color(0xFF15A968), fontWeight: FontWeight.bold, fontSize: 11),
                                 ),
                               ),
@@ -279,7 +286,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ),
                       Expanded(
                         child: Container(
-                          height: 150,
+                          height: 120,
                           margin: const EdgeInsetsDirectional.only(start: 6),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
@@ -291,13 +298,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.access_time_filled, size: 50, color: Colors.amber),
-                              const SizedBox(height: 12),
+                              const Icon(Icons.access_time_filled, size: 40, color: Colors.amber),
+                              const SizedBox(height: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                                 child: Text(
-                                  "badge_punctual_label".tr(),
+                                  "badge_punctual_label".tr().isEmpty ? "وقت‌شناس" : "badge_punctual_label".tr(),
                                   style: const TextStyle(color: Color(0xFF7B1FA2), fontWeight: FontWeight.bold, fontSize: 11),
                                 ),
                               ),
@@ -311,7 +318,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
-                      "accessibility_section_title".tr(),
+                      "accessibility_section_title".tr().isEmpty ? "دسترس‌پذیری" : "accessibility_section_title".tr(),
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                     ),
                   ),
@@ -319,7 +326,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
-                      "accessibility_subtitle".tr(),
+                      "accessibility_subtitle".tr().isEmpty ? "تنظیمات ویژه افراد دارای معلولیت" : "accessibility_subtitle".tr(),
                       style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                     ),
                   ),
@@ -335,7 +342,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "wheelchair_option_label".tr(),
+                          "wheelchair_option_label".tr().isEmpty ? "نیاز به صندلی چرخ‌دار" : "wheelchair_option_label".tr(),
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                         ),
                         Switch(
@@ -358,7 +365,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ListTile(
                           leading: const Icon(Icons.switch_account_outlined, color: AppColors.primaryBrand),
                           title: Text(
-                            "switch_account_title".tr(),
+                            "switch_account_title".tr().isEmpty ? "تغییر حساب کاربری" : "switch_account_title".tr(),
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
@@ -368,7 +375,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ListTile(
                           leading: const Icon(Icons.logout, color: Colors.redAccent),
                           title: Text(
-                            "exit".tr(),
+                            "exit".tr().isEmpty ? "خروج از حساب" : "exit".tr(),
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
@@ -386,7 +393,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 // -------------------------------------------------------------
-// ۲. صفحه ویرایش مشخصات (اصلاح‌شده و بدون مشکل ذخیره‌سازی)
+// ۲. صفحه ویرایش مشخصات و آپلود عکس
 // -------------------------------------------------------------
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -417,6 +424,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isPremium = false;
   bool _isChanged = false;
 
+  File? _imageFile;
+  String _photoUrl = "";
+
   @override
   void initState() {
     super.initState();
@@ -430,7 +440,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _checkChanges() {
-    // همه ورودی‌ها برای مقایسه منطقی استانداردسازی و یکسان می‌شوند
     String currentName = _nameController.text.trim();
     String currentPhone = toEnglishDigits(_phoneController.text.trim());
     String currentEmail = _emailController.text.trim();
@@ -445,12 +454,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         (currentEmail != _initialEmail) ||
         (currentAddress != _initialAddress) ||
         (currentDob != cleanInitialDob) ||
-        (_isPremium != _initialPremium);
+        (_isPremium != _initialPremium) ||
+        (_imageFile != null);
 
     if (hasChanged != _isChanged) {
       setState(() {
         _isChanged = hasChanged;
       });
+    }
+  }
+
+  Future<void> _pickProfileImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+      _checkChanges();
     }
   }
 
@@ -460,6 +482,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _initialPhone = currentUser.phoneNumber ?? "";
       _initialEmail = currentUser.email ?? "";
       _initialName = currentUser.displayName ?? "";
+      _photoUrl = currentUser.photoURL ?? "";
 
       try {
         DatabaseEvent event = await _userRef
@@ -477,6 +500,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _initialAddress = userData["address"] ?? "";
             _initialDob = userData["dob"] ?? "";
             _initialPremium = userData["isPremium"] ?? false;
+            _photoUrl = userData["photoUrl"] ?? currentUser.photoURL ?? "";
 
             _nameController.text = _initialName;
             _phoneController.text = formatNumberByLocale(context, _initialPhone);
@@ -500,7 +524,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (mounted) {
       setState(() {
         _isLoading = false;
-        _isChanged = false; // هنگام بارگذاری اولیه دکمه خاموش است
+        _isChanged = false;
       });
     }
   }
@@ -514,28 +538,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     String cleanedPhone = toEnglishDigits(_phoneController.text.trim());
     String cleanedDob = toEnglishDigits(_dobController.text.trim());
-
-    Map<String, dynamic> updateData = {
-      "name": _nameController.text.trim(),
-      "phone": cleanedPhone,
-      "email": _emailController.text.trim(),
-      "address": _addressController.text.trim(),
-      "dob": cleanedDob,
-      "isPremium": _isPremium,
-    };
+    String uploadedPhotoUrl = _photoUrl;
 
     try {
+      // ۱. آپلود تصویر در صورت تغییر
+      if (_imageFile != null) {
+        Reference storageRef = FirebaseStorage.instance
+            .ref()
+            .child("user_profiles")
+            .child("${currentUser.uid}.jpg");
+
+        UploadTask uploadTask = storageRef.putFile(_imageFile!);
+        TaskSnapshot snapshot = await uploadTask;
+        uploadedPhotoUrl = await snapshot.ref.getDownloadURL();
+      }
+
+      Map<String, dynamic> updateData = {
+        "name": _nameController.text.trim(),
+        "phone": cleanedPhone,
+        "email": _emailController.text.trim(),
+        "address": _addressController.text.trim(),
+        "dob": cleanedDob,
+        "isPremium": _isPremium,
+        "photoUrl": uploadedPhotoUrl,
+      };
+
+      // ۲. آپدیت دیتابیس Realtime
       await _userRef.child("users").child(currentUser.uid).update(updateData);
       
-      // آپدیت نام کاربری در سیستم احراز هویت فایربیس
+      // ۳. آپدیت نام و تصویر در FirebaseAuth
       if (_nameController.text.trim().isNotEmpty) {
         await currentUser.updateDisplayName(_nameController.text.trim());
+      }
+      if (uploadedPhotoUrl.isNotEmpty) {
+        await currentUser.updatePhotoURL(uploadedPhotoUrl);
       }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("profile_update_success".tr()),
+            content: Text("profile_update_success".tr().isEmpty ? "اطلاعات با موفقیت به‌روزرسانی شد" : "profile_update_success".tr()),
             backgroundColor: AppColors.primaryBrand,
           ),
         );
@@ -545,7 +587,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("${"profile_update_error".tr()}: $e"),
+            content: Text("${"profile_update_error".tr().isEmpty ? "خطا در بروزرسانی" : "profile_update_error".tr()}: $e"),
             backgroundColor: Colors.red,
           ),
         );
@@ -580,7 +622,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'change_phone_title'.tr(),
+                    'change_phone_title'.tr().isEmpty ? 'تغییر شماره تماس' : 'change_phone_title'.tr(),
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                   ),
                   IconButton(
@@ -591,16 +633,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                'change_phone_subtitle'.tr(),
+                'change_phone_subtitle'.tr().isEmpty ? 'شماره جدید خود را جهت ارسال کد تایید وارد کنید' : 'change_phone_subtitle'.tr(),
                 style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: newPhoneController,
                 keyboardType: TextInputType.phone,
+                textDirection: ui.TextDirection.ltr,
                 textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
-                  labelText: "phone_number_label".tr(),
+                  labelText: "phone_number_label".tr().isEmpty ? "شماره تلفن" : "phone_number_label".tr(),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
@@ -619,10 +662,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       HapticFeedback.mediumImpact();
                       String newPhone = newPhoneController.text.trim();
                       _phoneController.text = formatNumberByLocale(context, newPhone);
-                      
-                      // 🟢 فراخوانی مستقیم بررسی تغییرات پس از ویرایش شماره
                       _checkChanges();
-
                       Navigator.pop(context);
 
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -630,7 +670,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       );
                     }
                   },
-                  child: Text('continue_btn'.tr(), style: const TextStyle(color: AppColors.buttonText, fontSize: 16)),
+                  child: Text('continue_btn'.tr().isEmpty ? 'ادامه' : 'continue_btn'.tr(), style: const TextStyle(color: AppColors.buttonText, fontSize: 16)),
                 ),
               ),
             ],
@@ -648,7 +688,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0.5,
         title: Text(
-          "user_info_section_title".tr(),
+          "user_info_section_title".tr().isEmpty ? "ویرایش مشخصات" : "user_info_section_title".tr(),
           style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
@@ -664,41 +704,81 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Center(
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.grey[200],
+                          backgroundImage: _imageFile != null
+                              ? FileImage(_imageFile!)
+                              : (_photoUrl.isNotEmpty ? NetworkImage(_photoUrl) as ImageProvider : null),
+                          child: (_imageFile == null && _photoUrl.isEmpty)
+                              ? Icon(Icons.person, size: 55, color: Colors.grey[400])
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: InkWell(
+                            onTap: _pickProfileImage,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: AppColors.primaryBrand,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+
                   Text(
-                    "main_account_info_title".tr(),
+                    "main_account_info_title".tr().isEmpty ? "اطلاعات حساب اصلی" : "main_account_info_title".tr(),
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryBrand),
                   ),
                   const SizedBox(height: 15),
 
                   _buildInputField(
                     _nameController, 
-                    "full_name_label".tr(), 
+                    "full_name_label".tr().isEmpty ? "نام و نام خانوادگی" : "full_name_label".tr(), 
                     textInputAction: TextInputAction.next
                   ),
                   
                   GestureDetector(
                     onTap: _showChangePhoneBottomSheet,
                     child: AbsorbPointer(
-                      child: _buildInputField(_phoneController, "phone_number_label".tr(), readOnly: true),
+                      child: _buildInputField(
+                        _phoneController, 
+                        "phone_number_label".tr().isEmpty ? "شماره تلفن" : "phone_number_label".tr(), 
+                        readOnly: true,
+                        isLtr: true
+                      ),
                     ),
                   ),
 
                   _buildInputField(
                     _emailController, 
-                    "email_label".tr(), 
+                    "email_label".tr().isEmpty ? "ایمیل" : "email_label".tr(), 
                     keyboardType: TextInputType.emailAddress, 
-                    textInputAction: TextInputAction.next
+                    textInputAction: TextInputAction.next,
+                    isLtr: true
                   ),
                   _buildInputField(
                     _addressController, 
-                    "address_label".tr(), 
+                    "address_label".tr().isEmpty ? "آدرس" : "address_label".tr(), 
                     textInputAction: TextInputAction.next
                   ),
                   _buildInputField(
                     _dobController, 
-                    "dob_label".tr(), 
+                    "dob_label".tr().isEmpty ? "تاریخ تولد" : "dob_label".tr(), 
                     keyboardType: TextInputType.datetime, 
-                    textInputAction: TextInputAction.done
+                    textInputAction: TextInputAction.done,
+                    isLtr: true
                   ),
                   
                   const SizedBox(height: 20),
@@ -711,11 +791,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: SwitchListTile(
                       activeColor: AppColors.primaryBrand,
                       title: Text(
-                        "premium_account_title".tr(),
+                        "premium_account_title".tr().isEmpty ? "حساب ویژه (پریمیوم)" : "premium_account_title".tr(),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
                       ),
                       subtitle: Text(
-                        "premium_account_subtitle".tr(),
+                        "premium_account_subtitle".tr().isEmpty ? "دریافت قابلیت‌ها و تخفیف‌های ویژه سفیر" : "premium_account_subtitle".tr(),
                         style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                       ),
                       value: _isPremium,
@@ -738,12 +818,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         elevation: _isChanged ? 2 : 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      // دکمه همیشه متصل به تابع است و بررسی فعال بودن درون متد انجام می‌شود
                       onPressed: (_isChanged && !_isSaving) ? _updateUserData : null,
                       child: _isSaving
                           ? const CircularProgressIndicator(color: AppColors.buttonText)
                           : Text(
-                              "save_changes_btn".tr(),
+                              "save_changes_btn".tr().isEmpty ? "ذخیره تغییرات" : "save_changes_btn".tr(),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -762,6 +841,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     TextEditingController controller, 
     String label, {
     bool readOnly = false, 
+    bool isLtr = false,
     TextInputType keyboardType = TextInputType.text,
     TextInputAction textInputAction = TextInputAction.next,
   }) {
@@ -772,7 +852,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         readOnly: readOnly,
         keyboardType: keyboardType,
         textInputAction: textInputAction,
-        textDirection: ui.TextDirection.rtl,
+        textDirection: isLtr ? ui.TextDirection.ltr : ui.TextDirection.rtl,
         style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
         decoration: InputDecoration(
           labelText: label,
