@@ -813,7 +813,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         children: [
           // ۱. نقشه موتور MapLibre GL
           MapLibreMap(
-            styleString: "https://demotiles.maplibre.org/style.json",
+            styleString: 'assets/map/style.json',
             initialCameraPosition: CameraPosition(
               target: _currentUserLatLng,
               zoom: 17.8,
