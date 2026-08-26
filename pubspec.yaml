@@ -63,7 +63,7 @@ flutter:
   assets:
     - assets/images/
     - assets/vehicles/
-    - assets/translations/
+    - assets/lang/
     - assets/map/style.json
     - assets/fonts/
 
