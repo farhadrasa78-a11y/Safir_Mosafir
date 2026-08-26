@@ -12,7 +12,7 @@ import 'package:safir_passengers/global/global_var.dart';
 
 const Color safirBrandColor = Color(0xFF145A41);
 
-// ۱. کارکرد عملی: تماس با پشتیبانی
+// ۱. تماس با پشتیبانی
 Future<void> _makeSupportCall(BuildContext context) async {
   String phone = "+93700000000"; 
 
@@ -38,7 +38,7 @@ Future<void> _makeSupportCall(BuildContext context) async {
   }
 }
 
-// ۲. کارکرد عملی: دعوت دوستان (اشتراک‌گذاری کد معرفی)
+// ۲. دعوت دوستان (اشتراک‌گذاری کد معرفی)
 void _shareInviteCode(BuildContext context) {
   final user = FirebaseAuth.instance.currentUser;
   final String referralCode = user != null ? user.uid.substring(0, 6).toUpperCase() : "SAFIR2026";
@@ -50,7 +50,7 @@ void _shareInviteCode(BuildContext context) {
   Share.share(shareMessage);
 }
 
-// ۳. کارکرد عملی: ورود و بررسی کد تخفیف
+// ۳. ورود و بررسی کد تخفیف
 void _showDiscountModal(BuildContext context) {
   final TextEditingController discountController = TextEditingController();
   bool isLoading = false;
@@ -146,7 +146,7 @@ void _showDiscountModal(BuildContext context) {
   );
 }
 
-// ۴. کارکرد عملی: نمایش دیالوگ درباره برنامه
+// ۴. نمایش دیالوگ درباره برنامه
 void _showAboutAppDialog(BuildContext context) {
   showDialog(
     context: context,
@@ -183,13 +183,13 @@ void _showAboutAppDialog(BuildContext context) {
 
 // منوی کشویی Drawer اصلی
 class ExactAnimatedMenu extends StatefulWidget {
-  final String currentLanguage;
-  final ValueChanged<String> onLanguageChanged;
+  final String? currentLanguage;
+  final ValueChanged<String>? onLanguageChanged;
 
   const ExactAnimatedMenu({
     super.key,
-    required this.currentLanguage,
-    required this.onLanguageChanged,
+    this.currentLanguage,
+    this.onLanguageChanged,
   });
 
   @override
@@ -217,8 +217,8 @@ class _ExactAnimatedMenuState extends State<ExactAnimatedMenu> {
           context,
           MaterialPageRoute(
             builder: (context) => SettingsScreen(
-              currentLanguage: widget.currentLanguage,
-              onLanguageChanged: widget.onLanguageChanged,
+              currentLanguage: widget.currentLanguage ?? 'fa',
+              onLanguageChanged: widget.onLanguageChanged ?? (_) {},
             ),
           ),
         );
