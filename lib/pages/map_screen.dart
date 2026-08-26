@@ -819,7 +819,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               zoom: 17.8,
             ),
             onMapCreated: _onMapCreated,
-            onCameraMove: () {
+            onCameraMove: (position) {
               if (!_isMapMoving) {
                 setState(() {
                   _isMapMoving = true;
