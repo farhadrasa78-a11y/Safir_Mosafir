@@ -440,7 +440,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
           borderRadius: BorderRadius.circular(28), 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
+              color: Colors.black.withOpacity(0.18),
               blurRadius: 25,
               offset: const Offset(0, 10),
             ),
@@ -519,7 +519,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: isHovered ? Colors.black.withValues(alpha: 0.12) : Colors.transparent,
+                          color: isHovered ? Colors.black.withOpacity(0.12) : Colors.transparent,
                           blurRadius: 14,
                           spreadRadius: 1,
                           offset: const Offset(0, 8),
@@ -562,7 +562,8 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                       ),
                     ),
                   ),
-                );
+                ),
+              );
             }),
           ],
         ),
