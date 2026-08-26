@@ -1,0 +1,237 @@
+import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:safir_passengers/widgets/afghanistan_license_plate.dart';
+
+class DriverInfoCard extends StatelessWidget {
+  final Map<String, dynamic> driverData;
+  final VoidCallback? onCallPressed;
+  final VoidCallback? onMessagePressed;
+  final VoidCallback? onPaymentPressed;
+
+  const DriverInfoCard({
+    super.key,
+    required this.driverData,
+    this.onCallPressed,
+    this.onMessagePressed,
+    this.onPaymentPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // استخراج اطلاعات راننده از Firestore/TripVar
+    String driverName = driverData['full_name'] ?? 'نام راننده';
+    String carModel = driverData['car_model'] ?? 'تویوتا کرولا';
+    String carColor = driverData['car_color'] ?? 'سفید';
+    String? photoUrl = driverData['photo'];
+    
+    // اطلاعات هزینه سفر
+    double fareAmount = (driverData['fare_amount'] ?? 0.0).toDouble();
+    String currency = 'currency_afg'.tr();
+
+    // اطلاعات پلاک افغانستان
+    String province = driverData['plate_province'] ?? 'کابل';
+    String category = driverData['plate_category'] ?? 'ش';
+    String farsiNum = driverData['plate_farsi_num'] ?? '٤٤٨٩٢';
+    String englishNum = driverData['plate_num'] ?? '44892';
+    bool isTemp = driverData['is_temp_plate'] ?? false;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 15,
+            spreadRadius: 2,
+            offset: Offset(0, -3),
+          )
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 🔹 ۱. خط کشویی بالای کارت
+          Container(
+            width: 38,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+
+          // 🔹 ۲. مدل و رنگ خودرو (در مرکز)
+          Text(
+            "$carModel $carColor",
+            style: const TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+
+          // 🔹 ۳. ردیف راننده و پلاک (عکس و نام راست، پلاک چپ)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // سمت راست: عکس و نام راننده
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFF145A41), width: 1.5),
+                      ),
+                      child: CircleAvatar(
+                        radius: 26,
+                        backgroundColor: Colors.grey.shade200,
+                        backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
+                            ? NetworkImage(photoUrl)
+                            : null,
+                        child: (photoUrl == null || photoUrl.isEmpty)
+                            ? const Icon(Icons.person, size: 30, color: Colors.grey)
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        driverName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              // سمت چپ: پلاک افغانستان
+              AfghanistanLicensePlate(
+                province: province,
+                categoryLetter: category,
+                farsiNumber: farsiNum,
+                englishNumber: englishNum,
+                isTemporary: isTemp,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
+          // 🔹 ۴. دکمه‌های ارتباطی (ارسال پیامک و تماس)
+          Row(
+            children: [
+              // دکمه ارسال پیام به راننده
+              Expanded(
+                child: InkWell(
+                  onTap: onMessagePressed,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF2F4F7),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.chat_bubble_rounded,
+                            color: Color(0xFF2C6B56), size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          "ارسال پیام به راننده...",
+                          style: TextStyle(
+                            color: Color(0xFF2C6B56),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+
+              // دکمه دایره‌ای تماس تلفنی
+              InkWell(
+                onTap: onCallPressed,
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF2F4F7),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.phone, color: Color(0xFF2C6B56), size: 20),
+                ),
+              ),
+            ],
+          ),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 14),
+            child: Divider(height: 1, thickness: 0.8),
+          ),
+
+          // 🔹 ۵. بخش هزینه سفر و پرداخت
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: onPaymentPressed ?? () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF145A41),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  "پرداخت",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+
+              Row(
+                children: [
+                  Text(
+                    "هزینهٔ سفر: ${fareAmount.toStringAsFixed(0)} $currency",
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.account_balance_wallet_outlined, color: Colors.black54, size: 22),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

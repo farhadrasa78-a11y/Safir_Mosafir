@@ -1,0 +1,32 @@
+# فایل‌های بیلد و موقت فلاتر
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# تنظیمات اندروید و فایل‌های خودکار
+Gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+
+# فایل‌های محرمانه و کلیدهای امنیتی امضای اپلیکیشن (سفیر)
+# هرگز این فایل‌ها را عمومی در گیت‌هاب منتشر نکن
+key.properties
+**/*.keystore
+**/*.jks
+**/*.p8
+**/*.p12
+**/*.key
+**/*.mobileprovision
+
+# تنظیمات محیط کدنویسی (Android Studio / VS Code)
+.idea/
+*.iml
+.vscode/

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- تم اعمال شده در زمان شروع برنامه برای سفیر (حالت روز) -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <!-- نمایش اسپلش اسکرین در شروع فرآیند برنامه -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+    
+    <!-- تم اصلی پس از لود شدن کامل فلاتر با حذف نوار ابزار اضافی -->
+    <style name="NormalTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>
