@@ -60,6 +60,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   LatLng? _destinationLatLng;
   Line? _currentPolyline;
 
+  // مارکرهای سفارشی وسایل نقلیه
+  Symbol? _driverVehicleSymbol;
+  List<Symbol> _nearbyVehicleSymbols = [];
+
   bool _isMapMoving = false;
   bool _isSheetExpanded = true; 
   Timer? _debounceTimer;
@@ -176,6 +180,88 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       _animatedMapMove(widget.targetLocation!, 17.8);
     } else {
       _animatedMapMove(_currentUserLatLng, 17.8);
+    }
+    _loadCustomVehicleIcons();
+  }
+
+  // 🚘 بارگذاری آیکون‌های موتر و موترسایکل در حافظه MapLibre
+  Future<void> _loadCustomVehicleIcons() async {
+    if (_mapController == null) return;
+    try {
+      final ByteData carData = await rootBundle.load('assets/images/safir_normal.png');
+      final Uint8List carBytes = carData.buffer.asUint8List();
+      await _mapController!.addImage('car_icon', carBytes);
+
+      final ByteData bikeData = await rootBundle.load('assets/images/safir_bike.png');
+      final Uint8List bikeBytes = bikeData.buffer.asUint8List();
+      await _mapController!.addImage('bike_icon', bikeBytes);
+
+      _updateNearbyVehiclesOnMap();
+    } catch (e) {
+      debugPrint("Error loading map vehicle icons: $e");
+    }
+  }
+
+  // 🚗 نمایش موترها یا موترسایکل‌های نزدیک کاربر روی نقشه
+  Future<void> _updateNearbyVehiclesOnMap() async {
+    if (_mapController == null) return;
+
+    for (var symbol in _nearbyVehicleSymbols) {
+      await _mapController!.removeSymbol(symbol);
+    }
+    _nearbyVehicleSymbols.clear();
+
+    String iconName = (_selectedCategory == 1 || selectedVehicle == "Bike") ? 'bike_icon' : 'car_icon';
+
+    List<LatLng> fakePositions = [
+      LatLng(_currentUserLatLng.latitude + 0.0015, _currentUserLatLng.longitude + 0.0012),
+      LatLng(_currentUserLatLng.latitude - 0.0012, _currentUserLatLng.longitude - 0.0018),
+      LatLng(_currentUserLatLng.latitude + 0.0020, _currentUserLatLng.longitude - 0.0010),
+    ];
+
+    for (var pos in fakePositions) {
+      Symbol symbol = await _mapController!.addSymbol(
+        SymbolOptions(
+          geometry: pos,
+          iconImage: iconName,
+          iconSize: 0.15,
+        ),
+      );
+      _nearbyVehicleSymbols.add(symbol);
+    }
+  }
+
+  // 📍 انیمیشن حرکت نرم خودروی پذیرفته‌شده روی نقشه
+  Future<void> _animateVehicleMovement(LatLng newLatLng, double rotation) async {
+    if (_mapController == null) return;
+
+    String iconName = selectedVehicle == "Bike" ? 'bike_icon' : 'car_icon';
+
+    if (_driverVehicleSymbol == null) {
+      _driverVehicleSymbol = await _mapController!.addSymbol(
+        SymbolOptions(
+          geometry: newLatLng,
+          iconImage: iconName,
+          iconSize: 0.2,
+          iconRotate: rotation,
+        ),
+      );
+    } else {
+      LatLng startLatLng = _driverVehicleSymbol!.options.geometry!;
+      int steps = 20;
+      for (int i = 0; i <= steps; i++) {
+        await Future.delayed(const Duration(milliseconds: 30));
+        double lat = startLatLng.latitude + (newLatLng.latitude - startLatLng.latitude) * (i / steps);
+        double lng = startLatLng.longitude + (newLatLng.longitude - startLatLng.longitude) * (i / steps);
+
+        await _mapController!.updateSymbol(
+          _driverVehicleSymbol!,
+          SymbolOptions(
+            geometry: LatLng(lat, lng),
+            iconRotate: rotation,
+          ),
+        );
+      }
     }
   }
 
@@ -568,6 +654,16 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 _currentStep = 4;
               }
             });
+
+            // 🚖 به‌روزرسانی موقعیت زنده راننده روی نقشه
+            if (data["driverLat"] != null && data["driverLng"] != null) {
+              LatLng driverLatLng = LatLng(
+                (data["driverLat"] as num).toDouble(),
+                (data["driverLng"] as num).toDouble(),
+              );
+              double heading = ((data["driverHeading"] ?? 0) as num).toDouble();
+              _animateVehicleMovement(driverLatLng, heading);
+            }
           }
 
           if (status == "ended" || status == "completed") {
@@ -1012,6 +1108,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     selectedVehicleType: _cargoSelectedVehicle,
                     onVehicleSelected: (vehicleId) {
                       setState(() => _cargoSelectedVehicle = vehicleId);
+                      _updateNearbyVehiclesOnMap();
                     },
                     paymentPayer: _cargoPaymentPayer,
                     onPayerChanged: (payer) {
@@ -1043,6 +1140,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                             _selectedVehicleType = 0;
                             selectedVehicle = cat == 0 ? "Car" : "Bike";
                           });
+                          _updateNearbyVehiclesOnMap();
                           _fetchRoute();
                         },
                         onVehicleSelected: (index, vType) {
@@ -1050,6 +1148,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                             _selectedVehicleType = index;
                             selectedVehicle = vType;
                           });
+                          _updateNearbyVehiclesOnMap();
                           _fetchRoute();
                         },
                         onRequestTrip: () => startTrip(),
