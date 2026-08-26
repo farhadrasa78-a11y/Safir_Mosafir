@@ -510,6 +510,10 @@
     "about_app": "About App",
     "cancel_request_title": "Cancel Request",
     "select_cancel_reason_title": "Please select the reason for cancellation",
-    "confirm_cancel_btn": "Confirm & Cancel Request"
+    "confirm_cancel_btn": "Confirm & Cancel Request",  "support_contact": "Support & Contact Us",
+  "about_app": "About App",
+  "clear_cache_title": "Clear Cache",
+  "clear_cache_desc": "Are you sure you want to clear the app cache and temporary files?"
+
   }
 }
