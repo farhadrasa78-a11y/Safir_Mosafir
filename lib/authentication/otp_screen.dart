@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 import 'package:safir_passengers/appInfo/auth_provider.dart';
 import 'package:safir_passengers/authentication/user_information_screen.dart';
 import 'package:safir_passengers/methods/common_methods.dart';
 import 'package:safir_passengers/pages/blocked_screen.dart';
 import 'package:safir_passengers/pages/safir_home_screen.dart';
-import 'package:safir_passengers/global/global_var.dart';
+import 'package:safir_passengers/theme/app_colors.dart';
 
 class OTPScreen extends StatefulWidget {
   final String verificationId;
@@ -16,27 +18,21 @@ class OTPScreen extends StatefulWidget {
   State<OTPScreen> createState() => _OTPScreenState();
 }
 
-CommonMethods commonMethods = CommonMethods();
-
 class _OTPScreenState extends State<OTPScreen> {
   String? smsCode;
-  
-  // پالت رنگی مرجع پروژه
-  final Color safirBrandColor = const Color(0xFF145A41);
-  final Color successColor = const Color(0xFF22C55E);
+  CommonMethods commonMethods = CommonMethods();
 
   @override
   Widget build(BuildContext context) {
     final authRepo = Provider.of<AuthenticationProvider>(context, listen: true);
     
-    // تم مدرن برای فیلدهای ورود کد OTP
     final defaultPinTheme = PinTheme(
       width: 54,
       height: 54,
       textStyle: const TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.bold,
-        color: Colors.black87,
+        color: AppColors.textPrimary,
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -51,7 +47,7 @@ class _OTPScreenState extends State<OTPScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -65,34 +61,22 @@ class _OTPScreenState extends State<OTPScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: safirBrandColor.withOpacity(0.1),
+                    color: AppColors.primaryBrand.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.shield_outlined,
-                    color: safirBrandColor,
-                    size: 40,
-                  ),
+                  child: const Icon(Icons.shield_outlined, color: AppColors.primaryBrand, size: 40),
                 ),
                 const SizedBox(height: 24),
 
                 Text(
-                  getTranslation(context, "otp_title"),
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                  'otp.title'.tr(),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  getTranslation(context, "otp_subtitle"),
+                  'otp.subtitle'.tr(),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                    height: 1.5,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5),
                 ),
                 const SizedBox(height: 32),
 
@@ -102,68 +86,40 @@ class _OTPScreenState extends State<OTPScreen> {
                   defaultPinTheme: defaultPinTheme,
                   focusedPinTheme: defaultPinTheme.copyWith(
                     decoration: defaultPinTheme.decoration!.copyWith(
-                      border: Border.all(color: safirBrandColor, width: 1.5),
+                      border: Border.all(color: AppColors.primaryBrand, width: 1.5),
                       color: Colors.white,
                     ),
                   ),
                   submittedPinTheme: defaultPinTheme.copyWith(
                     decoration: defaultPinTheme.decoration!.copyWith(
-                      border: Border.all(color: safirBrandColor),
-                      color: safirBrandColor.withOpacity(0.05),
+                      border: Border.all(color: AppColors.primaryBrand),
+                      color: AppColors.primaryBrand.withOpacity(0.05),
                     ),
                   ),
                   onCompleted: (value) {
-                    setState(() {
-                      smsCode = value;
-                    });
+                    setState(() => smsCode = value);
                     verifyOTP(smsCode: smsCode!);
                   },
                 ),
-
                 const SizedBox(height: 32),
 
                 if (authRepo.isLoading)
-                  CircularProgressIndicator(
-                    color: safirBrandColor,
-                  )
+                  const CircularProgressIndicator(color: AppColors.primaryBrand)
                 else if (authRepo.isSuccessful)
                   Container(
                     height: 44,
                     width: 44,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: successColor,
-                    ),
-                    child: const Icon(
-                      Icons.done,
-                      color: Colors.white,
-                      size: 26,
-                    ),
+                    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.green),
+                    child: const Icon(Icons.done, color: Colors.white, size: 26),
                   ),
-
                 const SizedBox(height: 32),
 
-                Text(
-                  getTranslation(context, "otp_not_received"),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
                 TextButton.icon(
-                  onPressed: () {
-                    // منطق ارسال مجدد کد
-                  },
-                  icon: Icon(Icons.refresh_rounded, size: 18, color: safirBrandColor),
+                  onPressed: () {},
+                  icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.primaryBrand),
                   label: Text(
-                    getTranslation(context, "otp_resend_btn"),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: safirBrandColor,
-                    ),
+                    'otp.resend_btn'.tr(),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryBrand),
                   ),
                 ),
               ],
@@ -200,10 +156,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
             if (isBlocked) {
               if (!mounted) return;
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const BlockedScreen()),
-              );
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BlockedScreen()));
               return;
             }
 
@@ -224,17 +177,11 @@ class _OTPScreenState extends State<OTPScreen> {
               navigate(isSingedIn: true);
             } else {
               navigate(isSingedIn: false);
-              if (!mounted) return;
-              commonMethods.displaySnackBar(
-                getTranslation(context, "complete_info_warning"),
-                context,
-              );
             }
           } else {
             navigate(isSingedIn: false);
           }
         } catch (globalError) {
-          debugPrint("Global login error: $globalError");
           navigate(isSingedIn: false);
         }
       },
@@ -243,15 +190,9 @@ class _OTPScreenState extends State<OTPScreen> {
 
   void navigate({required bool isSingedIn}) {
     if (isSingedIn) {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const SafirHomeScreen()),
-          (route) => false);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const SafirHomeScreen()), (route) => false);
     } else {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const UserInformationScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const UserInformationScreen()));
     }
   }
 }
