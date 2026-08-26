@@ -11,20 +11,20 @@ dependencies:
   flutter:
     sdk: flutter
 
-  #   
+  # پکیج‌های چندزبانگی
   easy_localization: ^3.0.7
   flutter_localizations:
     sdk: flutter
 
-  #     Vector
+  # پکیج‌های نقشه و Vector
   maplibre_gl: ^0.26.2
   latlong2: ^0.9.1
 
-  #   GPS  
+  # پکیج‌های GPS و اینترنت
   geolocator: ^12.0.0
   connectivity_plus: ^6.0.4
 
-  #  (  )
+  # فایربیس (سرویس‌های ابری)
   firebase_core: ^3.3.0
   firebase_auth: ^5.1.2
   cloud_firestore: ^5.1.0
@@ -33,7 +33,7 @@ dependencies:
   flutter_geofire: ^2.0.7
   google_sign_in: ^6.2.1
 
-  #    
+  # پکیج‌های کاربردی و ابزار سیستم
   permission_handler: ^11.3.1
   http: ^1.2.2
   provider: ^6.1.2
@@ -46,10 +46,15 @@ dependencies:
   flutter_polyline_points: ^2.1.0
   loading_animation_widget: ^1.2.1
 
-  #  
+  # پکیج‌های اضافه شده برای رفع خطای بیلد
+  share_plus: ^10.1.2
+  path_provider: ^2.1.4
+  image_picker: ^1.1.2
+
+  # سیستم صوتی
   flutter_tts: ^4.0.2
 
-  #  
+  # پکیج‌های پرداخت
   flutter_stripe: ^10.0.0
 
 dev_dependencies:
