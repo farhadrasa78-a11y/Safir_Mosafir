@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:http/http.dart' as http;
 import 'package:easy_localization/easy_localization.dart';
 
@@ -20,7 +18,7 @@ class SafirMapPicker extends StatefulWidget {
 }
 
 class _SafirMapPickerState extends State<SafirMapPicker> with TickerProviderStateMixin {
-  final MapController _mapController = MapController();
+  MapLibreMapController? _mapController;
   
   LatLng _mapCenter = const LatLng(34.5553, 69.2075); // کابل
   LatLng? _lastSnappedPoint;
@@ -31,12 +29,15 @@ class _SafirMapPickerState extends State<SafirMapPicker> with TickerProviderStat
   SelectionState _currentState = SelectionState.pickingOrigin; 
   bool _isMapMoving = false; 
   bool _isSheetExpanded = false;
-  bool _isProgrammaticMove = false; 
 
   String _originAddress = '';
   String _destinationAddress = '';
 
   static const Color destinationColor = Color(0xFF169365);
+
+  void _onMapCreated(MapLibreMapController controller) {
+    _mapController = controller;
+  }
 
   // 🛣️ متد هوشمند اسنپ: پیدا کردن خیابان و هدایت نرم نقشه روی آن
   Future<void> _snapToNearestRoadAndGetAddress(LatLng point) async {
@@ -89,54 +90,18 @@ class _SafirMapPickerState extends State<SafirMapPicker> with TickerProviderStat
     }
   }
 
-  // 🎬 متد ایجاد انیمیشن حرکت نرم به خیابان بدون تداخل با eventها
+  // 🎬 متد ایجاد انیمیشن حرکت نرم به خیابان با استفاده از MapLibre CameraUpdate
   void _animateMapToRoad(LatLng targetLatLng) {
-    _isProgrammaticMove = true;
-
-    final latTween = Tween<double>(
-      begin: _mapController.camera.center.latitude,
-      end: targetLatLng.latitude,
+    if (_mapController == null) return;
+    double currentZoom = _mapController!.cameraPosition?.zoom ?? 16.0;
+    _mapController!.animateCamera(
+      CameraUpdate.newLatLngZoom(targetLatLng, currentZoom),
     );
-    final lngTween = Tween<double>(
-      begin: _mapController.camera.center.longitude,
-      end: targetLatLng.longitude,
-    );
-
-    final AnimationController animationController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-
-    final Animation<double> animation = CurvedAnimation(
-      parent: animationController,
-      curve: Curves.fastOutSlowIn,
-    );
-
-    animationController.addListener(() {
-      if (mounted) {
-        _mapController.move(
-          LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-          _mapController.camera.zoom,
-        );
-      }
-    });
-
-    animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
-        animationController.dispose();
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
-            _isProgrammaticMove = false;
-          }
-        });
-      }
-    });
-
-    animationController.forward();
   }
 
   void _handleConfirmation() {
-    final LatLng finalRoadPoint = _lastSnappedPoint ?? _mapController.camera.center;
+    final LatLng finalRoadPoint = _lastSnappedPoint ?? 
+        (_mapController?.cameraPosition?.target ?? _mapCenter);
 
     if (_currentState == SelectionState.pickingOrigin) {
       setState(() {
@@ -181,62 +146,28 @@ class _SafirMapPickerState extends State<SafirMapPicker> with TickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _mapCenter,
-              initialZoom: 16.0,
-              onPositionChanged: (position, hasGesture) {
-                if (hasGesture && !_isMapMoving) {
-                  setState(() {
-                    _isMapMoving = true;
-                  });
-                }
-              },
-              onMapEvent: (event) {
-                if (event is MapEventMoveEnd) {
-                  if (_isProgrammaticMove) {
-                    return;
-                  }
-                  
-                  _mapCenter = _mapController.camera.center;
-                  _snapToNearestRoadAndGetAddress(_mapCenter);
-                }
-              },
+          MapLibreMap(
+            styleString: "https://demotiles.maplibre.org/style.json",
+            initialCameraPosition: CameraPosition(
+              target: _mapCenter,
+              zoom: 16.0,
             ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.safir.passengers',
-                tileProvider: CancellableNetworkTileProvider(),
-              ),
-
-              MarkerLayer(
-                markers: [
-                  if (_confirmedOriginLatLng != null)
-                    Marker(
-                      point: _confirmedOriginLatLng!,
-                      width: 160,
-                      height: 60,
-                      child: GestureDetector(
-                        onTap: _revertToOriginSelection,
-                        child: MapOriginLabel(labelText: _originAddress),
-                      ),
-                    ),
-
-                  if (_confirmedDestinationLatLng != null)
-                    Marker(
-                      point: _confirmedDestinationLatLng!,
-                      width: 180,
-                      height: 60,
-                      child: MapDestinationLabel(
-                        labelText: _destinationAddress,
-                        arrivalTime: "12:10",
-                      ),
-                    ),
-                ],
-              ),
-            ],
+            onMapCreated: _onMapCreated,
+            onCameraMoveStarted: () {
+              if (!_isMapMoving) {
+                setState(() {
+                  _isMapMoving = true;
+                });
+              }
+            },
+            onCameraIdle: () {
+              if (_mapController != null && _mapController!.cameraPosition != null) {
+                _mapCenter = _mapController!.cameraPosition!.target;
+                _snapToNearestRoadAndGetAddress(_mapCenter);
+              }
+            },
+            trackCameraPosition: true,
+            myLocationEnabled: false,
           ),
 
           // 📍 پین متحرک وسط صفحه
