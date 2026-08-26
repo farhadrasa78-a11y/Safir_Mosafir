@@ -12,10 +12,8 @@ import 'package:safir_passengers/global/global_var.dart';
 
 const Color safirBrandColor = Color(0xFF145A41);
 
-// ۱. تماس با پشتیبانی
 Future<void> _makeSupportCall(BuildContext context) async {
   String phone = "+93700000000"; 
-
   try {
     DatabaseReference adminRef = FirebaseDatabase.instance.ref().child("admin_settings").child("support_phone");
     DataSnapshot snapshot = await adminRef.get();
@@ -38,7 +36,6 @@ Future<void> _makeSupportCall(BuildContext context) async {
   }
 }
 
-// ۲. دعوت دوستان (اشتراک‌گذاری کد معرفی)
 void _shareInviteCode(BuildContext context) {
   final user = FirebaseAuth.instance.currentUser;
   final String referralCode = user != null ? user.uid.substring(0, 6).toUpperCase() : "SAFIR2026";
@@ -50,7 +47,6 @@ void _shareInviteCode(BuildContext context) {
   Share.share(shareMessage);
 }
 
-// ۳. ورود و بررسی کد تخفیف
 void _showDiscountModal(BuildContext context) {
   final TextEditingController discountController = TextEditingController();
   bool isLoading = false;
@@ -146,7 +142,6 @@ void _showDiscountModal(BuildContext context) {
   );
 }
 
-// ۴. نمایش دیالوگ درباره برنامه
 void _showAboutAppDialog(BuildContext context) {
   showDialog(
     context: context,
@@ -181,7 +176,6 @@ void _showAboutAppDialog(BuildContext context) {
   );
 }
 
-// منوی کشویی Drawer اصلی
 class ExactAnimatedMenu extends StatefulWidget {
   final String? currentLanguage;
   final ValueChanged<String>? onLanguageChanged;
@@ -361,7 +355,7 @@ class _ExactAnimatedMenuState extends State<ExactAnimatedMenu> {
                             Icon(
                               item['icon'], 
                               size: 20, 
-                              color: isHovered ? safirBrandColor : Colors.black54
+                              color: isHovered ? safirBrandColor : Colors.black54,
                             ),
                             const SizedBox(width: 16),
                             Text(
@@ -377,8 +371,9 @@ class _ExactAnimatedMenuState extends State<ExactAnimatedMenu> {
                       ),
                     ),
                   ),
-                );
-              }),
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -386,7 +381,6 @@ class _ExactAnimatedMenuState extends State<ExactAnimatedMenu> {
   }
 }
 
-// منوی شناور پروفایل روی نقشه
 class ProfileAnimatedMenu extends StatefulWidget {
   const ProfileAnimatedMenu({super.key});
 
@@ -481,12 +475,12 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                           children: [
                             Text(
                               userName.isNotEmpty ? userName : 'user_default'.tr().isEmpty ? 'کاربر سفیر' : 'user_default'.tr(),
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               userPhone.isNotEmpty ? userPhone : '۰۹۹۰۷۰۲۷۱۲۳', 
-                              style: const TextStyle(fontSize: 12, color: Colors.black54)
+                              style: const TextStyle(fontSize: 12, color: Colors.black54),
                             ),
                           ],
                         ),
@@ -552,7 +546,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                             Icon(
                               item['icon'], 
                               size: 20, 
-                              color: isHovered ? safirBrandColor : Colors.black54
+                              color: isHovered ? safirBrandColor : Colors.black54,
                             ),
                             const SizedBox(width: 16),
                             Text(
@@ -569,7 +563,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                     ),
                   ),
                 );
-              }),
+            }),
           ],
         ),
       ),
