@@ -510,6 +510,10 @@
     "about_app": "درباره برنامه",
     "cancel_request_title": "لغو درخواست",
     "select_cancel_reason_title": "لطفاً دلیل لغو سفارش را انتخاب کنید",
-    "confirm_cancel_btn": "تأیید و لغو سفارش"
-  }
+    "confirm_cancel_btn": "تأیید و لغو سفارش",
+  "support_contact": "پشتیبانی و ارتباط با ما",
+  "about_app": "درباره برنامه",
+  "clear_cache_title": "پاک‌سازی حافظه پنهان",
+  "clear_cache_desc": "آیا از پاک کردن کش و فایل‌های موقت برنامه اطمینان دارید؟"
+پشتو وانگلیسی این را هم بفرست
 }
