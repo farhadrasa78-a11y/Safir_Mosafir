@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // جهت بازخورد لمسی (Haptic)
+import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:safir_passengers/theme/app_colors.dart'; // اتصال به پالت رنگی مرجع
+import 'package:safir_passengers/theme/app_colors.dart';
 
 class SmartLocationSheet extends StatefulWidget {
   final int currentStep; // 0: مبدأ, 1: مقصد
@@ -36,8 +36,6 @@ class SmartLocationSheet extends StatefulWidget {
 
 class _SmartLocationSheetState extends State<SmartLocationSheet> {
   bool get _expanded => widget.isExpanded;
-
-  // 🟩 رنگ اختصاصی مقصد
   static const Color destinationColor = Color(0xFF169365);
 
   void _setExpanded(bool expanded) {
@@ -51,12 +49,16 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
     _setExpanded(!_expanded);
   }
 
-  // 🌐 متد اصلاح‌شده برای تجزیه آدرس با پشتیبانی از ترجمه
   Map<String, String> _splitAddress(String fullAddress) {
-    if (fullAddress.isEmpty || fullAddress == 'origin'.tr() || fullAddress == 'where_to_go'.tr()) {
+    String originFallback = "origin".tr().isEmpty ? "انتخاب مبدأ" : "origin".tr();
+    String destFallback = "where_to_go".tr().isEmpty ? "مقصد شما کجاست؟" : "where_to_go".tr();
+
+    if (fullAddress.isEmpty || fullAddress == originFallback || fullAddress == destFallback) {
       return {
-        'title': fullAddress.isEmpty ? 'fetching_address'.tr() : fullAddress,
-        'subtitle': 'exact_location_on_map'.tr()
+        'title': fullAddress.isEmpty 
+            ? ("fetching_address".tr().isEmpty ? "در حال دریافت آدرس..." : "fetching_address".tr()) 
+            : fullAddress,
+        'subtitle': "exact_location_on_map".tr().isEmpty ? "موقعیت دقیق روی نقشه" : "exact_location_on_map".tr()
       };
     }
     List<String> parts = fullAddress.split(RegExp(r'[،,-]'));
@@ -66,33 +68,36 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
         'subtitle': parts.skip(1).join('، ').trim(),
       };
     }
-    return {'title': fullAddress, 'subtitle': 'location_on_map'.tr()};
+    return {
+      'title': fullAddress, 
+      'subtitle': "location_on_map".tr().isEmpty ? "موقعیت روی نقشه" : "location_on_map".tr()
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isOriginStep = widget.currentStep == 0;
+    final bool isOriginStep = widget.currentStep == 0;
+    final String activeAddress = isOriginStep ? widget.currentAddress : widget.currentDestination;
+    final Map<String, String> activeAddressData = _splitAddress(activeAddress);
 
-    String activeAddress = isOriginStep ? widget.currentAddress : widget.currentDestination;
-    var activeAddressData = _splitAddress(activeAddress);
+    final String originPlaceholder = "origin".tr().isEmpty ? "انتخاب مبدأ" : "origin".tr();
+    final String destPlaceholder = "where_to_go".tr().isEmpty ? "مقصد شما کجاست؟" : "where_to_go".tr();
 
     final String searchHint = isOriginStep
-        ? (widget.currentAddress.isNotEmpty ? widget.currentAddress : 'origin'.tr())
-        : (widget.currentDestination.isNotEmpty ? widget.currentDestination : 'where_to_go'.tr());
+        ? (widget.currentAddress.isNotEmpty ? widget.currentAddress : originPlaceholder)
+        : (widget.currentDestination.isNotEmpty ? widget.currentDestination : destPlaceholder);
 
-    // 🔵 رنگ مبدأ آبی / 🟩 رنگ مقصد ۱۶۹۳۶۵
     final Color currentMarkerColor = isOriginStep ? AppColors.originBlue : destinationColor;
 
     return Stack(
       children: [
-        // شیت اصلی + دکمه GPS شناور
         Align(
           alignment: Alignment.bottomCenter,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 📍 دکمه GPS شناور
+              // دکمه جی‌پی‌اس شناور
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
                 child: Material(
@@ -121,7 +126,7 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                 ),
               ),
 
-              // 👈 Gesture کشیدن بالاوپایین (Swipe Drag)
+              // کشوی تعاملی
               GestureDetector(
                 onVerticalDragEnd: (details) {
                   if (details.primaryVelocity! < -180) {
@@ -173,7 +178,7 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                         ),
                       ),
 
-                      // نوار جستجو
+                      // کادر جستجو
                       GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
@@ -213,7 +218,6 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                                 ),
                               ),
                               const SizedBox(width: 10),
-
                               Expanded(
                                 child: Text(
                                   searchHint,
@@ -230,14 +234,13 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-
                               const Icon(Icons.search, color: AppColors.iconSecondary),
                             ],
                           ),
                         ),
                       ),
 
-                      // بخش پیشنهادات (در حالت باز)
+                      // لیست پیشنهادات و آدرس
                       AnimatedSize(
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.fastOutSlowIn,
@@ -255,8 +258,6 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                                     ),
                                   ),
                                   const SizedBox(height: 12),
-
-                                  // آیتم آدرس
                                   _SearchResultTile(
                                     title: activeAddressData['title']!,
                                     subtitle: activeAddressData['subtitle']!,
@@ -270,7 +271,6 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                                       }
                                     },
                                   ),
-
                                   const SizedBox(height: 12),
                                   Container(
                                     height: 6,
@@ -281,15 +281,13 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                                     ),
                                   ),
                                   const SizedBox(height: 12),
-
-                                  // افزودن مکان منتخب با ترجمه
                                   _AddFavoriteTile(
-                                    title: 'add_favorite_place'.tr(),
+                                    title: "add_favorite_place".tr().isEmpty ? "افزودن مکان منتخب" : "add_favorite_place".tr(),
                                     onTap: () {
                                       HapticFeedback.lightImpact();
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text('add_favorite_place'.tr()),
+                                          content: Text("add_favorite_place".tr().isEmpty ? "افزودن مکان منتخب" : "add_favorite_place".tr()),
                                         ),
                                       );
                                     },
@@ -300,7 +298,7 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                             : const SizedBox.shrink(),
                       ),
 
-                      // دکمه عمومی تأیید
+                      // دکمه تایید مرحله
                       AnimatedSize(
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.fastOutSlowIn,
@@ -325,8 +323,8 @@ class _SmartLocationSheetState extends State<SmartLocationSheet> {
                                     ),
                                     child: Text(
                                       isOriginStep
-                                          ? 'confirm_origin_btn'.tr()
-                                          : 'confirm_destination_btn'.tr(),
+                                          ? ("confirm_origin_btn".tr().isEmpty ? "تایید مبدأ" : "confirm_origin_btn".tr())
+                                          : ("confirm_destination_btn".tr().isEmpty ? "تایید مقصد" : "confirm_destination_btn".tr()),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
