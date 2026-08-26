@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 // -------------------------------------------------------------
@@ -21,7 +21,7 @@ String stripePublishedKey = "YOUR_STRIPE_KEY";
 // -------------------------------------------------------------
 // 3. موقعیت پیش‌فرض نقشه (کابل - افغانستان)
 // -------------------------------------------------------------
-final LatLng initialPosition = LatLng(34.5553, 69.2075);
+final LatLng initialPosition = const LatLng(34.5553, 69.2075);
 
 // -------------------------------------------------------------
 // 4. پالت رنگی مرجع پروژه مسافر سفیر
