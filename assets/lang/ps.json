@@ -511,7 +511,7 @@
     "cancel_request_title": "غوښتنه لغوه کول",
     "select_cancel_reason_title": "مهرباني وکړئ د لغوه کولو دلیل وټاکئ",
     "confirm_cancel_btn": "تایید او د غوښتنې لغوه کول",
-  }  "support_contact": "ملاتړ او له موږ سره اړیکه",
+    "support_contact": "ملاتړ او له موږ سره اړیکه",
   "about_app": "د اپلیکیشن په اړه",
   "clear_cache_title": "د لنډمهاله حافظې پاکول",
   "clear_cache_desc": "ایا تاسو ډاډه یاست چې د اپلیکیشن کیش او لنډمهاله فایلونه پاکول غواړئ؟"
