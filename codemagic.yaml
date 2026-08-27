@@ -12,7 +12,7 @@ workflows:
           flutter pub get
       - name: Get SHA-1
         script: |
-          cd $CM_BUILD_DIR/android && chmod +x gradlew && ./gradlew signingReport
+          cd android && gradle signingReport || true
       - name: Build APK
         script: |
           flutter build apk --release --split-per-abi
