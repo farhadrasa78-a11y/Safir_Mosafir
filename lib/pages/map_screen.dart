@@ -1,4 +1,4 @@
-Import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -18,6 +18,7 @@ import 'package:safir_passengers/global/trip_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
 import 'package:safir_passengers/widgets/payment_dialog.dart';
 import 'package:safir_passengers/widgets/rate_driver_sheet.dart';
+import 'package:safir_passengers/widgets/live_location_marker.dart';
 import 'search_destination_place.dart';
 
 import 'map_files/map_controller_logic.dart';
@@ -30,7 +31,6 @@ import 'map_files/schedule_trip_sheet.dart';
 import 'map_files/promo_code_sheet.dart';
 import '../widgets/animated_menus.dart'; 
 import '../widgets/map_location_label.dart';
-import 'package:safir_passengers/widgets/live_location_marker.dart';
 
 class SafirMapScreen extends StatefulWidget {
   final String serviceType;
@@ -177,7 +177,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
     try {
       if (_originLatLng != null) {
-        // استفاده از متد جدید و استاندارد maplibre_gl 0.26.2
         final originPoint = await _mapController!.toScreenLocation(_originLatLng!);
         if (mounted) {
           setState(() {
@@ -216,7 +215,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           _currentGpsAccuracy = initialPosition.accuracy;
         });
 
-        // 🔹 نمای دور اولیه (مشابه اسنپ)
         _animatedMapMove(targetLatLng, 15.0);
         if (_currentStep < 2) {
           _updateAddressFromCamera(targetLatLng);
@@ -246,7 +244,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   Future<void> _handleGpsTap() async {
     HapticFeedback.lightImpact();
-    // 🔹 زوم نزدیک‌تر هنگام لمس دکمه GPS
     _animatedMapMove(_currentUserLatLng, 17.8);
 
     try {
@@ -360,7 +357,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
     await _updateMarkerPositions();
 
-    // 🔹 زوم نزدیک به مبدأ جهت انتخاب دقیق‌تر مقصد
     _animatedMapMove(currentCenter, 17.8);
 
     if (widget.serviceType == 'cargo') {
@@ -758,11 +754,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
-          // ۱. نقشه بومی MapLibre HD
           MapLibreMap(
             initialCameraPosition: CameraPosition(
               target: widget.targetLocation ?? _currentUserLatLng,
-              zoom: 15.0, // 🔹 نمای دور در شروع جهت دید کلی (مشابه اسنپ)
+              zoom: 15.0,
             ),
             styleString: 'assets/map/style.json',
             myLocationEnabled: true,
@@ -798,7 +793,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             },
           ),
 
-          // 🔹 مارکر مبدأ
           if (_originLatLng != null && _originScreenPoint != null)
             Positioned(
               left: _originScreenPoint!.x.toDouble() - 55,
@@ -808,7 +802,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
-          // 🔹 مارکر مقصد
           if (_destinationLatLng != null && _destinationScreenPoint != null)
             Positioned(
               left: _destinationScreenPoint!.x.toDouble() - 100,
@@ -819,7 +812,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
-          // ۲. پین مرکز صفحه (در مراحل ۰ و ۱)
           if (_currentStep < 2)
             Center(
               child: Padding(
@@ -925,7 +917,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
-          // ۳. نوار بالای صفحه
           Positioned(
             top: 45,
             left: 16,
@@ -1026,7 +1017,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             ),
           ),
 
-          // ۴. شیت موقعیت (گام ۰ و ۱)
           if (_currentStep == 0 || _currentStep == 1)
             SmartLocationSheet(
               currentStep: _currentStep,
@@ -1081,7 +1071,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               onGpsTap: _handleGpsTap,
             ),
 
-          // ۵. شیت گام ۲
           if (_currentStep == 2)
             widget.serviceType == 'cargo'
                 ? CargoSheets.buildCargoSummarySheet(
@@ -1136,7 +1125,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                         onPromoCodeTap: _openPromoCodeSheet,
                       ),
 
-          // ۶. در حال جستجوی راننده (گام ۳)
           if (_currentStep == 3)
             MapBottomSheets.buildStep3(
               safirColor: AppColors.primaryBrand,
@@ -1147,7 +1135,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               onBidPricePressed: () {},
             ),
 
-          // ۷. قبول سفر (گام ۴)
           if (_currentStep == 4)
             MapBottomSheets.buildStep4(AppColors.primaryBrand),
         ],
