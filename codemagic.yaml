@@ -10,6 +10,9 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter pub get
+      - name: Get SHA-1
+        script: |
+          cd android && ./gradlew signingReport
       - name: Build APK
         script: |
           flutter build apk --release --split-per-abi
