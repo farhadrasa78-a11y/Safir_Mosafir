@@ -178,7 +178,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     _mapController = controller;
     
     // تنظیم پدینگ سفارشی جهت بالابردن مرکز دید نقشه نسبت به کشوی پایین
-    _mapController?.setPadding(0, 0, 0, 220);
+    //_mapController?.setPadding(0, 0, 0, 220);
 
     if (widget.targetLocation != null) {
       _animatedMapMove(widget.targetLocation!, 16.0);
