@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:safir_passengers/global/global_var.dart';
@@ -57,15 +58,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             _userName = userData["name"] ??
                 userData["fullName"] ??
                 userData["userName"] ??
+                userData["user_name"] ??
                 currentUser.displayName ??
                 '';
             _userPhone = userData["phone"] ??
                 userData["phoneNumber"] ??
+                userData["phone_number"] ??
                 currentUser.phoneNumber ??
                 '';
             _userRating = userData["rating"]?.toString() ?? '4.5';
             _useWheelchair = userData["useWheelchair"] ?? false;
-            _photoUrl = userData["photoUrl"] ?? currentUser.photoURL ?? '';
+            _photoUrl = userData["photoUrl"] ?? userData["photoURL"] ?? currentUser.photoURL ?? '';
           });
         }
       } catch (e) {
@@ -116,6 +119,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     if (confirm == true) {
       await _auth.signOut();
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      if (await googleSignIn.isSignedIn()) {
+        await googleSignIn.signOut();
+      }
       if (mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
       }
@@ -149,6 +156,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     if (confirm == true) {
       await _auth.signOut();
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      if (await googleSignIn.isSignedIn()) {
+        await googleSignIn.signOut();
+      }
       if (mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
       }
@@ -493,31 +504,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         if (event.snapshot.value != null && mounted) {
           Map userData = event.snapshot.value as Map;
-          setState(() {
-            _initialName = userData["name"] ?? userData["fullName"] ?? userData["userName"] ?? currentUser.displayName ?? "";
-            _initialPhone = userData["phone"] ?? userData["phoneNumber"] ?? currentUser.phoneNumber ?? "";
-            _initialEmail = userData["email"] ?? currentUser.email ?? "";
-            _initialAddress = userData["address"] ?? "";
-            _initialDob = userData["dob"] ?? "";
-            _initialPremium = userData["isPremium"] ?? false;
-            _photoUrl = userData["photoUrl"] ?? currentUser.photoURL ?? "";
+          _initialName = userData["name"] ?? userData["fullName"] ?? userData["userName"] ?? userData["user_name"] ?? currentUser.displayName ?? "";
+          _initialPhone = userData["phone"] ?? userData["phoneNumber"] ?? userData["phone_number"] ?? currentUser.phoneNumber ?? "";
+          _initialEmail = userData["email"] ?? currentUser.email ?? "";
+          _initialAddress = userData["address"] ?? "";
+          _initialDob = userData["dob"] ?? "";
+          _initialPremium = userData["isPremium"] ?? false;
+          _photoUrl = userData["photoUrl"] ?? userData["photoURL"] ?? currentUser.photoURL ?? "";
 
-            _nameController.text = _initialName;
-            _phoneController.text = formatNumberByLocale(context, _initialPhone);
-            _emailController.text = _initialEmail;
-            _addressController.text = _initialAddress;
-            _dobController.text = formatNumberByLocale(context, _initialDob);
-            _isPremium = _initialPremium;
-          });
+          _nameController.text = _initialName;
+          _phoneController.text = formatNumberByLocale(context, _initialPhone);
+          _emailController.text = _initialEmail;
+          _addressController.text = _initialAddress;
+          _dobController.text = formatNumberByLocale(context, _initialDob);
+          _isPremium = _initialPremium;
         } else if (mounted) {
-          setState(() {
-            _nameController.text = _initialName;
-            _phoneController.text = formatNumberByLocale(context, _initialPhone);
-            _emailController.text = _initialEmail;
-          });
+          _nameController.text = _initialName;
+          _phoneController.text = formatNumberByLocale(context, _initialPhone);
+          _emailController.text = _initialEmail;
         }
       } catch (e) {
         debugPrint("Error fetching edit data: $e");
+        if (mounted) {
+          _nameController.text = _initialName;
+          _phoneController.text = formatNumberByLocale(context, _initialPhone);
+          _emailController.text = _initialEmail;
+        }
       }
     }
 
