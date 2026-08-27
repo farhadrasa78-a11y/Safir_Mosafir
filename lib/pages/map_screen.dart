@@ -177,18 +177,27 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   try {
     if (_originLatLng != null) {
-      // استفاده از متد استاندارد toScreenCoordinate
+      // استفاده از متد جدید و استاندارد maplibre_gl 0.26.2
       final originPoint = await _mapController!.toScreenCoordinate(_originLatLng!);
-      if (mounted) setState(() => _originScreenPoint = originPoint);
+      if (mounted) {
+        setState(() {
+          _originScreenPoint = Point<num>(originPoint.x, originPoint.y);
+        });
+      }
     }
     if (_destinationLatLng != null) {
       final destPoint = await _mapController!.toScreenCoordinate(_destinationLatLng!);
-      if (mounted) setState(() => _destinationScreenPoint = destPoint);
+      if (mounted) {
+        setState(() {
+          _destinationScreenPoint = Point<num>(destPoint.x, destPoint.y);
+        });
+      }
     }
   } catch (e) {
     debugPrint("Error updating marker positions: $e");
   }
 }
+
 
 
   Future<void> _startLiveLocationUpdates() async {
