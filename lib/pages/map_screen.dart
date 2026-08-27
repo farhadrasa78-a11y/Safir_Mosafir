@@ -809,20 +809,20 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             trackCameraPosition: true,
             onMapCreated: (controller) {
               _mapController = controller;
+              _isProgrammaticMove = true;
               if (widget.targetLocation != null) {
                 _animatedMapMove(widget.targetLocation!, 17.8);
               }
             },
             onCameraMove: (CameraPosition position) {
-              if (!_isProgrammaticMove) {
-                if (!_isMapMoving) {
-                  setState(() {
-                    _isMapMoving = true;
-                    _isSheetExpanded = false;
-                  });
-                }
-              }
-            },
+      if (!_isProgrammaticMove && _isSheetExpanded) {
+           setState(() {
+           _isMapMoving = true;
+          _isSheetExpanded = false;
+             });
+            }
+           },
+
             onCameraIdle: () {
               _isProgrammaticMove = false;
               setState(() => _isMapMoving = false);
