@@ -176,10 +176,14 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   void _onMapCreated(MapLibreMapController controller) {
     _mapController = controller;
+    
+    // تنظیم پدینگ سفارشی جهت بالابردن مرکز دید نقشه نسبت به کشوی پایین
+    _mapController?.setPadding(0, 0, 0, 220);
+
     if (widget.targetLocation != null) {
-      _animatedMapMove(widget.targetLocation!, 17.8);
+      _animatedMapMove(widget.targetLocation!, 16.0);
     } else {
-      _animatedMapMove(_currentUserLatLng, 17.8);
+      _animatedMapMove(_currentUserLatLng, 16.0);
     }
     _loadCustomVehicleIcons();
   }
@@ -283,7 +287,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           _currentGpsAccuracy = initialPosition.accuracy;
         });
 
-        _animatedMapMove(targetLatLng, 17.8);
+        _animatedMapMove(targetLatLng, 16.0);
         if (_currentStep < 2) {
           _updateAddressFromCamera(targetLatLng);
         }
@@ -312,7 +316,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   Future<void> _handleGpsTap() async {
     HapticFeedback.lightImpact();
-    _animatedMapMove(_currentUserLatLng, 17.8);
+    _animatedMapMove(_currentUserLatLng, 16.0);
 
     try {
       Position pos = await Geolocator.getCurrentPosition(
@@ -816,7 +820,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             styleString: 'assets/map/style.json',
             initialCameraPosition: CameraPosition(
               target: _currentUserLatLng,
-              zoom: 17.8,
+              zoom: 16.0,
             ),
             onMapCreated: _onMapCreated,
             onCameraMove: (position) {
