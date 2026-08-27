@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:maplibre_gl/maplibre_gl.dart'; // 👈 پکیج جدید
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -50,19 +51,21 @@ class SafirMapScreen extends StatefulWidget {
 }
 
 class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStateMixin {
+  // 🔹 کنترلر MapLibre جایگزین شد
   MapLibreMapController? _mapController;
+  
   LatLng _currentUserLatLng = const LatLng(34.5333, 69.1667);
   double _currentGpsAccuracy = 0.0;
 
   StreamSubscription<Position>? _positionStreamSubscription;
 
+  // 🔹 ذخیره موقعیت‌های مبدأ و مقصد
   LatLng? _originLatLng;
   LatLng? _destinationLatLng;
-  Line? _currentPolyline;
 
-  // مارکرهای سفارشی وسایل نقلیه
-  Symbol? _driverVehicleSymbol;
-  List<Symbol> _nearbyVehicleSymbols = [];
+  // 🔹 موقعیت پیکسلی روی صفحه برای رندر ویجت‌های قبلی شما (آیکون مبدأ/مقصد)
+  Point<num>? _originScreenPoint;
+  Point<num>? _destinationScreenPoint;
 
   bool _isMapMoving = false;
   bool _isSheetExpanded = true; 
@@ -78,7 +81,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   String? _intercityTravelDate;
   int _intercityPassengers = 1;
 
-  // متغیرهای اختصاصی گزینه‌های سفر، زمان‌بندی و کد تخفیف
   String? _secondDestinationAddress;
   int _stopDurationMinutes = 0;
   bool _isRoundTrip = false;
@@ -98,7 +100,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   bool get _isScheduled => _scheduledDateTime != null;
   bool get _hasPromoCode => _appliedPromoCode != null && _appliedPromoCode!.isNotEmpty;
 
-  // کنترلرهای متنی و متغیرهای اختصاصی باربری (Cargo)
   final TextEditingController _senderNameController = TextEditingController();
   final TextEditingController _senderPhoneController = TextEditingController();
   final TextEditingController _senderAddressController = TextEditingController();
@@ -174,98 +175,17 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     super.dispose();
   }
 
-  void _onMapCreated(MapLibreMapController controller) {
-    _mapController = controller;
-    
-    // تنظیم پدینگ سفارشی جهت بالابردن مرکز دید نقشه نسبت به کشوی پایین
-    //_mapController?.setPadding(0, 0, 0, 220);
-
-    if (widget.targetLocation != null) {
-      _animatedMapMove(widget.targetLocation!, 16.0);
-    } else {
-      _animatedMapMove(_currentUserLatLng, 16.0);
-    }
-    _loadCustomVehicleIcons();
-  }
-
-  // 🚘 بارگذاری آیکون‌های موتر و موترسایکل در حافظه MapLibre
-  Future<void> _loadCustomVehicleIcons() async {
-    if (_mapController == null) return;
-    try {
-      final ByteData carData = await rootBundle.load('assets/images/safir_normal.png');
-      final Uint8List carBytes = carData.buffer.asUint8List();
-      await _mapController!.addImage('car_icon', carBytes);
-
-      final ByteData bikeData = await rootBundle.load('assets/images/safir_bike.png');
-      final Uint8List bikeBytes = bikeData.buffer.asUint8List();
-      await _mapController!.addImage('bike_icon', bikeBytes);
-
-      _updateNearbyVehiclesOnMap();
-    } catch (e) {
-      debugPrint("Error loading map vehicle icons: $e");
-    }
-  }
-
-  // 🚗 نمایش موترها یا موترسایکل‌های نزدیک کاربر روی نقشه
-  Future<void> _updateNearbyVehiclesOnMap() async {
+  // 🔹 به‌روزرسانی موقعیت آیکون‌های مبدأ/مقصد هنگام جابجایی نقشه
+  Future<void> _updateMarkerPositions() async {
     if (_mapController == null) return;
 
-    for (var symbol in _nearbyVehicleSymbols) {
-      await _mapController!.removeSymbol(symbol);
+    if (_originLatLng != null) {
+      final originPoint = await _mapController!.toScreenCoordinate(_originLatLng!);
+      if (mounted) setState(() => _originScreenPoint = originPoint);
     }
-    _nearbyVehicleSymbols.clear();
-
-    String iconName = (_selectedCategory == 1 || selectedVehicle == "Bike") ? 'bike_icon' : 'car_icon';
-
-    List<LatLng> fakePositions = [
-      LatLng(_currentUserLatLng.latitude + 0.0015, _currentUserLatLng.longitude + 0.0012),
-      LatLng(_currentUserLatLng.latitude - 0.0012, _currentUserLatLng.longitude - 0.0018),
-      LatLng(_currentUserLatLng.latitude + 0.0020, _currentUserLatLng.longitude - 0.0010),
-    ];
-
-    for (var pos in fakePositions) {
-      Symbol symbol = await _mapController!.addSymbol(
-        SymbolOptions(
-          geometry: pos,
-          iconImage: iconName,
-          iconSize: 0.15,
-        ),
-      );
-      _nearbyVehicleSymbols.add(symbol);
-    }
-  }
-
-  // 📍 انیمیشن حرکت نرم خودروی پذیرفته‌شده روی نقشه
-  Future<void> _animateVehicleMovement(LatLng newLatLng, double rotation) async {
-    if (_mapController == null) return;
-
-    String iconName = selectedVehicle == "Bike" ? 'bike_icon' : 'car_icon';
-
-    if (_driverVehicleSymbol == null) {
-      _driverVehicleSymbol = await _mapController!.addSymbol(
-        SymbolOptions(
-          geometry: newLatLng,
-          iconImage: iconName,
-          iconSize: 0.2,
-          iconRotate: rotation,
-        ),
-      );
-    } else {
-      LatLng startLatLng = _driverVehicleSymbol!.options.geometry!;
-      int steps = 20;
-      for (int i = 0; i <= steps; i++) {
-        await Future.delayed(const Duration(milliseconds: 30));
-        double lat = startLatLng.latitude + (newLatLng.latitude - startLatLng.latitude) * (i / steps);
-        double lng = startLatLng.longitude + (newLatLng.longitude - startLatLng.longitude) * (i / steps);
-
-        await _mapController!.updateSymbol(
-          _driverVehicleSymbol!,
-          SymbolOptions(
-            geometry: LatLng(lat, lng),
-            iconRotate: rotation,
-          ),
-        );
-      }
+    if (_destinationLatLng != null) {
+      final destPoint = await _mapController!.toScreenCoordinate(_destinationLatLng!);
+      if (mounted) setState(() => _destinationScreenPoint = destPoint);
     }
   }
 
@@ -287,7 +207,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           _currentGpsAccuracy = initialPosition.accuracy;
         });
 
-        _animatedMapMove(targetLatLng, 16.0);
+        _animatedMapMove(targetLatLng, 17.8);
         if (_currentStep < 2) {
           _updateAddressFromCamera(targetLatLng);
         }
@@ -316,7 +236,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   Future<void> _handleGpsTap() async {
     HapticFeedback.lightImpact();
-    _animatedMapMove(_currentUserLatLng, 16.0);
+    _animatedMapMove(_currentUserLatLng, 17.8);
 
     try {
       Position pos = await Geolocator.getCurrentPosition(
@@ -399,9 +319,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     });
   }
 
-  void _confirmOrigin() {
+  void _confirmOrigin() async {
     HapticFeedback.mediumImpact();
     if (_mapController == null) return;
+    
     LatLng currentCenter = _mapController!.cameraPosition!.target;
 
     var appInfo = Provider.of<AppInfo>(context, listen: false);
@@ -414,6 +335,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     setState(() {
       _originLatLng = currentCenter;
     });
+    _updateMarkerPositions();
 
     if (widget.serviceType == 'cargo') {
       CargoSheets.showSenderDialog(
@@ -452,9 +374,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   }
 
-  void _confirmDestination() {
+  void _confirmDestination() async {
     HapticFeedback.mediumImpact();
     if (_mapController == null) return;
+    
     LatLng currentCenter = _mapController!.cameraPosition!.target;
 
     var appInfo = Provider.of<AppInfo>(context, listen: false);
@@ -463,6 +386,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       longitudePosition: currentCenter.longitude,
       placeName: appInfo.dropOffLocation?.placeName ?? 'destination_label'.tr(),
     ));
+
+    setState(() {
+      _destinationLatLng = currentCenter;
+    });
+    _updateMarkerPositions();
 
     if (widget.serviceType == 'cargo') {
       CargoSheets.showReceiverDialog(
@@ -488,18 +416,14 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   }
 
-  void _clearRouteAndMarkers() {
-    if (_mapController != null && _currentPolyline != null) {
-      _mapController!.removeLine(_currentPolyline!);
-      _currentPolyline = null;
-    }
-  }
-
   void _fetchRoute() {
     var appInfo = Provider.of<AppInfo>(context, listen: false);
     if (appInfo.pickUpLocation == null || _mapController == null) return;
 
-    _clearRouteAndMarkers();
+    setState(() {
+      _routePolylinePoints.clear();
+      _mapController!.clearLines(); // پاک‌سازی مسیرهای قبلی روی MapLibre
+    });
 
     LatLng originLatLng = _originLatLng ?? 
         LatLng(appInfo.pickUpLocation!.latitudePosition!, appInfo.pickUpLocation!.longitudePosition!);
@@ -520,27 +444,23 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             _destinationLatLng = destLatLng;
           });
 
-          if (_routePolylinePoints.isNotEmpty && _mapController != null) {
-            _currentPolyline = await _mapController!.addLine(
+          _updateMarkerPositions();
+
+          // 🔹 رسم خط مسیر روی MapLibre
+          if (_routePolylinePoints.isNotEmpty) {
+            await _mapController!.addLine(
               LineOptions(
                 geometry: _routePolylinePoints,
-                lineColor: "#2B50AA",
+                lineColor: "#0066FF",
                 lineWidth: 5.5,
-                lineOpacity: 0.85,
               ),
             );
 
-            double minLat = _routePolylinePoints.first.latitude;
-            double maxLat = _routePolylinePoints.first.latitude;
-            double minLng = _routePolylinePoints.first.longitude;
-            double maxLng = _routePolylinePoints.first.longitude;
-
-            for (var p in _routePolylinePoints) {
-              if (p.latitude < minLat) minLat = p.latitude;
-              if (p.latitude > maxLat) maxLat = p.latitude;
-              if (p.longitude < minLng) minLng = p.longitude;
-              if (p.longitude > maxLng) maxLng = p.longitude;
-            }
+            // تنظیم زوم خودکار جهت دیدن کل مسیر
+            double minLat = _routePolylinePoints.map((p) => p.latitude).reduce(min);
+            double maxLat = _routePolylinePoints.map((p) => p.latitude).reduce(max);
+            double minLng = _routePolylinePoints.map((p) => p.longitude).reduce(min);
+            double maxLng = _routePolylinePoints.map((p) => p.longitude).reduce(max);
 
             _mapController!.animateCamera(
               CameraUpdate.newLatLngBounds(
@@ -548,10 +468,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                   southwest: LatLng(minLat, minLng),
                   northeast: LatLng(maxLat, maxLng),
                 ),
-                left: 50,
-                top: 100,
-                right: 50,
-                bottom: 100,
+                left: 50, top: 100, right: 50, bottom: 100,
               ),
             );
           }
@@ -658,16 +575,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 _currentStep = 4;
               }
             });
-
-            // 🚖 به‌روزرسانی موقعیت زنده راننده روی نقشه
-            if (data["driverLat"] != null && data["driverLng"] != null) {
-              LatLng driverLatLng = LatLng(
-                (data["driverLat"] as num).toDouble(),
-                (data["driverLng"] as num).toDouble(),
-              );
-              double heading = ((data["driverHeading"] ?? 0) as num).toDouble();
-              _animateVehicleMovement(driverLatLng, heading);
-            }
           }
 
           if (status == "ended" || status == "completed") {
@@ -712,11 +619,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         if (_currentStep == 0) {
           _originLatLng = null;
           _routePolylinePoints.clear();
-          _clearRouteAndMarkers();
+          _mapController?.clearLines();
         } else if (_currentStep == 1) {
           _destinationLatLng = null;
           _routePolylinePoints.clear();
-          _clearRouteAndMarkers();
+          _mapController?.clearLines();
         }
       });
     }
@@ -815,15 +722,23 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
-          // ۱. نقشه موتور MapLibre GL
+          // ۱. نقشه بومی MapLibre HD
           MapLibreMap(
-            styleString: 'assets/map/style.json',
             initialCameraPosition: CameraPosition(
-              target: _currentUserLatLng,
-              zoom: 16.0,
+              target: widget.targetLocation ?? _currentUserLatLng,
+              zoom: 17.8,
             ),
-            onMapCreated: _onMapCreated,
-            onCameraMove: (position) {
+            styleString: 'assets/map/style.json',
+            myLocationEnabled: true, // 👈 آیکون گرد و زنده موقعیت کاربر خودکار فعال شد
+            myLocationTrackingMode: MyLocationTrackingMode.Tracking,
+            myLocationRenderMode: MyLocationRenderMode.NORMAL,
+            onMapCreated: (controller) {
+              _mapController = controller;
+              if (widget.targetLocation != null) {
+                _animatedMapMove(widget.targetLocation!, 17.8);
+              }
+            },
+            onCameraMoveStarted: () {
               if (!_isMapMoving) {
                 setState(() {
                   _isMapMoving = true;
@@ -831,17 +746,47 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 });
               }
             },
-            onCameraIdle: () {
-              setState(() => _isMapMoving = false);
-              if (_currentStep < 2 && _mapController != null) {
-                _updateAddressFromCamera(_mapController!.cameraPosition!.target);
+            onCameraMove: () {
+              _updateMarkerPositions();
+            },
+            onMapChanged: (event) {
+              if (event == MapChangeEvent.cameraIdle) {
+                setState(() => _isMapMoving = false);
+                _updateMarkerPositions();
+                if (_currentStep < 2 && _mapController != null) {
+                  _updateAddressFromCamera(_mapController!.cameraPosition!.target);
+                }
               }
             },
-            trackCameraPosition: true,
-            myLocationEnabled: false,
+            onMapClick: (_, __) {
+              if (_isSheetExpanded) {
+                setState(() => _isSheetExpanded = false);
+              }
+            },
           ),
 
-          // ۲. پین مرکز صفحه
+          // 🔹 مارکر مبدأ قبلی شما بدون تغییر دیزاین
+          if (_originLatLng != null && _originScreenPoint != null)
+            Positioned(
+              left: _originScreenPoint!.x.toDouble() - 55,
+              top: _originScreenPoint!.y.toDouble() - 40,
+              child: MapOriginLabel(
+                labelText: 'origin_label'.tr(),
+              ),
+            ),
+
+          // 🔹 مارکر مقصد قبلی شما بدون تغییر دیزاین
+          if (_destinationLatLng != null && _destinationScreenPoint != null)
+            Positioned(
+              left: _destinationScreenPoint!.x.toDouble() - 100,
+              top: _destinationScreenPoint!.y.toDouble() - 60,
+              child: MapDestinationLabel(
+                labelText: 'destination_label'.tr(),
+                arrivalTime: _estimatedArrivalTime,
+              ),
+            ),
+
+          // ۲. پین مرکز صفحه (در مراحل ۰ و ۱)
           if (_currentStep < 2)
             Center(
               child: Padding(
@@ -1103,7 +1048,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               onGpsTap: _handleGpsTap,
             ),
 
-          // ۵. شیت گام ۲ (تفکیک تاکسی، بین‌شهری و باربری)
+          // ۵. شیت گام ۲ (تفکیک بین تاکسی، بین‌شهری و باربری)
           if (_currentStep == 2)
             widget.serviceType == 'cargo'
                 ? CargoSheets.buildCargoSummarySheet(
@@ -1112,7 +1057,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     selectedVehicleType: _cargoSelectedVehicle,
                     onVehicleSelected: (vehicleId) {
                       setState(() => _cargoSelectedVehicle = vehicleId);
-                      _updateNearbyVehiclesOnMap();
                     },
                     paymentPayer: _cargoPaymentPayer,
                     onPayerChanged: (payer) {
@@ -1144,7 +1088,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                             _selectedVehicleType = 0;
                             selectedVehicle = cat == 0 ? "Car" : "Bike";
                           });
-                          _updateNearbyVehiclesOnMap();
                           _fetchRoute();
                         },
                         onVehicleSelected: (index, vType) {
@@ -1152,7 +1095,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                             _selectedVehicleType = index;
                             selectedVehicle = vType;
                           });
-                          _updateNearbyVehiclesOnMap();
                           _fetchRoute();
                         },
                         onRequestTrip: () => startTrip(),
