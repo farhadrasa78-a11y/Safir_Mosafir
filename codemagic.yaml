@@ -5,11 +5,11 @@ workflows:
     instance_type: mac_mini_m2
 
     environment:
-      flutter: 3.27.0
+      flutter: 3.24.4
       java: 21
 
     scripts:
-      - name: Show Flutter version
+      - name: Show versions
         script: |
           flutter --version
           dart --version
