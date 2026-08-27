@@ -332,23 +332,40 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     });
   }
 
-  void _confirmOrigin() async {
-    HapticFeedback.mediumImpact();
-    if (_mapController == null) return;
-    
-    LatLng currentCenter = _mapController!.cameraPosition!.target;
+  Future<void> _confirmOrigin() async {
+  HapticFeedback.mediumImpact();
 
-    var appInfo = Provider.of<AppInfo>(context, listen: false);
-    appInfo.updatePickUpLocation(AddressModel(
+  if (_mapController == null) return;
+
+  final camera = await _mapController!.queryCameraPosition();
+  if (camera == null) return;
+
+  final currentCenter = camera.target;
+
+  final appInfo = Provider.of<AppInfo>(
+    context,
+    listen: false,
+  );
+
+  appInfo.updatePickUpLocation(
+    AddressModel(
       latitudePosition: currentCenter.latitude,
       longitudePosition: currentCenter.longitude,
-      placeName: appInfo.pickUpLocation?.placeName ?? 'origin_label'.tr(),
-    ));
+      placeName: appInfo.pickUpLocation?.placeName ??
+          'origin_label'.tr(),
+    ),
+  );
 
-    setState(() {
-      _originLatLng = currentCenter;
-    });
-    _updateMarkerPositions();
+  setState(() {
+    _originLatLng = currentCenter;
+
+    // بعد از تأیید مبدأ، مرحلهٔ انتخاب مقصد فعال می‌شود.
+    _isSelectingOrigin = false;
+  });
+
+  await _updateOriginMarker();
+  await _updateMarkerPositions();
+  }
 
     // 🔹 زوم نزدیک به مبدأ جهت انتخاب دقیق‌تر مقصد
     _animatedMapMove(currentCenter, 17.8);
@@ -390,23 +407,36 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   }
 
-  void _confirmDestination() async {
-    HapticFeedback.mediumImpact();
-    if (_mapController == null) return;
-    
-    LatLng currentCenter = _mapController!.cameraPosition!.target;
+  Future<void> _confirmDestination() async {
+  HapticFeedback.mediumImpact();
 
-    var appInfo = Provider.of<AppInfo>(context, listen: false);
-    appInfo.updateDropOffLocation(AddressModel(
+  if (_mapController == null) return;
+
+  final camera = await _mapController!.queryCameraPosition();
+  if (camera == null) return;
+
+  final currentCenter = camera.target;
+
+  final appInfo = Provider.of<AppInfo>(
+    context,
+    listen: false,
+  );
+
+  appInfo.updateDropOffLocation(
+    AddressModel(
       latitudePosition: currentCenter.latitude,
       longitudePosition: currentCenter.longitude,
-      placeName: appInfo.dropOffLocation?.placeName ?? 'destination_label'.tr(),
-    ));
+      placeName: appInfo.dropOffLocation?.placeName ??
+          'destination_label'.tr(),
+    ),
+  );
 
-    setState(() {
-      _destinationLatLng = currentCenter;
-    });
-    _updateMarkerPositions();
+  setState(() {
+    _destinationLatLng = currentCenter;
+  });
+
+  await _updateMarkerPositions();
+  }
 
     if (widget.serviceType == 'cargo') {
       CargoSheets.showReceiverDialog(
