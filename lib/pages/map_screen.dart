@@ -173,21 +173,23 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   }
 
   Future<void> _updateMarkerPositions() async {
-    if (_mapController == null) return;
+  if (_mapController == null) return;
 
-    try {
-      if (_originLatLng != null) {
-        final originPoint = await _mapController!.toScreenCoordinate(_originLatLng!);
-        if (mounted) setState(() => _originScreenPoint = originPoint);
-      }
-      if (_destinationLatLng != null) {
-        final destPoint = await _mapController!.toScreenCoordinate(_destinationLatLng!);
-        if (mounted) setState(() => _destinationScreenPoint = destPoint);
-      }
-    } catch (e) {
-      debugPrint("Error updating marker positions: $e");
+  try {
+    if (_originLatLng != null) {
+      // استفاده از متد استاندارد toScreenCoordinate
+      final originPoint = await _mapController!.toScreenCoordinate(_originLatLng!);
+      if (mounted) setState(() => _originScreenPoint = originPoint);
     }
+    if (_destinationLatLng != null) {
+      final destPoint = await _mapController!.toScreenCoordinate(_destinationLatLng!);
+      if (mounted) setState(() => _destinationScreenPoint = destPoint);
+    }
+  } catch (e) {
+    debugPrint("Error updating marker positions: $e");
   }
+}
+
 
   Future<void> _startLiveLocationUpdates() async {
     try {
