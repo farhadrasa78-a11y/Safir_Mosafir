@@ -743,7 +743,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 _animatedMapMove(widget.targetLocation!, 17.8);
               }
             },
-            onCameraMove: () {
+            onCameraMove: (CameraPosition position) {
               if (!_isMapMoving) {
                 setState(() {
                   _isMapMoving = true;
