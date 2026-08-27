@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 // ایمپورت‌های پکیج سفیر مسافر و تم‌ها
 import 'package:safir_passengers/appInfo/auth_provider.dart';
@@ -20,6 +22,8 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController phoneController = TextEditingController();
+  CommonMethods commonMethods = CommonMethods();
+  bool _isGoogleLoading = false;
 
   @override
   void initState() {
@@ -37,14 +41,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  CommonMethods commonMethods = CommonMethods();
-
   bool _isPhoneValid(String input) {
     String clean = input.trim();
     return RegExp(r'^[7][0-9]{8}$').hasMatch(clean);
   }
 
-  // تابع ارتباط از طریق واتساپ برای تست فامیل‌ها در افغانستان
+  // تابع ارتباط از طریق واتساپ
   Future<void> sendCodeViaWhatsApp() async {
     String rawPhoneNumber = phoneController.text.trim();
     if (rawPhoneNumber.startsWith('0')) {
@@ -74,6 +76,91 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  // 🔴 اصلاح کامل منطق ورود با جیمیل
+  Future<void> signInWithGoogleProcess(AuthenticationProvider authProvider) async {
+    setState(() => _isGoogleLoading = true);
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut(); // پاک کردن اکانت قبلی برای انتخاب مجدد
+
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        setState(() => _isGoogleLoading = false);
+        return; // کاربر انصراف داد
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+      if (userCredential.user != null) {
+        bool userExists = await authProvider.checkUserExistById();
+        bool userExistInDatabase = await authProvider.checkUserExistByEmail(
+          userCredential.user!.email ?? "",
+        );
+
+        if (userExists && userExistInDatabase) {
+          bool isBlocked = await authProvider.checkIfUserIsBlocked();
+          if (mounted) {
+            if (isBlocked) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const BlockedScreen()),
+              );
+            } else {
+              await authProvider.getUserDataFromFirebaseDatabase();
+              navigate(isSingedIn: true);
+            }
+          }
+        } else {
+          if (mounted) navigate(isSingedIn: false);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error signing in with Google: $e");
+      if (mounted) {
+        commonMethods.displaySnackBar("خطا در ورود با گوگل: $e", context);
+      }
+    } finally {
+      if (mounted) setState(() => _isGoogleLoading = false);
+    }
+  }
+
+  void navigate({required bool isSingedIn}) {
+    if (isSingedIn) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const SafirHomeScreen()),
+        (route) => false,
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const UserInformationScreen()),
+      );
+    }
+  }
+
+  void sendPhoneNumberViaFirebase() {
+    final authRepo = Provider.of<AuthenticationProvider>(context, listen: false);
+    String rawPhoneNumber = phoneController.text.trim();
+    if (rawPhoneNumber.startsWith('0')) rawPhoneNumber = rawPhoneNumber.substring(1);
+
+    if (!_isPhoneValid(rawPhoneNumber)) {
+      commonMethods.displaySnackBar('register.invalid_phone_warning'.tr(), context);
+      return;
+    }
+
+    String fullPhoneNumber = '+93$rawPhoneNumber';
+    authRepo.signInWithPhone(context: context, phoneNumber: fullPhoneNumber);
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationProvider>(context);
@@ -88,7 +175,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // هدر بالای صفحه
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -107,8 +193,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 const SizedBox(height: 28),
-                
-                // عناوین خوش‌آمدگویی
                 Text(
                   'register.title'.tr(),
                   style: const TextStyle(
@@ -128,8 +212,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
-                // 📱 کادر شماره موبایل قفل شده روی افغانستان (+93)
                 Row(
                   children: [
                     Container(
@@ -198,8 +280,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
-                // 🟢 دکمه واتساپ
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -224,8 +304,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // 📱 دکمه ارسال پیامک فایربیس
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -255,7 +333,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
-                
                 Row(
                   children: [
                     Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
@@ -271,33 +348,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 
-                // ورود با گوگل
+                // دکمه لاگین با گوگل
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: OutlinedButton(
-                    onPressed: authProvider.isLoading ? null : () => signInWithGoogleProcess(authProvider),
+                    onPressed: _isGoogleLoading ? null : () => signInWithGoogleProcess(authProvider),
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.grey[100],
                       side: BorderSide(color: Colors.grey.shade300, width: 1),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
-                          height: 20,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.g_mobiledata_rounded, color: Colors.redAccent, size: 28),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'register.google_sign_in'.tr(),
-                          style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
+                    child: _isGoogleLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(color: AppColors.primaryBrand, strokeWidth: 2.5),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.network(
+                                'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                                height: 20,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.g_mobiledata_rounded, color: Colors.redAccent, size: 28),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'register.google_sign_in'.tr(),
+                                style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
               ],
@@ -306,50 +389,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
-  }
-
-  void sendPhoneNumberViaFirebase() {
-    final authRepo = Provider.of<AuthenticationProvider>(context, listen: false);
-    String rawPhoneNumber = phoneController.text.trim();
-    if (rawPhoneNumber.startsWith('0')) rawPhoneNumber = rawPhoneNumber.substring(1);
-
-    if (!_isPhoneValid(rawPhoneNumber)) {
-      commonMethods.displaySnackBar('register.invalid_phone_warning'.tr(), context);
-      return;
-    }
-
-    String fullPhoneNumber = '+93$rawPhoneNumber';
-    authRepo.signInWithPhone(context: context, phoneNumber: fullPhoneNumber);
-  }
-
-    Future<void> signInWithGoogleProcess(AuthenticationProvider authProvider) async {
-    await authProvider.signInWithGoogle(
-      context,
-      () async {
-        bool userExits = await authProvider.checkUserExistById();
-        bool userExistInDatabse = await authProvider.checkUserExistByEmail(
-            authProvider.firebaseAuth.currentUser!.email!.toString());
-        if (userExits && userExistInDatabse) {
-          bool isBlocked = await authProvider.checkIfUserIsBlocked();
-          if (isBlocked) {
-            if (!mounted) return;
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BlockedScreen()));
-          } else {
-            await authProvider.getUserDataFromFirebaseDatabase();
-            navigate(isSingedIn: true);
-          }
-        } else {
-          navigate(isSingedIn: false);
-        }
-      },
-    );
-  }
-
-  void navigate({required bool isSingedIn}) {
-    if (isSingedIn) {
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const SafirHomeScreen()), (route) => false);
-    } else {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const UserInformationScreen()));
-    }
   }
 }
