@@ -15,6 +15,6 @@ workflows:
           cd android && ./gradlew signingReport || true
       - name: Build APK
         script: |
-          flutter build apk --release --split-per-abi
+          flutter build apk --debug
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
