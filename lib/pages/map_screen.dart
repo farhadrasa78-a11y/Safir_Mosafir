@@ -178,7 +178,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   try {
     if (_originLatLng != null) {
       // استفاده از متد جدید و استاندارد maplibre_gl 0.26.2
-      final originPoint = await _mapController!.toScreenCoordinates(_originLatLng!);
+      final originPoint = await _mapController!.toScreenLocation(_originLatLng!);
       if (mounted) {
         setState(() {
           _originScreenPoint = Point<num>(originPoint.x, originPoint.y);
@@ -186,7 +186,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       }
     }
     if (_destinationLatLng != null) {
-      final destPoint = await _mapController!.toScreenCoordinates(_destinationLatLng!);
+      final destPoint = await _mapController!.toScreenLocation(_destinationLatLng!);
       if (mounted) {
         setState(() {
           _destinationScreenPoint = Point<num>(destPoint.x, destPoint.y);
