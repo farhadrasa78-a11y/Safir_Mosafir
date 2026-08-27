@@ -5,7 +5,7 @@ workflows:
     instance_type: mac_mini_m2
 
     environment:
-      flutter: 3.24.4
+      flutter: 3.29.3
       java: 21
 
     scripts:
@@ -21,7 +21,7 @@ workflows:
       - name: Get SHA-1
         script: |
           cd android
-          ./gradlew signingReport || true
+          ./gradlew signingReport
 
       - name: Build APK
         script: |
