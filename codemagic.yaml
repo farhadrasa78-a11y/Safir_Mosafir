@@ -3,18 +3,29 @@ workflows:
     name: Android Build
     max_build_duration: 30
     instance_type: mac_mini_m2
+
     environment:
+      flutter: 3.27.0
       java: 21
-      flutter: 3.22.0
+
     scripts:
+      - name: Show Flutter version
+        script: |
+          flutter --version
+          dart --version
+
       - name: Get Flutter packages
         script: |
           flutter pub get
+
       - name: Get SHA-1
         script: |
-          cd android && ./gradlew signingReport || true
+          cd android
+          ./gradlew signingReport || true
+
       - name: Build APK
         script: |
           flutter build apk --debug
+
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
