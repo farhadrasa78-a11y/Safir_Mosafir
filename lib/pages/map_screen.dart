@@ -776,6 +776,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             myLocationEnabled: true,
             myLocationTrackingMode: MyLocationTrackingMode.tracking,
             myLocationRenderMode: MyLocationRenderMode.normal,
+            trackCameraPosition: true,
             onMapCreated: (controller) {
               _mapController = controller;
               if (widget.targetLocation != null) {
