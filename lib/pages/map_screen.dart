@@ -365,7 +365,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       ),
     );
 
-    // 🔹 تبدیل ویجت سفارشی شما به عکس و ثبت روی نقشه
+    // 🔹 تبدیل ویجت مبدأ به تصویر و ثبت روی نقشه
     final bytes = await widgetToImageBytes(
       MapOriginLabel(labelText: appInfo.pickUpLocation?.placeName ?? 'origin_label'.tr()),
     );
@@ -441,7 +441,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       ),
     );
 
-    // 🔹 تبدیل ویجت مقصد سفارشی شما به عکس و ثبت روی نقشه
+    // 🔹 تبدیل ویجت مقصد به تصویر و ثبت روی نقشه
     final bytes = await widgetToImageBytes(
       MapDestinationLabel(
         labelText: appInfo.dropOffLocation?.placeName ?? 'destination_label'.tr(),
@@ -815,17 +815,24 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               }
             },
             onCameraMove: (CameraPosition position) {
-      if (!_isProgrammaticMove && _isSheetExpanded) {
-           setState(() {
-           _isMapMoving = true;
-          _isSheetExpanded = false;
-             });
-            }
-           },
-
+              if (!_isProgrammaticMove) {
+                if (!_isMapMoving) {
+                  setState(() {
+                    _isMapMoving = true;
+                  });
+                }
+                if (_isSheetExpanded) {
+                  setState(() {
+                    _isSheetExpanded = false;
+                  });
+                }
+              }
+            },
             onCameraIdle: () {
               _isProgrammaticMove = false;
-              setState(() => _isMapMoving = false);
+              if (_isMapMoving) {
+                setState(() => _isMapMoving = false);
+              }
               if (_currentStep < 2 && _mapController != null) {
                 _updateAddressFromCamera(_mapController!.cameraPosition!.target);
               }
@@ -837,108 +844,81 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             },
           ),
 
-          // 🔹 پین شناور در مرکز صفحه (برای مرحله انتخاب location)
+          // 📍 پین دو لایه‌ای و کاملاً هوشمند مرکز صفحه (مشابه اسنپ)
           if (_currentStep < 2)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: SizedBox(
-                  width: 50,
-                  height: 60,
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        width: 14,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.22),
-                          borderRadius: const BorderRadius.all(Radius.elliptical(14, 7)),
-                        ),
+            IgnorePointer(
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // ۱. دایره ثابت روی زمین (نقطه دقیق مبدأ/مقصد)
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: activePinColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 4,
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
-                      if (_isMapMoving)
-                        Positioned(
-                          bottom: 2,
-                          child: Container(
-                            width: 3.5,
-                            height: 3.5,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF424242),
-                              shape: BoxShape.circle,
+                    ),
+
+                    // ۲. سوزن و آیکون معلق (پرش به سمت بالا هنگام لمس و جابه‌جایی نقشه)
+                    AnimatedTransform(
+                      duration: const Duration(milliseconds: 160),
+                      curve: Curves.easeOutCubic,
+                      transform: Matrix4.translationValues(
+                        0,
+                        _isMapMoving ? -28.0 : -16.0,
+                        0,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              color: activePinColor,
+                              shape: _currentStep == 0 ? BoxShape.circle : BoxShape.rectangle,
+                              borderRadius: _currentStep == 0 ? null : BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white, width: 2.5),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 6,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: _currentStep == 0 ? BoxShape.circle : BoxShape.rectangle,
+                                  borderRadius: _currentStep == 0 ? null : BorderRadius.circular(2),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      AnimatedPositioned(
-                        duration: const Duration(milliseconds: 150),
-                        curve: Curves.easeOut,
-                        bottom: _isMapMoving ? 16 : 4,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _currentStep == 0
-                                ? Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: activePinColor,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 2.5),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                      child: Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: activePinColor,
-                                      borderRadius: BorderRadius.circular(9),
-                                      border: Border.all(color: Colors.white, width: 2.5),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                      child: Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(2),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                            Container(
-                              width: 3,
-                              height: 14,
-                              color: const Color(0xFF424242),
-                            ),
-                          ],
-                        ),
+                          // چوبک/سوزن اتصال
+                          Container(
+                            width: 3.5,
+                            height: 14,
+                            color: const Color(0xFF424242),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
