@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // 👈 افزوده شده جهت مدیریت status bar
 import 'package:flutter_stripe/flutter_stripe.dart' hide AppInfo;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,20 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized(); // مقداردهی اولیه زبان
 
+  // 🔹 ۱. فعال‌سازی حالت edgeToEdge جهت پوشش کامل نقشه در تمام صفحه
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+  );
+
+  // 🔹 ۲. شفاف کردن کامل status bar و navigation bar مشابه اسنپ
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness: Brightness.light,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
+  ));
+
   Stripe.publishableKey = stripePublishedKey;
   await Firebase.initializeApp();
 
@@ -36,7 +51,7 @@ Future<void> main() async {
     EasyLocalization(
       supportedLocales: const [Locale('fa'), Locale('ps'), Locale('en')],
       path: 'assets/lang', // مسیر فایل‌های ترجمه
-      startLocale: const Locale('fa'), // 🇦🇫 اجبار شروع برنامه با زبان فارسی
+      startLocale: const Locale('fa'), // 🇦ف اجبار شروع برنامه با زبان فارسی
       fallbackLocale: const Locale('fa'), // زبان رزرو
       saveLocale: true,
       useOnlyLangCode: true,
