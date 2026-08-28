@@ -365,7 +365,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       ),
     );
 
-    // 🔹 تبدیل ویجت مبدأ به تصویر و ثبت روی نقشه
     final bytes = await widgetToImageBytes(
       MapOriginLabel(labelText: appInfo.pickUpLocation?.placeName ?? 'origin_label'.tr()),
     );
@@ -441,7 +440,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       ),
     );
 
-    // 🔹 تبدیل ویجت مقصد به تصویر و ثبت روی نقشه
     final bytes = await widgetToImageBytes(
       MapDestinationLabel(
         labelText: appInfo.dropOffLocation?.placeName ?? 'destination_label'.tr(),
@@ -870,7 +868,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     ),
 
                     // ۲. سوزن و آیکون معلق (پرش به سمت بالا هنگام لمس و جابه‌جایی نقشه)
-                    AnimatedTransform(
+                    AnimatedContainer(
                       duration: const Duration(milliseconds: 160),
                       curve: Curves.easeOutCubic,
                       transform: Matrix4.translationValues(
