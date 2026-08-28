@@ -34,7 +34,7 @@ import 'map_files/promo_code_sheet.dart';
 import '../widgets/animated_menus.dart'; 
 import '../widgets/map_location_label.dart';
 
-/// 🔹 تابع تبدیل ویجت Flutter به تصویر جهت رندر نیتیو در MapLibre
+/// 🔹 تبدیل ویجت به تصویر برای MapLibre (نمایش فقط «مبدأ» یا «مقصد»)
 Future<Uint8List> widgetToImageBytes(Widget widget) async {
   final BuildOwner buildOwner = BuildOwner(focusManager: FocusManager());
   final PipelineOwner pipelineOwner = PipelineOwner();
@@ -361,12 +361,13 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       AddressModel(
         latitudePosition: currentCenter.latitude,
         longitudePosition: currentCenter.longitude,
-        placeName: appInfo.pickUpLocation?.placeName ?? 'origin_label'.tr(),
+        placeName: appInfo.pickUpLocation?.placeName ?? 'مبدأ',
       ),
     );
 
+    // 🔹 ثبت فقط عنوان «مبدأ» روی نقشه
     final bytes = await widgetToImageBytes(
-      MapOriginLabel(labelText: appInfo.pickUpLocation?.placeName ?? 'origin_label'.tr()),
+      const MapOriginLabel(labelText: 'مبدأ'),
     );
     await _mapController!.addImage('origin-marker-icon', bytes);
 
@@ -436,13 +437,14 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       AddressModel(
         latitudePosition: currentCenter.latitude,
         longitudePosition: currentCenter.longitude,
-        placeName: appInfo.dropOffLocation?.placeName ?? 'destination_label'.tr(),
+        placeName: appInfo.dropOffLocation?.placeName ?? 'مقصد',
       ),
     );
 
+    // 🔹 ثبت فقط عنوان «مقصد» روی نقشه
     final bytes = await widgetToImageBytes(
       MapDestinationLabel(
-        labelText: appInfo.dropOffLocation?.placeName ?? 'destination_label'.tr(),
+        labelText: 'مقصد',
         arrivalTime: _estimatedArrivalTime,
       ),
     );
@@ -819,6 +821,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     _isMapMoving = true;
                   });
                 }
+                // 🔹 بستن شیت به محص جابه‌جایی نقشه
                 if (_isSheetExpanded) {
                   setState(() {
                     _isSheetExpanded = false;
@@ -842,63 +845,70 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             },
           ),
 
-          // 📍 پین دو لایه‌ای و کاملاً هوشمند مرکز صفحه (مشابه اسنپ)
+          // 📍 ۱. طراحی دقیقا مشابه اسنپ (سایه دایره‌ای کم‌رنگ + چوبک باریک و بالا رفتن کامل هنگام لمس)
           if (_currentStep < 2)
             IgnorePointer(
               child: Center(
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // ۱. دایره ثابت روی زمین (نقطه دقیق مبدأ/مقصد)
-                    Container(
-                      width: 12,
-                      height: 12,
+                    // سایه/دایره بزرگ کم‌رنگ پایینی (روی نقشه ثابت می‌ماند)
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      width: _isMapMoving ? 36 : 28,
+                      height: _isMapMoving ? 36 : 28,
                       decoration: BoxDecoration(
-                        color: activePinColor,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2.5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
-                            blurRadius: 4,
-                            spreadRadius: 1,
+                        color: activePinColor.withOpacity(0.18),
+                        border: Border.all(
+                          color: activePinColor.withOpacity(0.35),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: activePinColor,
+                            shape: BoxShape.circle,
                           ),
-                        ],
+                        ),
                       ),
                     ),
 
-                    // ۲. سوزن و آیکون معلق (پرش به سمت بالا هنگام لمس و جابه‌جایی نقشه)
+                    // پین اصلی، چوبک باریک و آیکون (هنگام لمس/حرکت نقشه ۴۵ پیکسل بالا می‌رود)
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 160),
                       curve: Curves.easeOutCubic,
                       transform: Matrix4.translationValues(
                         0,
-                        _isMapMoving ? -28.0 : -16.0,
+                        _isMapMoving ? -45.0 : -20.0,
                         0,
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 34,
-                            height: 34,
+                            width: 30,
+                            height: 30,
                             decoration: BoxDecoration(
                               color: activePinColor,
                               shape: _currentStep == 0 ? BoxShape.circle : BoxShape.rectangle,
-                              borderRadius: _currentStep == 0 ? null : BorderRadius.circular(10),
-                              border: Border.all(color: Colors.white, width: 2.5),
+                              borderRadius: _currentStep == 0 ? null : BorderRadius.circular(8),
+                              border: Border.all(color: Colors.white, width: 2),
                               boxShadow: const [
                                 BoxShadow(
                                   color: Colors.black26,
-                                  blurRadius: 6,
+                                  blurRadius: 5,
                                   offset: Offset(0, 3),
                                 ),
                               ],
                             ),
                             child: Center(
                               child: Container(
-                                width: 8,
-                                height: 8,
+                                width: 7,
+                                height: 7,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   shape: _currentStep == 0 ? BoxShape.circle : BoxShape.rectangle,
@@ -907,11 +917,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                               ),
                             ),
                           ),
-                          // چوبک/سوزن اتصال
+                          // چوبک نازک و باریک مشابه اسنپ
                           Container(
-                            width: 3.5,
-                            height: 14,
-                            color: const Color(0xFF424242),
+                            width: 2.0,
+                            height: 18,
+                            color: const Color(0xFF333333),
                           ),
                         ],
                       ),
@@ -922,7 +932,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             ),
 
           Positioned(
-            top: 45,
+            top: MediaQuery.of(context).padding.top + 10,
             left: 16,
             right: 16,
             child: Row(
