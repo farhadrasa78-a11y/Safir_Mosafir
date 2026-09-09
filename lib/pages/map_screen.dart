@@ -630,7 +630,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           if (!snapshot.exists || snapshot.data() == null) return;
           var data = snapshot.data() as Map<String, dynamic>;
 
-          if (mounted) {
+            if (mounted) {
             setState(() {
               status = data["status"] ?? status;
               nameDriver = data["driverName"] ?? data["driver_phone"] ?? nameDriver;
@@ -639,10 +639,37 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               carDetailsDriver = data["carDetails"] ?? data["car_details"] ?? carDetailsDriver;
 
               if (status == "accepted" || status == "arrived" || status == "ontrip") {
-
                 _currentStep = 4;
               }
+
+              // 🔴 لغو قبل از رسیدن (جستجوی مجدد)
+              if (status == "cancelled_by_driver_search_again") {
+                _currentStep = 3;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("سفر توسط سفیر لغو گردید. در حال جستجوی سفیر جدید..."),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+                nameDriver = "";
+                phoneNumberDriver = "";
+                photoDriver = "";
+              }
+
+              // 🔴 لغو کامل سفر
+              if (status == "cancelled_by_driver") {
+                _currentStep = 2;
+                tripStreamSubscription?.cancel();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("سفر توسط سفیر لغو شد."),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             });
+          }
+
           }
 
           if (status == "ended" || status == "completed") {
