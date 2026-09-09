@@ -638,8 +638,19 @@ class MapBottomSheets {
             }
           },
           onMessagePressed: () {
-            HapticFeedback.lightImpact();
-          },
+  HapticFeedback.lightImpact();
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ChatPage(
+        tripId: tripRequestRef?.id ?? "",
+        driverName: nameDriver,
+        driverPhoto: photoDriver,
+      ),
+    ),
+  );
+},
+
           onPaymentPressed: () {
             HapticFeedback.lightImpact();
           },
