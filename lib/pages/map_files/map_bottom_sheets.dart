@@ -57,7 +57,7 @@ class MapBottomSheets {
     );
   }
 
-  // 🎯 مرحله ۲: انتخاب نوع خودرو و موترسایکل
+    // 🎯 مرحله ۲: انتخاب نوع خودرو و موترسایکل
   static Widget buildStep2({
     required int selectedCategory,
     required int selectedVehicleType,
@@ -74,171 +74,221 @@ class MapBottomSheets {
     bool hasPromoCode = false,
   }) {
     return Positioned(
-      bottom: 0,
       left: 0,
       right: 0,
-      child: Container(
-        padding: const EdgeInsets.only(top: 10, left: 16, right: 16, bottom: 20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 15,
-              spreadRadius: 2,
-              offset: Offset(0, -3),
-            )
-          ],
-        ),
-        child: Builder(builder: (context) {
-          String currency = 'currency_afg'.tr();
+      top: 0,
+      bottom: 0,
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.43,
+        minChildSize: 0.13,
+        maxChildSize: 0.88,
+        snap: true,
+        snapSizes: const [0.13, 0.43, 0.88],
+        builder: (context, scrollController) {
+          final String currency = 'currency_afg'.tr();
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(24),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildTabItem(
-                    title: 'tab_car'.tr(),
-                    index: 0,
-                    selectedCategory: selectedCategory,
-                    color: AppColors.primaryBrand,
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      onCategoryChanged(0);
-                    },
-                  ),
-                  _buildTabItem(
-                    title: 'tab_motorbike'.tr(),
-                    index: 1,
-                    selectedCategory: selectedCategory,
-                    color: AppColors.primaryBrand,
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      onCategoryChanged(1);
-                    },
-                  ),
-                ],
-              ),
-              const Divider(height: 1, thickness: 1),
-              const SizedBox(height: 12),
-              if (selectedCategory == 0) ...[
-                _buildVehicleCard(
-                  title: 'vehicle_eco_title'.tr(),
-                  subtitle: 'vehicle_eco_sub'.tr(),
-                  price: '${actualFareAmount.toStringAsFixed(0)} $currency',
-                  imagePath: 'assets/images/safir_normal.png',
-                  isSelected: selectedVehicleType == 0,
-                  safirColor: AppColors.primaryBrand,
-                  cardBgColor: AppColors.cardBgLight,
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    onVehicleSelected(0, 'Car');
-                  },
-                ),
-                const SizedBox(height: 10),
-                _buildVehicleCard(
-                  title: 'vehicle_vip_title'.tr(),
-                  subtitle: 'vehicle_vip_sub'.tr(),
-                  price: '${(actualFareAmount * 1.35).toStringAsFixed(0)} $currency',
-                  imagePath: 'assets/images/uberexec.png',
-                  isSelected: selectedVehicleType == 1,
-                  safirColor: AppColors.primaryBrand,
-                  cardBgColor: AppColors.cardBgLight,
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    onVehicleSelected(1, 'Auto');
-                  },
-                ),
-              ] else ...[
-                _buildVehicleCard(
-                  title: 'vehicle_bike_title'.tr(),
-                  subtitle: 'vehicle_bike_sub'.tr(),
-                  price: '${(actualFareAmount * 0.55).toStringAsFixed(0)} $currency',
-                  imagePath: 'assets/images/safir_bike.png',
-                  isSelected: selectedVehicleType == 0,
-                  safirColor: AppColors.primaryBrand,
-                  cardBgColor: AppColors.cardBgLight,
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    onVehicleSelected(0, 'Bike');
-                  },
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                  offset: Offset(0, -3),
                 ),
               ],
-              const SizedBox(height: 16),
-              
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildOptionButton(
-                    title: 'opt_ride_options'.tr(),
-                    isActive: hasActiveTripOptions,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      onTripOptionsTap();
-                    },
-                  ),
-                  Container(height: 14, width: 1, color: Colors.grey.shade300),
-                  _buildOptionButton(
-                    title: 'opt_schedule'.tr(),
-                    isActive: isScheduled,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      onScheduleTap();
-                    },
-                  ),
-                  Container(height: 14, width: 1, color: Colors.grey.shade300),
-                  _buildOptionButton(
-                    title: 'opt_promo_code'.tr(),
-                    isActive: hasPromoCode,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      onPromoCodeTap();
-                    },
-                  ),
-                ],
+            ),
+            child: ListView(
+              controller: scrollController,
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.only(
+                top: 10,
+                left: 16,
+                right: 16,
+                bottom: 24,
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    HapticFeedback.mediumImpact();
-                    onRequestTrip();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryBrand,
-                    overlayColor: AppColors.primaryPressed,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'btn_request_safir'.tr(),
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              children: [
+                // دستگیره کشویی
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 5,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-              ),
-            ],
+
+                // انتخاب موتر / موترسایکل
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildTabItem(
+                      title: 'tab_car'.tr(),
+                      index: 0,
+                      selectedCategory: selectedCategory,
+                      color: AppColors.primaryBrand,
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        onCategoryChanged(0);
+                      },
+                    ),
+                    _buildTabItem(
+                      title: 'tab_motorbike'.tr(),
+                      index: 1,
+                      selectedCategory: selectedCategory,
+                      color: AppColors.primaryBrand,
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        onCategoryChanged(1);
+                      },
+                    ),
+                  ],
+                ),
+
+                const Divider(
+                  height: 1,
+                  thickness: 1,
+                ),
+
+                const SizedBox(height: 12),
+
+                // کارت‌های نوع موتر
+                if (selectedCategory == 0) ...[
+                  _buildVehicleCard(
+                    title: 'vehicle_eco_title'.tr(),
+                    subtitle: 'vehicle_eco_sub'.tr(),
+                    price:
+                        '${actualFareAmount.toStringAsFixed(0)} $currency',
+                    imagePath: 'assets/images/safir_normal.png',
+                    isSelected: selectedVehicleType == 0,
+                    safirColor: AppColors.primaryBrand,
+                    cardBgColor: AppColors.cardBgLight,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      onVehicleSelected(0, 'Car');
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  _buildVehicleCard(
+                    title: 'vehicle_vip_title'.tr(),
+                    subtitle: 'vehicle_vip_sub'.tr(),
+                    price:
+                        '${(actualFareAmount * 1.35).toStringAsFixed(0)} $currency',
+                    imagePath: 'assets/images/uberexec.png',
+                    isSelected: selectedVehicleType == 1,
+                    safirColor: AppColors.primaryBrand,
+                    cardBgColor: AppColors.cardBgLight,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      onVehicleSelected(1, 'Auto');
+                    },
+                  ),
+                ] else ...[
+                  _buildVehicleCard(
+                    title: 'vehicle_bike_title'.tr(),
+                    subtitle: 'vehicle_bike_sub'.tr(),
+                    price:
+                        '${(actualFareAmount * 0.55).toStringAsFixed(0)} $currency',
+                    imagePath: 'assets/images/safir_bike.png',
+                    isSelected: selectedVehicleType == 0,
+                    safirColor: AppColors.primaryBrand,
+                    cardBgColor: AppColors.cardBgLight,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      onVehicleSelected(0, 'Bike');
+                    },
+                  ),
+                ],
+
+                const SizedBox(height: 16),
+
+                // گزینه‌های سفر
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildOptionButton(
+                      title: 'opt_ride_options'.tr(),
+                      isActive: hasActiveTripOptions,
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        onTripOptionsTap();
+                      },
+                    ),
+
+                    Container(
+                      height: 14,
+                      width: 1,
+                      color: Colors.grey.shade300,
+                    ),
+
+                    _buildOptionButton(
+                      title: 'opt_schedule'.tr(),
+                      isActive: isScheduled,
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        onScheduleTap();
+                      },
+                    ),
+
+                    Container(
+                      height: 14,
+                      width: 1,
+                      color: Colors.grey.shade300,
+                    ),
+
+                    _buildOptionButton(
+                      title: 'opt_promo_code'.tr(),
+                      isActive: hasPromoCode,
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        onPromoCodeTap();
+                      },
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // دکمه درخواست سفر
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      onRequestTrip();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryBrand,
+                      overlayColor: AppColors.primaryPressed,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'btn_request_safir'.tr(),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
-        }),
+        },
       ),
     );
   }
