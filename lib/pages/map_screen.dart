@@ -1150,7 +1150,20 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             ),
 
           if (_currentStep == 4)
-            MapBottomSheets.buildStep4(AppColors.primaryBrand),
+          MapBottomSheets.buildStep4(
+          AppColors.primaryBrand,
+          nameDriver: nameDriver,
+          photoDriver: photoDriver,
+          phoneNumberDriver: phoneNumberDriver,
+          carDetailsDriver: carDetailsDriver,
+          carColorDriver: "", 
+          plateProvinceDriver: "",
+          plateCategoryDriver: "",
+          plateFarsiNumDriver: "",
+          plateNumDriver: "",
+          isTempPlateDriver: false,
+          tripFareAmount: actualFareAmount,
+          ),
         ],
       ),
     );
