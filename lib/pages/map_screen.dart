@@ -638,7 +638,8 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               photoDriver = data["driverPhoto"] ?? data["driver_photo"] ?? photoDriver;
               carDetailsDriver = data["carDetails"] ?? data["car_details"] ?? carDetailsDriver;
 
-              if (status == "accepted") {
+              if (status == "accepted" || status == "arrived" || status == "ontrip") {
+
                 _currentStep = 4;
               }
             });
