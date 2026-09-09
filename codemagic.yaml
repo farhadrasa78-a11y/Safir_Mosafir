@@ -6,7 +6,7 @@ workflows:
 
     environment:
       groups:
-        - keystore_credentials # فراخوانی متغیرهای امضا
+        - safir_mosafir # فراخوانی متغیرهای امضا
       flutter: 3.29.3
       java: 21
 
