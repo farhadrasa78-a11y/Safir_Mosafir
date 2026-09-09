@@ -42,7 +42,7 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.clear();
 
     await FirebaseFirestore.instance
-        .collection("rides")
+        .collection("tripRequests")
         .doc(widget.tripId)
         .collection("chats")
         .add({
@@ -109,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection("rides")
+                  .collection("tripRequests")
                   .doc(widget.tripId)
                   .collection("chats")
                   .orderBy("timestamp", descending: true)
