@@ -32,7 +32,7 @@ workflows:
         script: |
           cat <<EOF > android/key.properties
           storePassword=$CM_KEYSTORE_PASSWORD
-          keyPassword=$CM_KEY_ALIAS_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
           keyAlias=$CM_KEY_ALIAS
           storeFile=/tmp/release.jks
           EOF
