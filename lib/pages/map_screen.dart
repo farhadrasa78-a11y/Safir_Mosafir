@@ -607,93 +607,119 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     );
   }
 
-  void startTrip() {
+    void startTrip() async {
     HapticFeedback.heavyImpact();
+    
+    var appInfo = Provider.of<AppInfo>(context, listen: false);
+    
+    if (appInfo.pickUpLocation == null || appInfo.dropOffLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("لطفاً مبدأ و مقصد را مشخص کنید.")),
+      );
+      return;
+    }
+
     setState(() => _currentStep = 3);
 
     try {
-      tripRequestRef = MapControllerLogic.makeTripRequest(
-        context: context,
-        actualFareAmount: actualFareAmount,
-        bidAmount: bidAmount,
-        selectedVehicle: widget.serviceType == 'cargo' ? _cargoSelectedVehicle : selectedVehicle,
-        tripDurationText: _tripDurationText,
-        estimatedArrivalTime: _estimatedArrivalTime,
-        onStatusChanged: (newStatus) {
-          if (mounted) setState(() => status = newStatus);
+      tripRequestRef = FirebaseFirestore.instance.collection('rides').doc();
+
+      Map<String, dynamic> passengerTripDetails = {
+        'ride_id': tripRequestRef!.id,
+        'status': 'new',
+        'driver_id': 'waiting',
+        'createdAt': FieldValue.serverTimestamp(),
+        
+        'passenger_id': currentFirebaseUser?.uid ?? '',
+        'passenger_name': userModelCurrentInfo?.name ?? 'مسافر',
+        'passenger_phone': userModelCurrentInfo?.phone ?? '',
+        
+        'origin': {
+          'latitude': appInfo.pickUpLocation!.latitudePosition,
+          'longitude': appInfo.pickUpLocation!.longitudePosition,
         },
-        onTripEnded: () {},
-      );
+        'destination': {
+          'latitude': appInfo.dropOffLocation!.latitudePosition,
+          'longitude': appInfo.dropOffLocation!.longitudePosition,
+        },
+        'origin_address': appInfo.pickUpLocation!.placeName ?? '',
+        'destination_address': appInfo.dropOffLocation!.placeName ?? '',
+        
+        'fare_amount': actualFareAmount,
+        'service_type': widget.serviceType,
+        'vehicle_type': selectedVehicle,
+        'trip_duration': _tripDurationText,
+      };
 
-      if (tripRequestRef != null) {
-        tripStreamSubscription = tripRequestRef!.snapshots().listen((snapshot) async {
-          if (!snapshot.exists || snapshot.data() == null) return;
-          var data = snapshot.data() as Map<String, dynamic>;
+      await tripRequestRef!.set(passengerTripDetails);
 
-            if (mounted) {
-            setState(() {
-              status = data["status"] ?? status;
-              nameDriver = data["driverName"] ?? data["driver_phone"] ?? nameDriver;
-              phoneNumberDriver = data["driverPhone"] ?? data["driver_phone"] ?? phoneNumberDriver;
-              photoDriver = data["driverPhoto"] ?? data["driver_photo"] ?? photoDriver;
-              carDetailsDriver = data["carDetails"] ?? data["car_details"] ?? carDetailsDriver;
+      tripStreamSubscription = tripRequestRef!.snapshots().listen((snapshot) {
+        if (!snapshot.exists || snapshot.data() == null) return;
+        
+        var data = snapshot.data() as Map<String, dynamic>;
 
-              if (status == "accepted" || status == "arrived" || status == "ontrip") {
-                _currentStep = 4;
-              }
+        if (mounted) {
+          setState(() {
+            status = data["status"] ?? status;
+            nameDriver = data["driverName"] ?? data["driver_name"] ?? nameDriver;
+            phoneNumberDriver = data["driverPhone"] ?? data["driver_phone"] ?? phoneNumberDriver;
+            photoDriver = data["driverPhoto"] ?? data["driver_photo"] ?? photoDriver;
+            carDetailsDriver = data["carDetails"] ?? data["car_details"] ?? carDetailsDriver;
 
-              // 🔴 لغو قبل از رسیدن (جستجوی مجدد)
-              if (status == "cancelled_by_driver_search_again") {
-                _currentStep = 3;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("سفر توسط سفیر لغو گردید. در حال جستجوی سفیر جدید..."),
-                    backgroundColor: Colors.orange,
-                  ),
-                );
-                nameDriver = "";
-                phoneNumberDriver = "";
-                photoDriver = "";
-              }
+            if (status == "accepted" || status == "arrived" || status == "ontrip") {
+              _currentStep = 4;
+            }
 
-              // 🔴 لغو کامل سفر
-              if (status == "cancelled_by_driver") {
-                _currentStep = 2;
-                tripStreamSubscription?.cancel();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("سفر توسط سفیر لغو شد."),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            });
-          }
-
-          if (status == "ended" || status == "completed") {
-            tripStreamSubscription?.cancel();
-            if (mounted) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RateDriverScreen(
-                    tripId: tripRequestRef?.id ?? "",
-                    driverId: data["driverId"] ?? "",
-                    driverName: nameDriver,
-                    carModel: carDetailsDriver,
-                    plateNumber: data["carNumber"] ?? data["plateNumber"] ?? "",
-                    driverPhoto: photoDriver,
-                  ),
+            if (status == "cancelled_by_driver_search_again") {
+              _currentStep = 3;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("سفر توسط سفیر لغو شد. در حال جستجوی سفیر جدید..."),
+                  backgroundColor: Colors.orange,
                 ),
               );
             }
+
+            if (status == "cancelled_by_driver") {
+              _currentStep = 2;
+              tripStreamSubscription?.cancel();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("سفر توسط سفیر لغو گردید."),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          });
+        }
+
+        if (status == "ended" || status == "completed") {
+          tripStreamSubscription?.cancel();
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RateDriverScreen(
+                  tripId: tripRequestRef?.id ?? "",
+                  driverId: data["driverId"] ?? "",
+                  driverName: nameDriver,
+                  carModel: carDetailsDriver,
+                  plateNumber: data["carNumber"] ?? data["plateNumber"] ?? "",
+                  driverPhoto: photoDriver,
+                ),
+              ),
+            );
           }
-        });
-      }
+        }
+      });
     } catch (e) {
       debugPrint("Error starting trip: $e");
+      if (mounted) {
+        setState(() => _currentStep = 2);
+      }
     }
   }
+
 
   void cancelTrip() {
     HapticFeedback.lightImpact();
