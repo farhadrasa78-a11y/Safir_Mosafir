@@ -670,8 +670,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             });
           }
 
-          }
-
           if (status == "ended" || status == "completed") {
             tripStreamSubscription?.cancel();
             if (mounted) {
