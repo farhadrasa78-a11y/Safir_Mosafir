@@ -644,10 +644,10 @@ class MapBottomSheets {
     context,
     MaterialPageRoute(
       builder: (context) => ChatPage(
-        tripId: tripRequestRef?.id ?? "",
-        driverName: nameDriver,
-        driverPhoto: photoDriver,
-      ),
+      tripId: driverData['tripId'] ?? driverData['id'] ?? "",
+      driverName: nameDriver,
+      driverPhoto: photoDriver,
+     ),
     ),
   );
 },
