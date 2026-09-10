@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // اضافه شده بر
 import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/global/trip_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
+import '../chat_page.dart';
 
 import 'smart_location_sheet.dart';
 import 'package:safir_passengers/widgets/driver_info_card.dart';
