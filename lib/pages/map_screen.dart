@@ -625,32 +625,33 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     try {
       tripRequestRef = FirebaseFirestore.instance.collection('rides').doc();
 
-      Map<String, dynamic> passengerTripDetails = {
-        'ride_id': tripRequestRef!.id,
-        'status': 'new',
-        'driver_id': 'waiting',
-        'createdAt': FieldValue.serverTimestamp(),
-        
-        'passenger_id': FirebaseAuth.instance.currentUser?.uid ?? '',
-        'passenger_name': FirebaseAuth.instance.currentUser?.displayName ?? 'مسافر',
-        'passenger_phone': FirebaseAuth.instance.currentUser?.phoneNumber ?? '',
-        
-        'origin': {
-          'latitude': appInfo.pickUpLocation!.latitudePosition,
-          'longitude': appInfo.pickUpLocation!.longitudePosition,
-        },
-        'destination': {
-          'latitude': appInfo.dropOffLocation!.latitudePosition,
-          'longitude': appInfo.dropOffLocation!.longitudePosition,
-        },
-        'origin_address': appInfo.pickUpLocation!.placeName ?? '',
-        'destination_address': appInfo.dropOffLocation!.placeName ?? '',
-        
-        'fare_amount': actualFareAmount,
-        'service_type': widget.serviceType,
-        'vehicle_type': selectedVehicle,
-        'trip_duration': _tripDurationText,
-      };
+      // در متد startTrip
+Map<String, dynamic> passengerTripDetails = {
+  'ride_id': tripRequestRef!.id,
+  'status': TripStatus.searching, // 👈 تغییر یافت
+  'driver_id': 'waiting',
+  'createdAt': FieldValue.serverTimestamp(),
+  
+  'passenger_id': FirebaseAuth.instance.currentUser?.uid ?? '',
+  'passenger_name': FirebaseAuth.instance.currentUser?.displayName ?? 'مسافر',
+  'passenger_phone': FirebaseAuth.instance.currentUser?.phoneNumber ?? '',
+  
+  'origin': {
+    'latitude': appInfo.pickUpLocation!.latitudePosition,
+    'longitude': appInfo.pickUpLocation!.longitudePosition,
+  },
+  'destination': {
+    'latitude': appInfo.dropOffLocation!.latitudePosition,
+    'longitude': appInfo.dropOffLocation!.longitudePosition,
+  },
+  'origin_address': appInfo.pickUpLocation!.placeName ?? '',
+  'destination_address': appInfo.dropOffLocation!.placeName ?? '',
+  
+  'fare_amount': actualFareAmount,
+  'service_type': widget.serviceType,
+  'vehicle_type': selectedVehicle,
+  'trip_duration': _tripDurationText,
+};
 
       await tripRequestRef!.set(passengerTripDetails);
 
@@ -724,24 +725,15 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   void cancelTrip() async {
   HapticFeedback.lightImpact();
 
-  // به جای حذف، وضعیت سند را به لغو شده تغییر می‌دهیم
   if (tripRequestRef != null) {
-    try {
-      await tripRequestRef!.update({
-        'status': 'cancelled_by_passenger',
-        'cancelled_at': FieldValue.serverTimestamp(),
-      });
-    } catch (e) {
-      debugPrint("Error updating trip status on cancel: $e");
-    }
+    await tripRequestRef!.update({
+      'status': TripStatus.cancelledByPassenger, // 👈 به جای delete()، وضعیت تغییر می‌کند
+      'cancelled_at': FieldValue.serverTimestamp(),
+    });
   }
 
   tripStreamSubscription?.cancel();
-  if (mounted) {
-    setState(() {
-      _currentStep = 2; // بازگشت به صفحه انتخاب خودرو و ارسال مجدد
-    });
-  }
+  if (mounted) setState(() => _currentStep = 2);
 }
 
   void _handleBackAction() {
