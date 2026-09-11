@@ -721,13 +721,28 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   }
 
+  void cancelTrip() async {
+  HapticFeedback.lightImpact();
 
-  void cancelTrip() {
-    HapticFeedback.lightImpact();
-    tripRequestRef?.delete();
-    tripStreamSubscription?.cancel();
-    if (mounted) setState(() => _currentStep = 2);
+  // به جای حذف، وضعیت سند را به لغو شده تغییر می‌دهیم
+  if (tripRequestRef != null) {
+    try {
+      await tripRequestRef!.update({
+        'status': 'cancelled_by_passenger',
+        'cancelled_at': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint("Error updating trip status on cancel: $e");
+    }
   }
+
+  tripStreamSubscription?.cancel();
+  if (mounted) {
+    setState(() {
+      _currentStep = 2; // بازگشت به صفحه انتخاب خودرو و ارسال مجدد
+    });
+  }
+}
 
   void _handleBackAction() {
     HapticFeedback.lightImpact();
