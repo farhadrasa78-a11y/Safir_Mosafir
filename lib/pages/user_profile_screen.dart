@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
-import 'package:safir_passengers/authentication/register_screen.dart'; // یا مسیر دقیق صفحه ورود/ثبت‌نام پروژه شما
+import 'package:safir_passengers/authentication/register_screen.dart';
 
 // -------------------------------------------------------------
 // ۱. صفحه اصلی پروفایل
@@ -54,7 +54,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             .timeout(const Duration(seconds: 8));
 
         if (event.snapshot.value != null && mounted) {
-          Map userData = event.snapshot.value as Map;
+          Map userData = Map<dynamic, dynamic>.from(event.snapshot.value as Map);
           setState(() {
             _userName = userData["name"] ??
                 userData["fullName"] ??
@@ -96,7 +96,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Future<void> _handleLogout({bool isSwitchAccount = false}) async {
     HapticFeedback.mediumImpact();
 
-    String title = isSwitchAccount 
+    String title = isSwitchAccount
         ? ("switch_account_title".tr().isEmpty ? "تغییر حساب کاربری" : "switch_account_title".tr())
         : ("sign_out".tr().isEmpty ? "خروج از حساب" : "sign_out".tr());
 
@@ -191,7 +191,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             const Icon(Icons.star, color: Colors.amber, size: 18),
                             const SizedBox(width: 4),
                             Text(
-                              formatNumberByLocale(context, _userRating), 
+                              formatNumberByLocale(context, _userRating),
                               style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[800], fontSize: 15),
                             ),
                           ],
@@ -208,64 +208,63 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                       TextButton(
-  onPressed: () async {
-    HapticFeedback.lightImpact();
+                        onPressed: () async {
+                          HapticFeedback.lightImpact();
 
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return Container(
-          height: MediaQuery.of(sheetContext).size.height * 0.85,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
-          ),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(
-                    top: 10,
-                    bottom: 5,
+                          await showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (sheetContext) {
+                              return Container(
+                                height: MediaQuery.of(sheetContext).size.height * 0.85,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(24),
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(24),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                          top: 10,
+                                          bottom: 5,
+                                        ),
+                                        width: 40,
+                                        height: 5,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade300,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      const Expanded(
+                                        child: EditProfileScreen(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+
+                          _loadProfileData();
+                        },
+                        child: Text(
+                          "edit_button_label".tr().isEmpty ? "ویرایش" : "edit_button_label".tr(),
+                          style: const TextStyle(
+                            color: AppColors.originBlue,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  width: 40,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                const Expanded(
-                  child: EditProfileScreen(),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    _loadProfileData();
-  },
-  child: Text(
-    "edit_button_label".tr().isEmpty
-        ? "ویرایش"
-        : "edit_button_label".tr(),
-    style: const TextStyle(
-      color: AppColors.originBlue,
-      fontSize: 14,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
-
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -278,11 +277,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          _userName.isEmpty ? ("default_user_name".tr().isEmpty ? "کاربر سفیر" : "default_user_name".tr()) : _userName, 
+                          _userName.isEmpty ? ("default_user_name".tr().isEmpty ? "کاربر سفیر" : "default_user_name".tr()) : _userName,
                           style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          formatNumberByLocale(context, _userPhone), 
+                          formatNumberByLocale(context, _userPhone),
                           style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
                         ),
                       ],
@@ -306,7 +305,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF2ECE89), Color(0xFF15A968)],
-                              begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -334,7 +334,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFFAB47BC), Color(0xFF7B1FA2)],
-                              begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -519,7 +520,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // 🔹 بهبود متد لود اطلاعات جهت پشتیبانی از ورود گوگل و تلفن
   Future<void> _getUserData() async {
     User? currentUser = _auth.currentUser;
     if (currentUser != null) {
@@ -536,7 +536,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             .timeout(const Duration(seconds: 8));
 
         if (event.snapshot.value != null && mounted) {
-          Map userData = event.snapshot.value as Map;
+          Map userData = Map<dynamic, dynamic>.from(event.snapshot.value as Map);
           _initialName = userData["name"] ?? userData["fullName"] ?? userData["userName"] ?? userData["user_name"] ?? _initialName;
           _initialPhone = userData["phone"] ?? userData["phoneNumber"] ?? userData["phone_number"] ?? _initialPhone;
           _initialEmail = userData["email"] ?? _initialEmail;
@@ -549,7 +549,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         debugPrint("Error fetching edit data: $e");
       }
 
-      // مقداردهی قطعی به فیلدهای ورودی
       if (mounted) {
         _nameController.text = _initialName;
         _phoneController.text = formatNumberByLocale(context, _initialPhone);
@@ -602,7 +601,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       };
 
       await _userRef.child("users").child(currentUser.uid).update(updateData);
-      
+
       if (_nameController.text.trim().isNotEmpty) {
         await currentUser.updateDisplayName(_nameController.text.trim());
       }
@@ -772,51 +771,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 25),
-
                   Text(
                     "main_account_info_title".tr().isEmpty ? "اطلاعات حساب اصلی" : "main_account_info_title".tr(),
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryBrand),
                   ),
                   const SizedBox(height: 15),
-
                   _buildInputField(
-                    _nameController, 
-                    "full_name_label".tr().isEmpty ? "نام و نام خانوادگی" : "full_name_label".tr(), 
-                    textInputAction: TextInputAction.next
+                    _nameController,
+                    "full_name_label".tr().isEmpty ? "نام و نام خانوادگی" : "full_name_label".tr(),
+                    textInputAction: TextInputAction.next,
                   ),
-                  
                   GestureDetector(
                     onTap: _showChangePhoneBottomSheet,
                     child: AbsorbPointer(
                       child: _buildInputField(
-                        _phoneController, 
-                        "phone_number_label".tr().isEmpty ? "شماره تلفن" : "phone_number_label".tr(), 
+                        _phoneController,
+                        "phone_number_label".tr().isEmpty ? "شماره تلفن" : "phone_number_label".tr(),
                         readOnly: true,
-                        isLtr: true
+                        isLtr: true,
                       ),
                     ),
                   ),
-
                   _buildInputField(
-                    _emailController, 
-                    "email_label".tr().isEmpty ? "ایمیل" : "email_label".tr(), 
-                    keyboardType: TextInputType.emailAddress, 
+                    _emailController,
+                    "email_label".tr().isEmpty ? "ایمیل" : "email_label".tr(),
+                    keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    isLtr: true
+                    isLtr: true,
                   ),
                   _buildInputField(
-                    _addressController, 
-                    "address_label".tr().isEmpty ? "آدرس" : "address_label".tr(), 
-                    textInputAction: TextInputAction.next
+                    _addressController,
+                    "address_label".tr().isEmpty ? "آدرس" : "address_label".tr(),
+                    textInputAction: TextInputAction.next,
                   ),
                   _buildInputField(
-                    _dobController, 
-                    "dob_label".tr().isEmpty ? "تاریخ تولد" : "dob_label".tr(), 
-                    keyboardType: TextInputType.datetime, 
+                    _dobController,
+                    "dob_label".tr().isEmpty ? "تاریخ تولد" : "dob_label".tr(),
+                    keyboardType: TextInputType.datetime,
                     textInputAction: TextInputAction.done,
-                    isLtr: true
+                    isLtr: true,
                   ),
-                  
                   const SizedBox(height: 20),
                   Card(
                     elevation: 0,
@@ -843,7 +837,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -874,9 +867,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildInputField(
-    TextEditingController controller, 
+    TextEditingController controller,
     String label, {
-    bool readOnly = false, 
+    bool readOnly = false,
     bool isLtr = false,
     TextInputType keyboardType = TextInputType.text,
     TextInputAction textInputAction = TextInputAction.next,
