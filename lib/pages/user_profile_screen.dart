@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
+import 'package:safir_passengers/authentication/login_screen.dart'; // یا مسیر دقیق صفحه ورود/ثبت‌نام پروژه شما
 
 // -------------------------------------------------------------
 // ۱. صفحه اصلی پروفایل
