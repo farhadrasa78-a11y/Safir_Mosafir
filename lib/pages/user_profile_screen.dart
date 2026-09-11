@@ -208,45 +208,63 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                       TextButton(
-                      onPressed: () async {
-                      HapticFeedback.lightImpact();
-                       await showModalBottomSheet(
-                        context: context,
-                       isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                       builder: (context) => Container(
-                       height: MediaQuery.of(context).size.height * 0.85, // ۸۵ درصد ارتفاع صفحه
-                     decoration: const BoxDecoration(
-                     color: Colors.white,
-                     borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                     ),
-                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                     child: Column(
-                     children: [
-                    // دستگیره بالای کشو (Handle Bar)
-                    Container(
-                    margin: const EdgeInsets.only(top: 10, bottom: 5),
-                   width: 40,
-                   height: 5,
-                     decoration: BoxDecoration(
-                     color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(10),
-                      ),
-                     ),
-                   const Expanded(child: EditProfileScreen()),
-                   ],
-                 ),
-                ),
-               ),
-              );
-             _loadProfileData(); // به‌روزرسانی اطلاعات پس از بستن کشو
-             },
-            child: Text(
-           "edit_button_label".tr().isEmpty ? "ویرایش" : "edit_button_label".tr(),
-            style: const TextStyle(color: AppColors.originBlue, fontSize: 14, fontWeight: FontWeight.bold),
+  onPressed: () async {
+    HapticFeedback.lightImpact();
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Container(
+          height: MediaQuery.of(sheetContext).size.height * 0.85,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(24),
             ),
-           ),
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(24),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(
+                    top: 10,
+                    bottom: 5,
+                  ),
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                const Expanded(
+                  child: EditProfileScreen(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    _loadProfileData();
+  },
+  child: Text(
+    "edit_button_label".tr().isEmpty
+        ? "ویرایش"
+        : "edit_button_label".tr(),
+    style: const TextStyle(
+      color: AppColors.originBlue,
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
 
                   const SizedBox(height: 10),
                   Container(
