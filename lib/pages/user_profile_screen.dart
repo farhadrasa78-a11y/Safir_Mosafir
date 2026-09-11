@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dartd:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -92,7 +92,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-    Future<void> _handleLogout({bool isSwitchAccount = false}) async {
+  Future<void> _handleLogout({bool isSwitchAccount = false}) async {
     HapticFeedback.mediumImpact();
 
     String title = isSwitchAccount 
@@ -150,7 +150,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -367,7 +366,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                           onTap: () => _handleLogout(isSwitchAccount: true),
-                          ),
+                        ),
                         const Divider(height: 1, indent: 16, endIndent: 16),
                         ListTile(
                           leading: const Icon(Icons.logout, color: Colors.redAccent),
@@ -377,7 +376,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                           onTap: () => _handleLogout(isSwitchAccount: false),
-
                         ),
                       ],
                     ),
@@ -474,6 +472,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  // 🔹 بهبود متد لود اطلاعات جهت پشتیبانی از ورود گوگل و تلفن
   Future<void> _getUserData() async {
     User? currentUser = _auth.currentUser;
     if (currentUser != null) {
@@ -491,32 +490,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         if (event.snapshot.value != null && mounted) {
           Map userData = event.snapshot.value as Map;
-          _initialName = userData["name"] ?? userData["fullName"] ?? userData["userName"] ?? userData["user_name"] ?? currentUser.displayName ?? "";
-          _initialPhone = userData["phone"] ?? userData["phoneNumber"] ?? userData["phone_number"] ?? currentUser.phoneNumber ?? "";
-          _initialEmail = userData["email"] ?? currentUser.email ?? "";
+          _initialName = userData["name"] ?? userData["fullName"] ?? userData["userName"] ?? userData["user_name"] ?? _initialName;
+          _initialPhone = userData["phone"] ?? userData["phoneNumber"] ?? userData["phone_number"] ?? _initialPhone;
+          _initialEmail = userData["email"] ?? _initialEmail;
           _initialAddress = userData["address"] ?? "";
           _initialDob = userData["dob"] ?? "";
           _initialPremium = userData["isPremium"] ?? false;
-          _photoUrl = userData["photoUrl"] ?? userData["photoURL"] ?? currentUser.photoURL ?? "";
-
-          _nameController.text = _initialName;
-          _phoneController.text = formatNumberByLocale(context, _initialPhone);
-          _emailController.text = _initialEmail;
-          _addressController.text = _initialAddress;
-          _dobController.text = formatNumberByLocale(context, _initialDob);
-          _isPremium = _initialPremium;
-        } else if (mounted) {
-          _nameController.text = _initialName;
-          _phoneController.text = formatNumberByLocale(context, _initialPhone);
-          _emailController.text = _initialEmail;
+          _photoUrl = userData["photoUrl"] ?? userData["photoURL"] ?? _photoUrl;
         }
       } catch (e) {
         debugPrint("Error fetching edit data: $e");
-        if (mounted) {
-          _nameController.text = _initialName;
-          _phoneController.text = formatNumberByLocale(context, _initialPhone);
-          _emailController.text = _initialEmail;
-        }
+      }
+
+      // مقداردهی قطعی به فیلدهای ورودی
+      if (mounted) {
+        _nameController.text = _initialName;
+        _phoneController.text = formatNumberByLocale(context, _initialPhone);
+        _emailController.text = _initialEmail;
+        _addressController.text = _initialAddress;
+        _dobController.text = formatNumberByLocale(context, _initialDob);
+        _isPremium = _initialPremium;
       }
     }
 
@@ -540,7 +533,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     String uploadedPhotoUrl = _photoUrl;
 
     try {
-      // ۱. آپلود تصویر در صورت تغییر
       if (_imageFile != null) {
         Reference storageRef = FirebaseStorage.instance
             .ref()
@@ -562,10 +554,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         "photoUrl": uploadedPhotoUrl,
       };
 
-      // ۲. آپدیت دیتابیس Realtime
       await _userRef.child("users").child(currentUser.uid).update(updateData);
       
-      // ۳. آپدیت نام و تصویر در FirebaseAuth
       if (_nameController.text.trim().isNotEmpty) {
         await currentUser.updateDisplayName(_nameController.text.trim());
       }
