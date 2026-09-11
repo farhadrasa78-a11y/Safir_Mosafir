@@ -92,79 +92,65 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  Future<void> _signOut() async {
+    Future<void> _handleLogout({bool isSwitchAccount = false}) async {
     HapticFeedback.mediumImpact();
+
+    String title = isSwitchAccount 
+        ? ("switch_account_title".tr().isEmpty ? "تغییر حساب کاربری" : "switch_account_title".tr())
+        : ("sign_out".tr().isEmpty ? "خروج از حساب" : "sign_out".tr());
+
+    String content = isSwitchAccount
+        ? ("switch_account_confirm_msg".tr().isEmpty ? "برای ورود با حساب دیگر، باید از حساب فعلی خارج شوید. ادامه می‌دهید؟" : "switch_account_confirm_msg".tr())
+        : ("sign_out_confirm_msg".tr().isEmpty ? "آیا مایل به خروج از حساب کاربری هستید؟" : "sign_out_confirm_msg".tr());
+
     bool? confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("sign_out".tr().isEmpty ? "خروج از حساب" : "sign_out".tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text("sign_out_confirm_msg".tr().isEmpty ? "آیا مایل به خروج از حساب کاربری هستید؟" : "sign_out_confirm_msg".tr()),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        content: Text(content, style: const TextStyle(fontSize: 14)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: Text("cancel".tr().isEmpty ? "انصراف" : "cancel".tr(), style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: isSwitchAccount ? AppColors.primaryBrand : Colors.red,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text("exit".tr().isEmpty ? "خروج" : "exit".tr(), style: const TextStyle(color: Colors.white)),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text("confirm".tr().isEmpty ? "تأیید" : "confirm".tr(), style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
 
     if (confirm == true) {
-      await _auth.signOut();
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      if (await googleSignIn.isSignedIn()) {
-        await googleSignIn.signOut();
-      }
-      if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      try {
+        try {
+          final GoogleSignIn googleSignIn = GoogleSignIn();
+          if (await googleSignIn.isSignedIn()) {
+            await googleSignIn.signOut();
+          }
+        } catch (e) {
+          debugPrint("Google sign out error: $e");
+        }
+
+        await FirebaseAuth.instance.signOut();
+
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const RegisterScreen()),
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        debugPrint("Error signing out: $e");
       }
     }
   }
 
-  Future<void> _switchAccount() async {
-    HapticFeedback.mediumImpact();
-    bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("switch_account_title".tr().isEmpty ? "تغییر حساب کاربری" : "switch_account_title".tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text("switch_account_confirm_msg".tr().isEmpty ? "برای ورود با حساب دیگر باید از حساب فعلی خارج شوید. ادامه می‌دهید؟" : "switch_account_confirm_msg".tr()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text("cancel".tr().isEmpty ? "انصراف" : "cancel".tr(), style: TextStyle(color: Colors.grey.shade600)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryBrand,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text("confirm".tr().isEmpty ? "تایید" : "confirm".tr(), style: const TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      await _auth.signOut();
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      if (await googleSignIn.isSignedIn()) {
-        await googleSignIn.signOut();
-      }
-      if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -380,8 +366,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-                          onTap: _switchAccount,
-                        ),
+                          onTap: () => _handleLogout(isSwitchAccount: true),
+                          ),
                         const Divider(height: 1, indent: 16, endIndent: 16),
                         ListTile(
                           leading: const Icon(Icons.logout, color: Colors.redAccent),
@@ -390,7 +376,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-                          onTap: _signOut,
+                          onTap: () => _handleLogout(isSwitchAccount: false),
+
                         ),
                       ],
                     ),
