@@ -58,152 +58,245 @@ class MapBottomSheets {
     );
   }
 
-    // 🎯 مرحله ۲: انتخاب نوع خودرو و موترسایکل
+      // 🎯 مرحله ۲: انتخاب نوع خودرو و موترسایکل (ساختار جدید ۳ لایه مشابه اسنپ)
   static Widget buildStep2({
-  required int selectedCategory,
-  required int selectedVehicleType,
-  required double actualFareAmount,
-  required Color safirColor,
-  required Function(int) onCategoryChanged,
-  required Function(int, String) onVehicleSelected,
-  required VoidCallback onRequestTrip,
-  required VoidCallback onTripOptionsTap,
-  required VoidCallback onScheduleTap,
-  required VoidCallback onPromoCodeTap,
-  bool hasActiveTripOptions = false,
-  bool isScheduled = false,
-  bool hasPromoCode = false,
-}) {
-  return Positioned.fill(
-    child: LayoutBuilder(
-      builder: (context, constraints) {
-        final currency = 'currency_afg'.tr();
-        final bottomSafeArea = MediaQuery.of(context).padding.bottom;
-        final fixedBottomHeight = 128.0 + bottomSafeArea;
+    required int selectedCategory,
+    required int selectedVehicleType,
+    required double actualFareAmount,
+    required Color safirColor,
+    required Function(int) onCategoryChanged,
+    required Function(int, String) onVehicleSelected,
+    required VoidCallback onRequestTrip,
+    required VoidCallback onTripOptionsTap,
+    required VoidCallback onScheduleTap,
+    required VoidCallback onPromoCodeTap,
+    bool hasActiveTripOptions = false,
+    bool isScheduled = false,
+    bool hasPromoCode = false,
+  }) {
+    return Positioned.fill(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final currency = 'currency_afg'.tr();
+          final bottomSafeArea = MediaQuery.of(context).padding.bottom;
+          final fixedBottomHeight = 120.0 + bottomSafeArea;
 
-        return Stack(
-          children: [
-            // فقط این بخش بالا و پایین می‌رود
-            DraggableScrollableSheet(
-              initialChildSize: 0.50,
-              minChildSize: 0.18,
-              maxChildSize: 0.78,
-              snap: true,
-              snapSizes: const [0.18, 0.50, 0.78],
-              builder: (context, scrollController) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: fixedBottomHeight),
+          return Stack(
+            children: [
+              // ۱ & ۲. شیت بالایی کشویی (شامل تب‌بار ثابت + لیست اسکرول‌پذیر کارت‌ها)
+              DraggableScrollableSheet(
+                initialChildSize: 0.50,
+                minChildSize: 0.22,
+                maxChildSize: 0.75,
+                snap: true,
+                snapSizes: const [0.22, 0.50, 0.75],
+                builder: (context, scrollController) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: fixedBottomHeight),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                          offset: Offset(0, -3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // دستگیره بالای شیت
+                        Center(
+                          child: Container(
+                            width: 42,
+                            height: 5,
+                            margin: const EdgeInsets.only(top: 10, bottom: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+
+                        // 📌 لایه ۱: تب‌بار کاملاً ثابت (خارج از PageView)
+                        _buildTabs(
+                          selectedCategory: selectedCategory,
+                          onCategoryChanged: onCategoryChanged,
+                        ),
+
+                        // 📌 لایه ۲: لیست اسکرول‌پذیر سرویس‌ها
+                        Expanded(
+                          child: PageView(
+                            controller: PageController(
+                              initialPage: selectedCategory,
+                            ),
+                            onPageChanged: (index) {
+                              HapticFeedback.selectionClick();
+                              onCategoryChanged(index);
+                            },
+                            children: [
+                              // لیست وسایل نقلیه خودرو
+                              ListView(
+                                controller: scrollController,
+                                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                                children: [
+                                  _buildVehicleCard(
+                                    title: 'vehicle_eco_title'.tr(),
+                                    subtitle: 'vehicle_eco_sub'.tr(),
+                                    price:
+                                        '${actualFareAmount.toStringAsFixed(0)} $currency',
+                                    imagePath: 'assets/images/safir_normal.png',
+                                    isSelected: selectedVehicleType == 0,
+                                    safirColor: AppColors.primaryBrand,
+                                    cardBgColor: AppColors.cardBgLight,
+                                    onTap: () {
+                                      onVehicleSelected(0, 'Car');
+                                    },
+                                  ),
+                                  const SizedBox(height: 10),
+                                  _buildVehicleCard(
+                                    title: 'vehicle_vip_title'.tr(),
+                                    subtitle: 'vehicle_vip_sub'.tr(),
+                                    price:
+                                        '${(actualFareAmount * 1.35).toStringAsFixed(0)} $currency',
+                                    imagePath: 'assets/images/uberexec.png',
+                                    isSelected: selectedVehicleType == 1,
+                                    safirColor: AppColors.primaryBrand,
+                                    cardBgColor: AppColors.cardBgLight,
+                                    onTap: () {
+                                      onVehicleSelected(1, 'Auto');
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              // لیست موتورسایکل
+                              ListView(
+                                controller: scrollController,
+                                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                                children: [
+                                  _buildVehicleCard(
+                                    title: 'vehicle_bike_title'.tr(),
+                                    subtitle: 'vehicle_bike_sub'.tr(),
+                                    price:
+                                        '${(actualFareAmount * 0.55).toStringAsFixed(0)} $currency',
+                                    imagePath: 'assets/images/safir_bike.png',
+                                    isSelected: selectedVehicleType == 0,
+                                    safirColor: AppColors.primaryBrand,
+                                    cardBgColor: AppColors.cardBgLight,
+                                    onTap: () {
+                                      onVehicleSelected(0, 'Bike');
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
+              // 📌 لایه ۳: پنل کاملاً ثابت پایین (چسبیده به کف)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    12,
+                    16,
+                    bottomSafeArea + 12,
+                  ),
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
-                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black12,
-                        blurRadius: 15,
-                        spreadRadius: 2,
-                        offset: Offset(0, -3),
+                        blurRadius: 10,
+                        offset: Offset(0, -2),
                       ),
                     ],
                   ),
-                  child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Center(
-                        child: Container(
-                          width: 42,
-                          height: 5,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildOptionButton(
+                              title: 'opt_ride_options'.tr(),
+                              isActive: hasActiveTripOptions,
+                              onTap: onTripOptionsTap,
+                            ),
+                          ),
+                          Container(
+                            height: 16,
+                            width: 1,
                             color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ),
+                          Expanded(
+                            child: _buildOptionButton(
+                              title: 'opt_schedule'.tr(),
+                              isActive: isScheduled,
+                              onTap: onScheduleTap,
+                            ),
+                          ),
+                          Container(
+                            height: 16,
+                            width: 1,
+                            color: Colors.grey.shade300,
+                          ),
+                          Expanded(
+                            child: _buildOptionButton(
+                              title: 'opt_promo_code'.tr(),
+                              isActive: hasPromoCode,
+                              onTap: onPromoCodeTap,
+                            ),
+                          ),
+                        ],
                       ),
-
-                      // با Swipe چپ/راست، موتر و موتورسایکل عوض می‌شود
+                      const SizedBox(height: 12),
                       SizedBox(
-                        height: 235,
-                        child: PageView(
-                          controller: PageController(
-                            initialPage: selectedCategory,
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: onRequestTrip,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryBrand,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          onPageChanged: (index) {
-                            HapticFeedback.selectionClick();
-                            onCategoryChanged(index);
-                          },
-                          children: [
-                            // صفحه موتر
-                            Column(
-                              children: [
-                                _buildTabs(
-                                  selectedCategory: selectedCategory,
-                                  onCategoryChanged: onCategoryChanged,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildVehicleCard(
-                                  title: 'vehicle_eco_title'.tr(),
-                                  subtitle: 'vehicle_eco_sub'.tr(),
-                                  price:
-                                      '${actualFareAmount.toStringAsFixed(0)} $currency',
-                                  imagePath: 'assets/images/safir_normal.png',
-                                  isSelected: selectedVehicleType == 0,
-                                  safirColor: AppColors.primaryBrand,
-                                  cardBgColor: AppColors.cardBgLight,
-                                  onTap: () {
-                                    onVehicleSelected(0, 'Car');
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                _buildVehicleCard(
-                                  title: 'vehicle_vip_title'.tr(),
-                                  subtitle: 'vehicle_vip_sub'.tr(),
-                                  price:
-                                      '${(actualFareAmount * 1.35).toStringAsFixed(0)} $currency',
-                                  imagePath: 'assets/images/uberexec.png',
-                                  isSelected: selectedVehicleType == 1,
-                                  safirColor: AppColors.primaryBrand,
-                                  cardBgColor: AppColors.cardBgLight,
-                                  onTap: () {
-                                    onVehicleSelected(1, 'Auto');
-                                  },
-                                ),
-                              ],
+                          child: Text(
+                            'btn_request_safir'.tr(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
                             ),
-
-                            // صفحه موتورسایکل
-                            Column(
-                              children: [
-                                _buildTabs(
-                                  selectedCategory: selectedCategory,
-                                  onCategoryChanged: onCategoryChanged,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildVehicleCard(
-                                  title: 'vehicle_bike_title'.tr(),
-                                  subtitle: 'vehicle_bike_sub'.tr(),
-                                  price:
-                                      '${(actualFareAmount * 0.55).toStringAsFixed(0)} $currency',
-                                  imagePath: 'assets/images/safir_bike.png',
-                                  isSelected: selectedVehicleType == 0,
-                                  safirColor: AppColors.primaryBrand,
-                                  cardBgColor: AppColors.cardBgLight,
-                                  onTap: () {
-                                    onVehicleSelected(0, 'Bike');
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
 
             // این بخش همیشه ثابت می‌ماند
             Positioned(
