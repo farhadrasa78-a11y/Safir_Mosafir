@@ -630,9 +630,9 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         'driver_id': 'waiting',
         'createdAt': FieldValue.serverTimestamp(),
         
-        'passenger_id': currentFirebaseUser?.uid ?? '',
-        'passenger_name': userModelCurrentInfo?.name ?? 'مسافر',
-        'passenger_phone': userModelCurrentInfo?.phone ?? '',
+        'passenger_id': FirebaseAuth.instance.currentUser?.uid ?? '',
+        'passenger_name': FirebaseAuth.instance.currentUser?.displayName ?? 'مسافر',
+        'passenger_phone': FirebaseAuth.instance.currentUser?.phoneNumber ?? '',
         
         'origin': {
           'latitude': appInfo.pickUpLocation!.latitudePosition,
