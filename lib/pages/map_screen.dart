@@ -609,7 +609,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     );
   }
 
-    void startTrip() async {
+      void startTrip() async {
     HapticFeedback.heavyImpact();
     
     var appInfo = Provider.of<AppInfo>(context, listen: false);
@@ -626,64 +626,65 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     try {
       tripRequestRef = FirebaseFirestore.instance.collection('rides').doc();
 
-      // در متد startTrip
-Map<String, dynamic> passengerTripDetails = {
-  'ride_id': tripRequestRef!.id,
-  'status': TripStatus.searching, // 👈 تغییر یافت
-  'driver_id': 'waiting',
-  'createdAt': FieldValue.serverTimestamp(),
-  
-  'passenger_id': FirebaseAuth.instance.currentUser?.uid ?? '',
-  'passenger_name': FirebaseAuth.instance.currentUser?.displayName ?? 'مسافر',
-  'passenger_phone': FirebaseAuth.instance.currentUser?.phoneNumber ?? '',
-  
-  'origin': {
-    'latitude': appInfo.pickUpLocation!.latitudePosition,
-    'longitude': appInfo.pickUpLocation!.longitudePosition,
-  },
-  'destination': {
-    'latitude': appInfo.dropOffLocation!.latitudePosition,
-    'longitude': appInfo.dropOffLocation!.longitudePosition,
-  },
-  'origin_address': appInfo.pickUpLocation!.placeName ?? '',
-  'destination_address': appInfo.dropOffLocation!.placeName ?? '',
-  
-  'fare_amount': actualFareAmount,
-  'service_type': widget.serviceType,
-  'vehicle_type': selectedVehicle,
-  'trip_duration': _tripDurationText,
-};
+      Map<String, dynamic> passengerTripDetails = {
+        'ride_id': tripRequestRef!.id,
+        'status': TripStatus.searching, // 👈 حالت در حال جستجو
+        'driver_id': 'waiting',
+        'createdAt': FieldValue.serverTimestamp(),
+        
+        'passenger_id': FirebaseAuth.instance.currentUser?.uid ?? '',
+        'passenger_name': FirebaseAuth.instance.currentUser?.displayName ?? 'مسافر',
+        'passenger_phone': FirebaseAuth.instance.currentUser?.phoneNumber ?? '',
+        
+        'origin': {
+          'latitude': appInfo.pickUpLocation!.latitudePosition,
+          'longitude': appInfo.pickUpLocation!.longitudePosition,
+        },
+        'destination': {
+          'latitude': appInfo.dropOffLocation!.latitudePosition,
+          'longitude': appInfo.dropOffLocation!.longitudePosition,
+        },
+        'origin_address': appInfo.pickUpLocation!.placeName ?? '',
+        'destination_address': appInfo.dropOffLocation!.placeName ?? '',
+        
+        'fare_amount': actualFareAmount,
+        'service_type': widget.serviceType,
+        'vehicle_type': selectedVehicle,
+        'trip_duration': _tripDurationText,
+      };
 
       await tripRequestRef!.set(passengerTripDetails);
 
+      // 🔄 شنود زنده تغییرات وضعیت سفر توسط راننده
       tripStreamSubscription = tripRequestRef!.snapshots().listen((snapshot) {
         if (!snapshot.exists || snapshot.data() == null) return;
         
         var data = snapshot.data() as Map<String, dynamic>;
+        String tripStatus = data["status"] ?? TripStatus.searching;
 
         if (mounted) {
           setState(() {
-            status = data["status"] ?? status;
-            nameDriver = data["driverName"] ?? data["driver_name"] ?? nameDriver;
-            phoneNumberDriver = data["driverPhone"] ?? data["driver_phone"] ?? phoneNumberDriver;
-            photoDriver = data["driverPhoto"] ?? data["driver_photo"] ?? photoDriver;
-            carDetailsDriver = data["carDetails"] ?? data["car_details"] ?? carDetailsDriver;
+            nameDriver = data["driver_name"] ?? data["driverName"] ?? nameDriver;
+            phoneNumberDriver = data["driver_phone"] ?? data["driverPhone"] ?? phoneNumberDriver;
+            photoDriver = data["driver_photo"] ?? data["driverPhoto"] ?? photoDriver;
+            carDetailsDriver = data["car_details"] ?? data["carDetails"] ?? carDetailsDriver;
 
-            if (status == "accepted" || status == "arrived" || status == "ontrip") {
-              _currentStep = 4;
+            // ۱. راننده درخواست را پذیرفت یا در راه است
+            if (tripStatus == TripStatus.accepted || 
+                tripStatus == TripStatus.arrived || 
+                tripStatus == TripStatus.onTrip) {
+              _currentStep = 4; // رفتن به استپ ۴ (نمایش اطلاعات راننده)
             }
 
-            if (status == "cancelled_by_driver_search_again") {
-              _currentStep = 3;
+            // ۲. راننده به مبدأ رسید
+            if (tripStatus == TripStatus.arrived) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("سفر توسط سفیر لغو شد. در حال جستجوی سفیر جدید..."),
-                  backgroundColor: Colors.orange,
-                ),
+                const SnackBar(content: Text("راننده به مبدأ شما رسید.")),
               );
             }
 
-            if (status == "cancelled_by_driver") {
+            // ۳. سفر توسط راننده لغو شد
+            if (tripStatus == TripStatus.cancelledByDriver) {
               _currentStep = 2;
               tripStreamSubscription?.cancel();
               ScaffoldMessenger.of(context).showSnackBar(
@@ -696,7 +697,8 @@ Map<String, dynamic> passengerTripDetails = {
           });
         }
 
-        if (status == "ended" || status == "completed") {
+        // ۴. پایان سفر
+        if (tripStatus == TripStatus.completed || tripStatus == TripStatus.ended) {
           tripStreamSubscription?.cancel();
           if (mounted) {
             Navigator.pushReplacement(
@@ -704,10 +706,10 @@ Map<String, dynamic> passengerTripDetails = {
               MaterialPageRoute(
                 builder: (context) => RateDriverScreen(
                   tripId: tripRequestRef?.id ?? "",
-                  driverId: data["driverId"] ?? "",
+                  driverId: data["driver_id"] ?? data["driverId"] ?? "",
                   driverName: nameDriver,
                   carModel: carDetailsDriver,
-                  plateNumber: data["carNumber"] ?? data["plateNumber"] ?? "",
+                  plateNumber: data["car_number"] ?? data["plateNumber"] ?? "",
                   driverPhoto: photoDriver,
                 ),
               ),
@@ -722,6 +724,7 @@ Map<String, dynamic> passengerTripDetails = {
       }
     }
   }
+
 
   void cancelTrip() async {
   HapticFeedback.lightImpact();
