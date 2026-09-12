@@ -824,27 +824,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     if (_hasNotification) {
       setState(() => _hasNotification = false);
     }
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      barrierColor: Colors.black.withOpacity(0.22),
-      builder: (context) {
-        return const SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ProfileAnimatedMenu(),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+    Navigator.of(context).push(
+  MaterialPageRoute(
+    builder: (_) => const ProfileAnimatedMenu(),
+  ),
+);
 
   @override
   Widget build(BuildContext context) {
