@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // اضافه شده برای لغو در فایربیس
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/global/trip_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
@@ -12,7 +12,6 @@ import '../chat_page.dart';
 import 'smart_location_sheet.dart';
 import 'package:safir_passengers/widgets/driver_info_card.dart';
 
-// وارد کردن ۳ کامپوننت جدید
 import 'trip_options_sheet.dart';
 import 'schedule_trip_sheet.dart';
 import 'promo_code_sheet.dart';
@@ -58,7 +57,7 @@ class MapBottomSheets {
     );
   }
 
-      // 🎯 مرحله ۲: انتخاب نوع خودرو و موترسایکل (ساختار جدید ۳ لایه مشابه اسنپ)
+  // 🎯 مرحله ۲: انتخاب نوع خودرو و موترسایکل (ساختار ۳ لایه مشابه اسنپ)
   static Widget buildStep2({
     required int selectedCategory,
     required int selectedVehicleType,
@@ -122,7 +121,7 @@ class MapBottomSheets {
                           ),
                         ),
 
-                        // 📌 لایه ۱: تب‌بار کاملاً ثابت (خارج از PageView)
+                        // 📌 لایه ۱: تب‌بار کاملاً ثابت
                         _buildTabs(
                           selectedCategory: selectedCategory,
                           onCategoryChanged: onCategoryChanged,
@@ -297,101 +296,6 @@ class MapBottomSheets {
     );
   }
 
-
-            // این بخش همیشه ثابت می‌ماند
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  14,
-                  16,
-                  bottomSafeArea + 12,
-                ),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildOptionButton(
-                            title: 'opt_ride_options'.tr(),
-                            isActive: hasActiveTripOptions,
-                            onTap: onTripOptionsTap,
-                          ),
-                        ),
-                        Container(
-                          height: 16,
-                          width: 1,
-                          color: Colors.grey.shade300,
-                        ),
-                        Expanded(
-                          child: _buildOptionButton(
-                            title: 'opt_schedule'.tr(),
-                            isActive: isScheduled,
-                            onTap: onScheduleTap,
-                          ),
-                        ),
-                        Container(
-                          height: 16,
-                          width: 1,
-                          color: Colors.grey.shade300,
-                        ),
-                        Expanded(
-                          child: _buildOptionButton(
-                            title: 'opt_promo_code'.tr(),
-                            isActive: hasPromoCode,
-                            onTap: onPromoCodeTap,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: onRequestTrip,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBrand,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'btn_request_safir'.tr(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    ),
-  );
-  }
-
   // 🚀 مرحله ۳: حالت در حال جستجوی سفیر
   static Widget buildStep3({
     required Color safirColor,
@@ -399,7 +303,7 @@ class MapBottomSheets {
     required String destinationAddress,
     required double fareAmount,
     required VoidCallback onCancel,
-    String? currentRideId, // اضافه شده برای شناسه سفر
+    String? currentRideId,
     VoidCallback? onBidPricePressed,
   }) {
     return DraggableScrollableSheet(
@@ -655,7 +559,6 @@ class MapBottomSheets {
                               : () async {
                                   HapticFeedback.mediumImpact();
                                   
-                                  // ثبت وضعیت لغو در فایربیس
                                   if (currentRideId != null && currentRideId.isNotEmpty) {
                                     await FirebaseFirestore.instance
                                         .collection('rides')
@@ -694,7 +597,7 @@ class MapBottomSheets {
     );
   }
 
-  // 🚕 مرحله ۴: پذیرفته شدن سفر توسط راننده (متصل به کارت راننده و پلاک افغانستان)
+  // 🚕 مرحله ۴: پذیرفته شدن سفر توسط راننده
   static Widget buildStep4(
     Color safirColor, {
     String carColorDriver = '',
@@ -737,19 +640,18 @@ class MapBottomSheets {
             }
           },
           onMessagePressed: () {
-  HapticFeedback.lightImpact();
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ChatPage(
-      tripId: driverData['tripId'] ?? driverData['id'] ?? "",
-      driverName: nameDriver,
-      driverPhoto: photoDriver,
-     ),
-    ),
-  );
-},
-
+            HapticFeedback.lightImpact();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatPage(
+                  tripId: driverData['tripId'] ?? driverData['id'] ?? "",
+                  driverName: nameDriver,
+                  driverPhoto: photoDriver,
+                ),
+              ),
+            );
+          },
           onPaymentPressed: () {
             HapticFeedback.lightImpact();
           },
@@ -794,34 +696,35 @@ class MapBottomSheets {
       builder: (ctx) => sheetContent,
     );
   }
+
   static Widget _buildTabs({
-  required int selectedCategory,
-  required Function(int) onCategoryChanged,
-}) {
-  return Column(
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildTabItem(
-            title: 'tab_car'.tr(),
-            index: 0,
-            selectedCategory: selectedCategory,
-            color: AppColors.primaryBrand,
-            onTap: () => onCategoryChanged(0),
-          ),
-          _buildTabItem(
-            title: 'tab_motorbike'.tr(),
-            index: 1,
-            selectedCategory: selectedCategory,
-            color: AppColors.primaryBrand,
-            onTap: () => onCategoryChanged(1),
-          ),
-        ],
-      ),
-      const Divider(height: 1),
-    ],
-  );
+    required int selectedCategory,
+    required Function(int) onCategoryChanged,
+  }) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildTabItem(
+              title: 'tab_car'.tr(),
+              index: 0,
+              selectedCategory: selectedCategory,
+              color: AppColors.primaryBrand,
+              onTap: () => onCategoryChanged(0),
+            ),
+            _buildTabItem(
+              title: 'tab_motorbike'.tr(),
+              index: 1,
+              selectedCategory: selectedCategory,
+              color: AppColors.primaryBrand,
+              onTap: () => onCategoryChanged(1),
+            ),
+          ],
+        ),
+        const Divider(height: 1),
+      ],
+    );
   }
 
   static Widget _buildTabItem({
