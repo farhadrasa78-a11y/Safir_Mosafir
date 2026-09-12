@@ -181,7 +181,7 @@ class ExactAnimatedMenu extends StatefulWidget {
   final ValueChanged<String>? onLanguageChanged;
 
   const ExactAnimatedMenu({
-    super.key,
+    super,
     this.currentLanguage,
     this.onLanguageChanged,
   });
@@ -265,37 +265,43 @@ class _ExactAnimatedMenuState extends State<ExactAnimatedMenu> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 color: Colors.transparent, 
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: safirBrandColor.withAlpha(30),
-                      child: const Icon(Icons.person, color: safirBrandColor, size: 26),
+                    // سمت چپ: فلش بازگشت / ورود
+                    const Icon(
+                      Icons.chevron_left,
+                      color: Colors.black45,
+                      size: 24,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userName.isNotEmpty ? userName : 'user_default'.tr().isEmpty ? 'کاربر سفیر' : 'user_default'.tr(), 
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(Icons.edit_outlined, size: 14, color: Colors.black45),
-                              const SizedBox(width: 4),
-                              Text(
-                                userPhone.isNotEmpty ? userPhone : '۰۹۹۰۷۰۲۷۱۲۳',
-                                style: const TextStyle(fontSize: 12, color: Colors.black54),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+
+                    // سمت راست: نام، شماره تلفن و تصویر آواتار
+                    Row(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              userName.isNotEmpty ? userName : 'user_default'.tr().isEmpty ? 'کاربر سفیر' : 'user_default'.tr(), 
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              userPhone.isNotEmpty ? userPhone : '۰۹۹۰۷۰۲۷۱۲۳',
+                              style: const TextStyle(fontSize: 12, color: Colors.black54),
+                              textDirection: TextDirection.ltr,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 12),
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: safirBrandColor.withAlpha(30),
+                          child: const Icon(Icons.person, color: safirBrandColor, size: 26),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -461,17 +467,19 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // سمت چپ: فلش بازگشت / ورود
+                    const Icon(
+                      Icons.chevron_left,
+                      color: Colors.black45,
+                      size: 24,
+                    ),
+
+                    // سمت راست: نام، شماره تلفن و تصویر آواتار
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundColor: safirBrandColor.withAlpha(30),
-                          child: const Icon(Icons.person, color: safirBrandColor, size: 26),
-                        ),
-                        const SizedBox(width: 12),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
                               userName.isNotEmpty ? userName : 'user_default'.tr().isEmpty ? 'کاربر سفیر' : 'user_default'.tr(),
@@ -481,12 +489,18 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                             Text(
                               userPhone.isNotEmpty ? userPhone : '۰۹۹۰۷۰۲۷۱۲۳', 
                               style: const TextStyle(fontSize: 12, color: Colors.black54),
+                              textDirection: TextDirection.ltr,
                             ),
                           ],
                         ),
+                        const SizedBox(width: 12),
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: safirBrandColor.withAlpha(30),
+                          child: const Icon(Icons.person, color: safirBrandColor, size: 26),
+                        ),
                       ],
                     ),
-                    const Icon(Icons.chevron_left, color: Colors.black45, size: 24),
                   ],
                 ),
               ),
