@@ -180,11 +180,12 @@ class ExactAnimatedMenu extends StatefulWidget {
   final String? currentLanguage;
   final ValueChanged<String>? onLanguageChanged;
 
-  const ExactAnimatedMenu({
-    super,
-    this.currentLanguage,
-    this.onLanguageChanged,
-  });
+  // ✅ شکل درست
+const ExactAnimatedMenu({
+  super.key,
+  this.currentLanguage,
+  this.onLanguageChanged,
+});
 
   @override
   State<ExactAnimatedMenu> createState() => _ExactAnimatedMenuState();
