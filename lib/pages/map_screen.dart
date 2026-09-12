@@ -15,7 +15,7 @@ import 'package:http/http.dart' as http;
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:safir_passengers/appInfo/app_info.dart';
-import 'package:safir_passenger/constants/trip_status.dart';
+import 'package:safir_passengers/constants/trip_status.dart';
 import 'package:safir_passengers/models/address_models.dart';
 import 'package:safir_passengers/global/global_var.dart'; 
 import 'package:safir_passengers/global/trip_var.dart';
