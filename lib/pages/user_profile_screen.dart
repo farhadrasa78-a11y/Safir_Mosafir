@@ -93,6 +93,109 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
+  // متد اختصاصی باز کردن کشویی (Drawer) ویرایش از سمت چپ
+  Future<void> _openEditProfileDrawer() async {
+    HapticFeedback.lightImpact();
+
+    await showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'EditProfileDrawer',
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation1, animation2) {
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.88,
+            height: double.infinity,
+            child: const EditProfileScreen(),
+          ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(-1, 0),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(
+              parent: anim1,
+              curve: Curves.easeOutCubic,
+            ),
+          ),
+          child: child,
+        );
+      },
+    );
+
+    _loadProfileData();
+  }
+
+  // نمایش پیام تعریفی مدال‌ها با انیمیشن سفارشی
+  void _showBadgeDetails(String title, String description, IconData icon, Color color) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 48, color: color),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBrand,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("متوجه شدم", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _handleLogout({bool isSwitchAccount = false}) async {
     HapticFeedback.mediumImpact();
 
@@ -175,14 +278,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
+                  // بخش بالا: آواتار و امتیاز
                   Center(
                     child: Column(
                       children: [
                         CircleAvatar(
                           radius: 45,
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: Colors.purple.shade50,
                           backgroundImage: _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
-                          child: _photoUrl.isEmpty ? Icon(Icons.person, size: 50, color: Colors.grey[400]) : null,
+                          child: _photoUrl.isEmpty
+                              ? Icon(Icons.person, size: 50, color: Colors.purple.shade400)
+                              : null,
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -200,93 +306,59 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 25),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "user_info_section_title".tr().isEmpty ? "اطلاعات کاربری" : "user_info_section_title".tr(),
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          HapticFeedback.lightImpact();
 
-                          await showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (sheetContext) {
-                              return Container(
-                                height: MediaQuery.of(sheetContext).size.height * 0.85,
+                  // کادر اطلاعات کاربری با مداد اسنپی در سمت چپ
+                  InkWell(
+                    onTap: _openEditProfileDrawer,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+                      ),
+                      child: Row(
+                        children: [
+                          // سمت چپ: مداد ویرایش و نقطه قرمز
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.edit_outlined, size: 20, color: Colors.grey.shade700),
+                              const SizedBox(width: 4),
+                              Container(
+                                width: 6,
+                                height: 6,
                                 decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(24),
-                                  ),
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(24),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                          top: 10,
-                                          bottom: 5,
-                                        ),
-                                        width: 40,
-                                        height: 5,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.shade300,
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                      const Expanded(
-                                        child: EditProfileScreen(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-
-                          _loadProfileData();
-                        },
-                        child: Text(
-                          "edit_button_label".tr().isEmpty ? "ویرایش" : "edit_button_label".tr(),
-                          style: const TextStyle(
-                            color: AppColors.originBlue,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                              ),
+                            ],
                           ),
-                        ),
+                          const Spacer(),
+                          // سمت راست: نام و شماره
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                _userName.isEmpty
+                                    ? ("default_user_name".tr().isEmpty ? "کاربر سفیر" : "default_user_name".tr())
+                                    : _userName,
+                                style: const TextStyle(fontSize: 15, color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatNumberByLocale(context, _userPhone),
+                                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _userName.isEmpty ? ("default_user_name".tr().isEmpty ? "کاربر سفیر" : "default_user_name".tr()) : _userName,
-                          style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          formatNumberByLocale(context, _userPhone),
-                          style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
-                        ),
-                      ],
                     ),
                   ),
+
                   const SizedBox(height: 25),
                   Align(
                     alignment: AlignmentDirectional.centerStart,
@@ -296,68 +368,89 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
+
+                  // مدال‌ها با قابلیت کلیک و دیالوگ تعریفی
                   Row(
                     children: [
                       Expanded(
-                        child: Container(
-                          height: 120,
-                          margin: const EdgeInsetsDirectional.only(end: 6),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2ECE89), Color(0xFF15A968)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
+                        child: InkWell(
+                          onTap: () => _showBadgeDetails(
+                            "مسافر بااخلاق",
+                            "رانندگان سفیر رفتار محترمانه و صمیمانه شما در طول سفر را تحسین کرده‌اند. از همراهی باارزش شما سپاسگزاریم!",
+                            Icons.stars,
+                            const Color(0xFF15A968),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.stars, size: 40, color: Colors.amber),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-                                child: Text(
-                                  "badge_polite_label".tr().isEmpty ? "مسافر باخلاق" : "badge_polite_label".tr(),
-                                  style: const TextStyle(color: Color(0xFF15A968), fontWeight: FontWeight.bold, fontSize: 11),
-                                ),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            height: 120,
+                            margin: const EdgeInsetsDirectional.only(end: 6),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF2ECE89), Color(0xFF15A968)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
                               ),
-                            ],
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.stars, size: 40, color: Colors.amber),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                                  child: Text(
+                                    "badge_polite_label".tr().isEmpty ? "خوش‌رفتار" : "badge_polite_label".tr(),
+                                    style: const TextStyle(color: Color(0xFF15A968), fontWeight: FontWeight.bold, fontSize: 11),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                       Expanded(
-                        child: Container(
-                          height: 120,
-                          margin: const EdgeInsetsDirectional.only(start: 6),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFAB47BC), Color(0xFF7B1FA2)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
+                        child: InkWell(
+                          onTap: () => _showBadgeDetails(
+                            "مسافر وقت‌شناس",
+                            "حضور به موقع شما در مبدأ باعث سفری سریع‌تر و روان‌تر برای شما و راننده می‌شود. شما الگوی وقت‌شناسی هستید!",
+                            Icons.access_time_filled,
+                            const Color(0xFF7B1FA2),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.access_time_filled, size: 40, color: Colors.amber),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-                                child: Text(
-                                  "badge_punctual_label".tr().isEmpty ? "وقت‌شناس" : "badge_punctual_label".tr(),
-                                  style: const TextStyle(color: Color(0xFF7B1FA2), fontWeight: FontWeight.bold, fontSize: 11),
-                                ),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            height: 120,
+                            margin: const EdgeInsetsDirectional.only(start: 6),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFAB47BC), Color(0xFF7B1FA2)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
                               ),
-                            ],
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.access_time_filled, size: 40, color: Colors.amber),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                                  child: Text(
+                                    "badge_punctual_label".tr().isEmpty ? "وقت‌شناس" : "badge_punctual_label".tr(),
+                                    style: const TextStyle(color: Color(0xFF7B1FA2), fontWeight: FontWeight.bold, fontSize: 11),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 25),
                   Align(
                     alignment: AlignmentDirectional.centerStart,
@@ -744,12 +837,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: 50,
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: Colors.purple.shade50,
                           backgroundImage: _imageFile != null
                               ? FileImage(_imageFile!)
                               : (_photoUrl.isNotEmpty ? NetworkImage(_photoUrl) as ImageProvider : null),
                           child: (_imageFile == null && _photoUrl.isEmpty)
-                              ? Icon(Icons.person, size: 55, color: Colors.grey[400])
+                              ? Icon(Icons.person, size: 55, color: Colors.purple.shade400)
                               : null,
                         ),
                         Positioned(
