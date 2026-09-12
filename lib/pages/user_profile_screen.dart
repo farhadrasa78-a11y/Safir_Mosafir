@@ -823,8 +823,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBrand))
           : SafeArea(
               child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(), // نرم‌تر کردن اسکرول هنگام بازشدن کیبورد
-                padding: const EdgeInsets.all(24.0),
+              keyboardDismissBehavior:
+              ScrollViewKeyboardDismissBehavior.onDrag,
+              physics: const ClampingScrollPhysics(),
+               padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
