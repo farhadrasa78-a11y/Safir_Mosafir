@@ -9,6 +9,7 @@ import 'package:safir_passengers/methods/common_methods.dart';
 import 'package:safir_passengers/pages/blocked_screen.dart';
 import 'package:safir_passengers/pages/safir_home_screen.dart';
 import 'package:safir_passengers/global/global_var.dart';
+import 'package:safir_passengers/theme/app_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -19,11 +20,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController phoneController = TextEditingController();
-
-  // پالت رنگی اختصاصی و مدرن سفیر
-  final Color safirBrandColor = const Color(0xFF145A41);
-  final Color successColor = const Color(0xFF10B981);
-  final Color surfaceBg = const Color(0xFFF8FAFC);
 
   CommonMethods commonMethods = CommonMethods();
 
@@ -46,6 +42,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // 🌐 نمایش منوی مدرن و مینیمال انتخاب زبان
   void showLanguageBottomSheet(BuildContext context) {
+    // تعیین عنوان تک‌زبانه بر اساس زبان فعلی
+    String bottomSheetTitle;
+    if (context.locale.languageCode == 'ps') {
+      bottomSheetTitle = 'ژبه غوره کړئ';
+    } else if (context.locale.languageCode == 'en') {
+      bottomSheetTitle = 'Select Language';
+    } else {
+      bottomSheetTitle = 'انتخاب زبان';
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -65,34 +71,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 width: 38,
                 height: 4.5,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.borderLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
               const SizedBox(height: 24),
 
               Text(
-                'انتخاب زبان / ژبه غوره کړئ',
+                bottomSheetTitle,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 16,
-                  color: Colors.black87,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 20),
 
               _buildLanguageTile(
                 context: ctx,
-                flag: '🇦🇫',
-                title: 'فارسی (دری)',
+                title: 'دری',
                 code: 'fa',
               ),
               const SizedBox(height: 10),
 
               _buildLanguageTile(
                 context: ctx,
-                flag: '🇦🇫',
                 title: 'پښتو',
                 code: 'ps',
               ),
@@ -100,7 +104,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               _buildLanguageTile(
                 context: ctx,
-                flag: '🇬🇧',
                 title: 'English',
                 code: 'en',
               ),
@@ -114,7 +117,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildLanguageTile({
     required BuildContext context,
-    required String flag,
     required String title,
     required String code,
   }) {
@@ -129,29 +131,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? safirBrandColor.withOpacity(0.08) : surfaceBg,
+          color: isSelected ? AppColors.primaryBrand.withOpacity(0.08) : AppColors.backgroundLight,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? safirBrandColor : Colors.grey.shade200,
+            color: isSelected ? AppColors.primaryBrand : AppColors.borderLight,
             width: isSelected ? 1.8 : 1,
           ),
         ),
         child: Row(
           children: [
-            Text(flag, style: const TextStyle(fontSize: 22)),
-            const SizedBox(width: 14),
             Expanded(
               child: Text(
                 title,
                 style: TextStyle(
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                   fontSize: 15,
-                  color: isSelected ? safirBrandColor : Colors.black87,
+                  color: isSelected ? AppColors.primaryBrand : AppColors.textPrimary,
                 ),
               ),
             ),
             if (isSelected)
-              Icon(Icons.check_circle_rounded, color: safirBrandColor, size: 22),
+              const Icon(Icons.check_circle_rounded, color: AppColors.primaryBrand, size: 22),
           ],
         ),
       ),
@@ -187,12 +187,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: safirBrandColor.withOpacity(0.1),
+                        color: AppColors.primaryBrand.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.local_taxi_rounded,
-                        color: safirBrandColor,
+                        color: AppColors.primaryBrand,
                         size: 24,
                       ),
                     ),
@@ -205,15 +205,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
-                          color: surfaceBg,
+                          color: AppColors.backgroundLight,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade300, width: 1),
+                          border: Border.all(color: AppColors.borderLight, width: 1),
                         ),
-                        child: Center(
+                        child: const Center(
                           child: Icon(
                             Icons.language_rounded,
                             size: 22,
-                            color: safirBrandColor,
+                            color: AppColors.primaryBrand,
                           ),
                         ),
                       ),
@@ -230,7 +230,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: Colors.black87,
+                    color: AppColors.textPrimary,
                     height: 1.2,
                   ),
                 ),
@@ -238,9 +238,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Text(
                   getTranslation(context, "register_subtitle"),
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13.5,
-                    color: Colors.grey.shade600,
+                    color: AppColors.textSecondary,
                     height: 1.4,
                   ),
                 ),
@@ -257,7 +257,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2.0,
-                    color: Colors.black87,
+                    color: AppColors.textPrimary,
                   ),
                   onChanged: (value) => setState(() {}),
                   decoration: InputDecoration(
@@ -270,25 +270,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       fontWeight: FontWeight.normal,
                     ),
                     filled: true,
-                    fillColor: surfaceBg,
+                    fillColor: AppColors.backgroundLight,
                     contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                      borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: safirBrandColor, width: 1.8),
+                      borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.8),
                     ),
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.phone_android_rounded,
-                      color: Colors.grey.shade500,
+                      color: AppColors.textSecondary,
                       size: 22,
                     ),
                     suffixIcon: _isPhoneValid(phoneController.text)
-                        ? Icon(
+                        ? const Icon(
                             Icons.check_circle_rounded,
-                            color: successColor,
+                            color: AppColors.success,
                             size: 22,
                           )
                         : null,
@@ -303,8 +303,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: ElevatedButton(
                     onPressed: sendPhoneNumber,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: safirBrandColor,
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.primaryButton,
+                      overlayColor: AppColors.primaryButtonPressed,
+                      foregroundColor: AppColors.buttonText,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -316,13 +317,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              color: Colors.white,
+                              color: AppColors.buttonText,
                             ),
                           )
                         : Text(
                             getTranslation(context, "get_otp_btn"),
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: AppColors.buttonText,
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
@@ -334,20 +335,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // جداکننده
                 Row(
                   children: [
-                    Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
+                    const Expanded(child: Divider(color: AppColors.borderLight, thickness: 1)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14.0),
                       child: Text(
                         getTranslation(context, "or_continue_with"),
-                        style: TextStyle(color: Colors.grey.shade500, fontSize: 12.5, fontWeight: FontWeight.w500),
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5, fontWeight: FontWeight.w500),
                       ),
                     ),
-                    Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
+                    const Expanded(child: Divider(color: AppColors.borderLight, thickness: 1)),
                   ],
                 ),
                 const SizedBox(height: 24),
 
-                // 🔴 دکمه کامل و کاملاً فعال ورود با گوگل
+                // 🔴 دکمه ورود با گوگل
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -385,17 +386,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             );
                           },
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: surfaceBg,
-                      side: BorderSide(color: Colors.grey.shade300, width: 1),
+                      backgroundColor: AppColors.backgroundLight,
+                      side: const BorderSide(color: AppColors.borderLight, width: 1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     child: authProvider.isGoogleSigInLoading
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(color: safirBrandColor, strokeWidth: 2),
+                            child: CircularProgressIndicator(color: AppColors.primaryBrand, strokeWidth: 2),
                           )
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -410,7 +411,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Text(
                                 getTranslation(context, "google_sign_in_btn"),
                                 style: const TextStyle(
-                                  color: Colors.black87,
+                                  color: AppColors.textPrimary,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -426,8 +427,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Text(
                     getTranslation(context, "terms_and_privacy_notice"),
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
                       fontSize: 11.5,
                       height: 1.5,
                     ),
