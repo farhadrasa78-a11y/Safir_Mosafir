@@ -304,52 +304,49 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ),
                   const SizedBox(height: 25),
 
-                  InkWell(
-                    onTap: _openEditProfileDrawer,
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
-                      ),
-                      child: Row(
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.edit_outlined, size: 20, color: Colors.grey.shade700),
-                              const SizedBox(width: 4),
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
+                  // کارت اطلاعات کاربر (دقیقاً مو به مو مطابق تصویر ۱)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "main_account_info_title".tr().isEmpty ? "اطلاعات کاربری" : "main_account_info_title".tr(),
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                            ),
+                            GestureDetector(
+                              onTap: _openEditProfileDrawer,
+                              child: Text(
+                                "edit".tr().isEmpty ? "ویرایش" : "edit".tr(),
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF5E60CE)),
                               ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                _userName.isEmpty
-                                    ? ("default_user_name".tr().isEmpty ? "کاربر سفیر" : "default_user_name".tr())
-                                    : _userName,
-                                style: const TextStyle(fontSize: 15, color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                formatNumberByLocale(context, _userPhone),
-                                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _userName.isEmpty
+                                  ? ("default_user_name".tr().isEmpty ? "کاربر سفیر" : "default_user_name".tr())
+                                  : _userName,
+                              style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              formatNumberByLocale(context, _userPhone),
+                              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
 
@@ -357,7 +354,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
-                      "badges_section_title".tr().isEmpty ? "نشان‌های افتخار" : "badges_section_title".tr(),
+                      "badges_section_title".tr().isEmpty ? "مدال‌های افتخار" : "badges_section_title".tr(),
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                     ),
                   ),
@@ -456,7 +453,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
-                      "accessibility_subtitle".tr().isEmpty ? "تنظیمات ویژه افراد دارای معلولیت" : "accessibility_subtitle".tr(),
+                      "accessibility_subtitle".tr().isEmpty ? "با فعال کردن گزینه متناسب با شرایطتان می‌توانیم تجربه بهتری از سفر برایتان ایجاد کنیم." : "accessibility_subtitle".tr(),
                       style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                     ),
                   ),
@@ -472,7 +469,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "wheelchair_option_label".tr().isEmpty ? "نیاز به صندلی چرخ‌دار" : "wheelchair_option_label".tr(),
+                          "wheelchair_option_label".tr().isEmpty ? "از ویلچر استفاده می‌کنم" : "wheelchair_option_label".tr(),
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                         ),
                         Switch(
@@ -505,7 +502,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ListTile(
                           leading: const Icon(Icons.logout, color: Colors.redAccent),
                           title: Text(
-                            "exit".tr().isEmpty ? "خروج از حساب" : "exit".tr(),
+                            "exit".tr().isEmpty ? "خروج" : "exit".tr(),
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
@@ -637,7 +634,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (mounted) {
         _nameController.text = _initialName;
-        _phoneController.text = _initialPhone; // حذف فرمت‌دهی زنده جهت جلوگیری از پرش
+        _phoneController.text = _initialPhone;
         _emailController.text = _initialEmail;
         _addressController.text = _initialAddress;
         _dobController.text = _initialDob;
@@ -804,7 +801,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // جلوگیری از به هم خوردن لایوت با تغییر کیبورد
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -823,10 +820,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBrand))
           : SafeArea(
               child: SingleChildScrollView(
-              keyboardDismissBehavior:
-              ScrollViewKeyboardDismissBehavior.onDrag,
-              physics: const ClampingScrollPhysics(),
-               padding: const EdgeInsets.all(24.0),
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
