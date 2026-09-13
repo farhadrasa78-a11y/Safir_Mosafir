@@ -36,7 +36,7 @@ import 'map_files/promo_code_sheet.dart';
 import '../widgets/animated_menus.dart'; 
 import '../widgets/map_location_label.dart';
 
-/// 🔹 تبدیل ویجت به تصویر برای MapLibre (نمایش فقط «مبدأ» یا «مقصد»)
+/// 🔹 تبدیل ویجت به تصویر برای MapLibre
 Future<Uint8List> widgetToImageBytes(Widget widget) async {
   final BuildOwner buildOwner = BuildOwner(focusManager: FocusManager());
   final PipelineOwner pipelineOwner = PipelineOwner();
@@ -327,6 +327,8 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             }
           }
 
+          if (!mounted) return;
+
           AddressModel userLocation = AddressModel(
             placeName: formattedAddress,
             humanReadableAddress: formattedAddress,
@@ -357,6 +359,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     if (camera == null) return;
 
     final currentCenter = camera.target;
+    if (!mounted) return;
     final appInfo = Provider.of<AppInfo>(context, listen: false);
 
     appInfo.updatePickUpLocation(
@@ -367,7 +370,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       ),
     );
 
-    // 🔹 ثبت فقط عنوان «مبدأ» روی نقشه
     final bytes = await widgetToImageBytes(
       const MapOriginLabel(labelText: 'مبدأ'),
     );
@@ -433,6 +435,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     if (camera == null) return;
 
     final currentCenter = camera.target;
+    if (!mounted) return;
     final appInfo = Provider.of<AppInfo>(context, listen: false);
 
     appInfo.updateDropOffLocation(
@@ -443,7 +446,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       ),
     );
 
-    // 🔹 ثبت فقط عنوان «مقصد» روی نقشه
     final bytes = await widgetToImageBytes(
       MapDestinationLabel(
         labelText: 'مقصد',
@@ -561,6 +563,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             MaterialPageRoute(builder: (c) => const SearchDestinationPlace()),
           );
           if (response == "placeSelected") {
+            if (!mounted) return;
             var appInfo = Provider.of<AppInfo>(context, listen: false);
             setState(() {
               _secondDestinationAddress = appInfo.dropOffLocation?.placeName;
@@ -609,7 +612,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     );
   }
 
-      void startTrip() async {
+  void startTrip() async {
     HapticFeedback.heavyImpact();
     
     var appInfo = Provider.of<AppInfo>(context, listen: false);
@@ -628,7 +631,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
       Map<String, dynamic> passengerTripDetails = {
         'ride_id': tripRequestRef!.id,
-        'status': TripStatus.searching, // 👈 حالت در حال جستجو
+        'status': TripStatus.searching,
         'driver_id': 'waiting',
         'createdAt': FieldValue.serverTimestamp(),
         
@@ -655,7 +658,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
       await tripRequestRef!.set(passengerTripDetails);
 
-      // 🔄 شنود زنده تغییرات وضعیت سفر توسط راننده
       tripStreamSubscription = tripRequestRef!.snapshots().listen((snapshot) {
         if (!snapshot.exists || snapshot.data() == null) return;
         
@@ -669,21 +671,18 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             photoDriver = data["driver_photo"] ?? data["driverPhoto"] ?? photoDriver;
             carDetailsDriver = data["car_details"] ?? data["carDetails"] ?? carDetailsDriver;
 
-            // ۱. راننده درخواست را پذیرفت یا در راه است
             if (tripStatus == TripStatus.accepted || 
                 tripStatus == TripStatus.arrived || 
                 tripStatus == TripStatus.onTrip) {
-              _currentStep = 4; // رفتن به استپ ۴ (نمایش اطلاعات راننده)
+              _currentStep = 4;
             }
 
-            // ۲. راننده به مبدأ رسید
             if (tripStatus == TripStatus.arrived) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("راننده به مبدأ شما رسید.")),
               );
             }
 
-            // ۳. سفر توسط راننده لغو شد
             if (tripStatus == TripStatus.cancelledByDriver) {
               _currentStep = 2;
               tripStreamSubscription?.cancel();
@@ -697,7 +696,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           });
         }
 
-        // ۴. پایان سفر
         if (tripStatus == TripStatus.completed || tripStatus == TripStatus.ended) {
           tripStreamSubscription?.cancel();
           if (mounted) {
@@ -725,20 +723,19 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   }
 
-
   void cancelTrip() async {
-  HapticFeedback.lightImpact();
+    HapticFeedback.lightImpact();
 
-  if (tripRequestRef != null) {
-    await tripRequestRef!.update({
-      'status': TripStatus.cancelledByPassenger, // 👈 به جای delete()، وضعیت تغییر می‌کند
-      'cancelled_at': FieldValue.serverTimestamp(),
-    });
+    if (tripRequestRef != null) {
+      await tripRequestRef!.update({
+        'status': TripStatus.cancelledByPassenger,
+        'cancelled_at': FieldValue.serverTimestamp(),
+      });
+    }
+
+    tripStreamSubscription?.cancel();
+    if (mounted) setState(() => _currentStep = 2);
   }
-
-  tripStreamSubscription?.cancel();
-  if (mounted) setState(() => _currentStep = 2);
-}
 
   void _handleBackAction() {
     HapticFeedback.lightImpact();
@@ -825,10 +822,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       setState(() => _hasNotification = false);
     }
     Navigator.of(context).push(
-  MaterialPageRoute(
-    builder: (_) => const ProfileAnimatedMenu(),
-  ),
-);
+      MaterialPageRoute(
+        builder: (_) => const ProfileAnimatedMenu(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -867,11 +865,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 if (!_isMapMoving) {
                   setState(() {
                     _isMapMoving = true;
-                  });
-                }
-                // 🔹 بستن شیت به محص جابه‌جایی نقشه
-                if (_isSheetExpanded) {
-                  setState(() {
+                    // 🔹 اصلاح ۱: بستن خودکار کشو به محض Drag نقشه
                     _isSheetExpanded = false;
                   });
                 }
@@ -893,39 +887,36 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             },
           ),
 
-          // 📍 ۱. طراحی دقیقا مشابه اسنپ (سایه دایره‌ای کم‌رنگ + چوبک باریک و بالا رفتن کامل هنگام لمس)
+          // 📍 پین مرکز نقشه
           if (_currentStep < 2)
             IgnorePointer(
               child: Center(
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // سایه/دایره بزرگ کم‌رنگ پایینی (روی نقشه ثابت می‌ماند)
+                    // 🔹 اصلاح ۲: سایه دایره‌ای یکدست و محو بدون Border
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 160),
-                      width: _isMapMoving ? 36 : 28,
-                      height: _isMapMoving ? 36 : 28,
+                      width: _isMapMoving ? 42 : 32,
+                      height: _isMapMoving ? 42 : 32,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: activePinColor.withOpacity(0.18),
-                        border: Border.all(
-                          color: activePinColor.withOpacity(0.35),
-                          width: 1.5,
-                        ),
+                        color: _isMapMoving
+                            ? Colors.black.withOpacity(0.08)
+                            : Colors.black.withOpacity(0.15),
                       ),
                       child: Center(
                         child: Container(
-                          width: 6,
-                          height: 6,
+                          width: 5,
+                          height: 5,
                           decoration: BoxDecoration(
-                            color: activePinColor,
+                            color: Colors.black.withOpacity(0.40),
                             shape: BoxShape.circle,
                           ),
                         ),
                       ),
                     ),
 
-                    // پین اصلی، چوبک باریک و آیکون (هنگام لمس/حرکت نقشه ۴۵ پیکسل بالا می‌رود)
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 160),
                       curve: Curves.easeOutCubic,
@@ -965,7 +956,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                               ),
                             ),
                           ),
-                          // چوبک نازک و باریک مشابه اسنپ
                           Container(
                             width: 2.0,
                             height: 18,
@@ -1198,20 +1188,20 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             ),
 
           if (_currentStep == 4)
-          MapBottomSheets.buildStep4(
-          AppColors.primaryBrand,
-          nameDriver: nameDriver,
-          photoDriver: photoDriver,
-          phoneNumberDriver: phoneNumberDriver,
-          carDetailsDriver: carDetailsDriver,
-          carColorDriver: "", 
-          plateProvinceDriver: "",
-          plateCategoryDriver: "",
-          plateFarsiNumDriver: "",
-          plateNumDriver: "",
-          isTempPlateDriver: false,
-          tripFareAmount: actualFareAmount,
-          ),
+            MapBottomSheets.buildStep4(
+              AppColors.primaryBrand,
+              nameDriver: nameDriver,
+              photoDriver: photoDriver,
+              phoneNumberDriver: phoneNumberDriver,
+              carDetailsDriver: carDetailsDriver,
+              carColorDriver: "", 
+              plateProvinceDriver: "",
+              plateCategoryDriver: "",
+              plateFarsiNumDriver: "",
+              plateNumDriver: "",
+              isTempPlateDriver: false,
+              tripFareAmount: actualFareAmount,
+            ),
         ],
       ),
     );
