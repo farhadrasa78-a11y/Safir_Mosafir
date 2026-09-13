@@ -205,7 +205,7 @@ class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProv
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(top: 16, right: 12, left: 12),
-            child: ExactAnimatedMenu(
+            child: ProfileAnimatedMenu(
               currentLanguage: context.locale.languageCode,
               onLanguageChanged: (newLang) {
                 context.setLocale(Locale(newLang));
