@@ -2,7 +2,7 @@ name: safir_passengers
 description: "Safir Taxi Passenger Application"
 publish_to: 'none'
 
-version: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: '>=3.4.4 <4.0.0'
@@ -11,20 +11,16 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # پکیج‌های چندزبانگی
   easy_localization: ^3.0.7
   flutter_localizations:
     sdk: flutter
 
-  # پکیج‌های نقشه و Vector
   maplibre_gl: ^0.26.2
   latlong2: ^0.9.1
 
-  # پکیج‌های GPS و اینترنت
   geolocator: ^12.0.0
   connectivity_plus: ^6.0.4
 
-  # فایربیس (سرویس‌های ابری)
   firebase_core: ^3.3.0
   firebase_auth: ^5.1.2
   cloud_firestore: ^5.1.0
@@ -33,7 +29,6 @@ dependencies:
   flutter_geofire: ^2.0.7
   google_sign_in: ^6.2.1
 
-  # پکیج‌های کاربردی و ابزار سیستم
   permission_handler: ^11.3.1
   http: ^1.2.2
   provider: ^6.1.2
@@ -46,21 +41,32 @@ dependencies:
   flutter_polyline_points: ^2.1.0
   loading_animation_widget: ^1.2.1
 
-  # پکیج‌های اضافه شده برای رفع خطای بیلد
   share_plus: ^10.1.2
   path_provider: ^2.1.4
   image_picker: ^1.1.2
 
-  # سیستم صوتی
   flutter_tts: ^4.0.2
-
-  # پکیج‌های پرداخت
   flutter_stripe: ^10.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+
+  flutter_native_splash: ^2.4.6
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/splash_new.png
+
+  android: true
+  ios: false
+  web: false
+
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/safir_logo_new.png
+    icon_background_color: "#FFFFFF"
 
 flutter:
   uses-material-design: true
