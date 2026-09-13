@@ -54,11 +54,9 @@ void _shareInviteCode(BuildContext context) {
       : 'SAFIR2026';
 
   final String shareMessage =
-      'سلام! از اپلیکیشن سفیر برای درخواست تاکسی و پیک استفاده کن.
-'
-      'با وارد کردن کد معرفی من ($referralCode) تخفیف بگیر!
-'
-      'دانلود برنامه: https://safirapp.com/download';
+      '''سلام! از اپلیکیشن سفیر برای درخواست تاکسی و پیک استفاده کن.
+با وارد کردن کد معرفی من ($referralCode) تخفیف بگیر!
+دانلود برنامه: https://safirapp.com/download''';
 
   Share.share(shareMessage);
 }
@@ -258,9 +256,9 @@ void _showAboutAppDialog(BuildContext context) {
           ),
           content: Text(
             'about_app_desc'.tr().isEmpty
-                ? 'اپلیکیشن آنلاین درخواست تاکسی، باربری و خدمات بین‌شهری سفیر.
+                ? '''اپلیکیشن آنلاین درخواست تاکسی، باربری و خدمات بین‌شهری سفیر.
 نسخه: 1.0.0
-ارائه‌دهنده خدمات حمل‌ونقل ایمن و سریع.'
+ارائه‌دهنده خدمات حمل‌ونقل ایمن و سریع.'''
                 : 'about_app_desc'.tr(),
             style: const TextStyle(
               fontSize: 13,
