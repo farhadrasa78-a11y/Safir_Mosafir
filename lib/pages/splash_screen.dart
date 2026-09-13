@@ -140,7 +140,7 @@ class _SafirSplashScreenState extends State<SafirSplashScreen>
                     children: [
                       // 📍 لوگوی سفیر
                       Image.asset(
-                        'assets/images/safir_logo.png',
+                        'assets/images/safir_logo_new.png',
                         width: 150,
                         height: 150,
                         fit: BoxFit.contain,
