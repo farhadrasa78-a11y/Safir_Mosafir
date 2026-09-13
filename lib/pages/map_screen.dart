@@ -862,20 +862,20 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               }
             },
             onCameraMove: (CameraPosition position) {
-              if (_isProgrammaticMove) {
-                return;
-              }
+              debugPrint(
+             'CAMERA MOVE | programmatic: $_isProgrammaticMove | '
+             'step: $_currentStep | sheet: $_isSheetExpanded',
+           );
 
-              if (!_isMapMoving) {
+             if (!_isProgrammaticMove) {
+               if (!_isMapMoving) {
                 setState(() {
-                  _isMapMoving = true;
-
-                  if (_currentStep == 0 || _currentStep == 1) {
-                    _isSheetExpanded = false;
-                  }
+               _isMapMoving = true;
+                 _isSheetExpanded = false;
                 });
+               }
               }
-            },
+             },
             onCameraIdle: () {
               final bool wasProgrammaticMove = _isProgrammaticMove;
               _isProgrammaticMove = false;
