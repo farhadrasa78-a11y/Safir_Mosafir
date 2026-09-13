@@ -451,9 +451,8 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
     );
   }
 
-  Widget _buildProfileHeader() {
+    Widget _buildProfileHeader() {
     return Container(
-      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -472,77 +471,77 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withOpacity(0.45),
-                width: 1.5,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const UserProfileScreen(),
               ),
-            ),
-            child: const Icon(
-              Icons.person_rounded,
-              color: Colors.white,
-              size: 35,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+            child: Row(
               children: [
-                Text(
-                  _displayName(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _displayPhone(),
-                  textDirection: TextDirection.ltr,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 11),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 11,
-                    vertical: 5,
-                  ),
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.16),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'حساب کاربری سفیر',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                    color: Colors.white.withOpacity(0.18),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.45),
+                      width: 1.5,
                     ),
                   ),
+                  child: const Icon(
+                    Icons.person_rounded,
+                    color: Colors.white,
+                    size: 34,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _displayName(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _displayPhone(),
+                        textDirection: TextDirection.ltr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 20,
                 ),
               ],
             ),
           ),
-          const Icon(
-            Icons.verified_rounded,
-            color: Colors.white,
-            size: 22,
-          ),
-        ],
+        ),
       ),
     );
   }
