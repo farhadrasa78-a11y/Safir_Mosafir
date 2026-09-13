@@ -283,8 +283,9 @@ void _showAboutAppDialog(BuildContext context) {
   );
 }
 
-class ProfileAnimatedMenu extends StatefulWidget {
-  const ProfileAnimatedMenu({
+class ExactAnimatedMenu extends StatefulWidget {
+  const ExactAnimatedMenu({
+
     super.key,
     this.currentLanguage,
     this.onLanguageChanged,
@@ -294,11 +295,11 @@ class ProfileAnimatedMenu extends StatefulWidget {
   final ValueChanged<String>? onLanguageChanged;
 
   @override
-  State<ProfileAnimatedMenu> createState() =>
+  State<ExactAnimatedMenu> createState() =>
       _ProfileAnimatedMenuState();
 }
 
-class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
+class _ExactAnimatedMenuState extends State<ProfileAnimatedMenu> {
   String _displayName() {
     if (userName.trim().isNotEmpty) {
       return userName.trim();
