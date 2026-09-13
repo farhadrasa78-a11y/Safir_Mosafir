@@ -21,7 +21,7 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
   List<PredictedPlaces> placesPredictedList = [];
   bool isLoading = false;
   Timer? _searchDebounce;
-  http.Client? _activeClient; // ⚡ کلینت برای لغو درخواست‌های قبلی
+  http.Client? _activeClient;
 
   TextEditingController pickupTextEditingController = TextEditingController();
   TextEditingController destinationTextEditingController = TextEditingController();
@@ -29,14 +29,14 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
   @override
   void dispose() {
     _searchDebounce?.cancel();
-    _activeClient?.close(); // بسته شدن درخواست‌های باز هنگام خروج
+    _activeClient?.close();
     pickupTextEditingController.dispose();
     destinationTextEditingController.dispose();
     super.dispose();
   }
 
   void _onSearchTextChanged(String inputText) {
-    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+    _searchDebounce?.cancel();
 
     if (inputText.trim().length <= 1) {
       if (mounted) {
@@ -48,16 +48,15 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
       return;
     }
 
-    _searchDebounce = Timer(const Duration(milliseconds: 400), () {
+    // تاخیر ۳۵۰ میلی‌ثانیه‌ای برای کاهش تعداد درخواست‌ها
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
       findPlaceAutoCompleteSearch(inputText);
     });
   }
 
-  // 📡 متد بهینه‌شده جستجو با محدودسازی جغرافیایی شهر کاربر
   void findPlaceAutoCompleteSearch(String inputText) async {
     if (!mounted) return;
 
-    // لغو درخواست قبلی در صورت تایپ سریع کاربر
     _activeClient?.close();
     _activeClient = http.Client();
 
@@ -70,30 +69,40 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
       final userLat = appInfo.pickUpLocation?.latitudePosition;
       final userLng = appInfo.pickUpLocation?.longitudePosition;
 
-      final encodedQuery = Uri.encodeComponent(inputText.trim());
+      final queryText = inputText.trim();
 
-      String boundingBoxParams = "";
+      String locationBiasParams = "";
       if (userLat != null && userLng != null) {
-        // ایجاد محدوده جغرافیایی (شعاع حدوداً ۳۰ کیلومتری حول موقعیت کاربر)
-        double delta = 0.3; // مقدار تقریبی مختصات شهری
+        // ایجاد محدوده نرم‌تر حدود ۵۰ کیلومتری حول مبدأ کاربر
+        double delta = 0.5; 
         double left = userLng - delta;
         double bottom = userLat - delta;
         double right = userLng + delta;
         double top = userLat + delta;
 
-        // viewbox=left,top,right,bottom & bounded=1 باعث می‌شود نتایج فقط از همین محدوده برگردند
-        boundingBoxParams = "&viewbox=$left,$top,$right,$bottom&bounded=1&lat=$userLat&lon=$userLng";
+        // حذف bounded=1 تا نتایج خارج محدوده کلاً نابود نشوند، فقط اولویت به مکان‌های نزدیک داده شود
+        locationBiasParams = "&viewbox=$left,$top,$right,$bottom&lat=$userLat&lon=$userLng";
       }
 
-      // افزودن countrycodes=af جهت اطمینان از جستجو در محدوده کشور
+      // جستجو در هردو زبان فارسی/پشتو/انگلیسی با جزئیات کامل آدرس
       final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/search?format=json&q=$encodedQuery$boundingBoxParams&countrycodes=af&addressdetails=1&limit=15&accept-language=fa,ps,en',
+        'https://nominatim.openstreetmap.org/search?'
+        'format=json'
+        '&q=${Uri.encodeComponent(queryText)}'
+        '$locationBiasParams'
+        '&countrycodes=af' // در صورت نیاز می‌توانید کد کشور را تغییر داده یا حذف کنید
+        '&addressdetails=1'
+        '&limit=20'
+        '&accept-language=fa,ps,en',
       );
 
       final response = await _activeClient!.get(
         url,
-        headers: {'User-Agent': 'safir_passengers_app'},
-      ).timeout(const Duration(seconds: 6));
+        headers: {
+          'User-Agent': 'SafirPassengerApp/1.0 (contact@safirapp.com)',
+          'Accept-Language': 'fa,ps,en',
+        },
+      ).timeout(const Duration(seconds: 7));
 
       if (response.statusCode == 200 && mounted) {
         final List<dynamic> responseData = json.decode(response.body);
@@ -110,7 +119,7 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
         if (mounted) setState(() => isLoading = false);
       }
     } catch (e) {
-      debugPrint("Error fetching places: $e");
+      debugPrint("Error in place autocomplete search: $e");
       if (mounted) setState(() => isLoading = false);
     }
   }
@@ -120,8 +129,8 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
 
     if (place.lat != null && place.lng != null) {
       AddressModel selectedDestination = AddressModel(
-        placeName: place.mainText,
-        humanReadableAddress: place.mainText,
+        placeName: place.mainText ?? place.secondaryText,
+        humanReadableAddress: place.secondaryText ?? place.mainText,
         latitudePosition: place.lat,
         longitudePosition: place.lng,
       );
@@ -184,6 +193,7 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
                         ),
                         child: TextField(
                           controller: pickupTextEditingController,
+                          readOnly: true, // مبدأ در این صفحه معمولاً ثابت است
                           style: const TextStyle(fontSize: 14),
                           decoration: InputDecoration(
                             hintText: getTranslation(context, "pickup_location_hint"),
@@ -237,9 +247,18 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
                           decoration: InputDecoration(
                             hintText: getTranslation(context, "where_to_destination_hint"),
                             border: InputBorder.none,
+                            suffixIcon: destinationTextEditingController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear, size: 18),
+                                    onPressed: () {
+                                      destinationTextEditingController.clear();
+                                      _onSearchTextChanged('');
+                                    },
+                                  )
+                                : null,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 12,
-                              vertical: 10,
+                              vertical: 12,
                             ),
                           ),
                         ),
@@ -271,19 +290,19 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
           ),
 
           if (isLoading)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: LinearProgressIndicator(color: Color(0xFF169365)),
+            const LinearProgressIndicator(
+              color: Color(0xFF169365),
+              backgroundColor: Color(0xFFE5E7EB),
             ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 5),
 
           // لیست نتایج
-          (placesPredictedList.isNotEmpty)
-              ? Expanded(
-                  child: ListView.separated(
+          Expanded(
+            child: placesPredictedList.isNotEmpty
+                ? ListView.separated(
                     itemCount: placesPredictedList.length,
-                    physics: const ClampingScrollPhysics(),
+                    physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
                       return InkWell(
                         onTap: () {
@@ -301,22 +320,25 @@ class _SearchDestinationPlaceState extends State<SearchDestinationPlace> {
                         thickness: 0.5,
                       );
                     },
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.location_on_outlined, size: 48, color: Colors.grey[400]),
+                        const SizedBox(height: 10),
+                        Text(
+                          destinationTextEditingController.text.isEmpty
+                              ? getTranslation(context, "search_address_empty_prompt")
+                              : "مکانی یافت نشد. نام شهر یا خیابان دیگری را امتحان کنید.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                        ),
+                      ],
+                    ),
                   ),
-                )
-              : Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
-                      const SizedBox(height: 10),
-                      Text(
-                        getTranslation(context, "search_address_empty_prompt"),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                      ),
-                    ],
-                  ),
-                ),
+          ),
         ],
       ),
     );
