@@ -111,6 +111,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   bool _isMapMoving = false;
   bool _isProgrammaticMove = false;
+  bool _userStartedMovingMap = false;
   bool _isSheetExpanded = true; 
   Timer? _debounceTimer;
 
@@ -861,31 +862,42 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               }
             },
             onCameraMove: (CameraPosition position) {
-              if (!_isProgrammaticMove) {
-                if (!_isMapMoving) {
-                  setState(() {
-                    _isMapMoving = true;
-                    // 🔹 اصلاح ۱: بستن خودکار کشو به محض Drag نقشه
-                    _isSheetExpanded = false;
-                  });
-                }
+          if (_isProgrammaticMove) {
+          return;
+        }
+
+         if (!_isMapMoving) {
+          setState(() {
+            _isMapMoving = true;
+
+             // فقط در مرحلهٔ انتخاب مبدأ یا مقصد
+             // کشو با حرکت واقعی نقشه جمع شود.
+             if (_currentStep == 0 || _currentStep == 1) {
+               _isSheetExpanded = false;
               }
-            },
+             });
+            }
+           },
             onCameraIdle: () {
-              _isProgrammaticMove = false;
-              if (_isMapMoving) {
-                setState(() => _isMapMoving = false);
-              }
-              if (_currentStep < 2 && _mapController != null) {
-                _updateAddressFromCamera(_mapController!.cameraPosition!.target);
-              }
-            },
-            onMapClick: (_, __) {
-              if (_isSheetExpanded) {
-                setState(() => _isSheetExpanded = false);
-              }
-            },
-          ),
+  final bool wasProgrammaticMove = _isProgrammaticMove;
+
+  _isProgrammaticMove = false;
+
+  if (_isMapMoving && mounted) {
+    setState(() {
+      _isMapMoving = false;
+    });
+  }
+
+  if (!wasProgrammaticMove &&
+      _currentStep < 2 &&
+      _mapController != null) {
+    _updateAddressFromCamera(
+      _mapController!.cameraPosition!.target,
+    );
+  }
+},
+            onMapClick: (_, __) {},
 
           // 📍 پین مرکز نقشه
           if (_currentStep < 2)
