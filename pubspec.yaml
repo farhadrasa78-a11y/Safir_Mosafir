@@ -2,7 +2,7 @@ name: safir_passengers
 description: "Safir Taxi Passenger Application"
 publish_to: 'none'
 
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
   sdk: '>=3.4.4 <4.0.0'
@@ -57,7 +57,7 @@ dev_dependencies:
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image: assets/images/splash_new.png
+  image: assets/images/safir_logo_new.png
 
   android: true
   ios: false
