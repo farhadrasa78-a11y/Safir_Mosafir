@@ -862,51 +862,45 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               }
             },
             onCameraMove: (CameraPosition position) {
-          if (_isProgrammaticMove) {
-          return;
-        }
-
-         if (!_isMapMoving) {
-          setState(() {
-            _isMapMoving = true;
-
-             // فقط در مرحلهٔ انتخاب مبدأ یا مقصد
-             // کشو با حرکت واقعی نقشه جمع شود.
-             if (_currentStep == 0 || _currentStep == 1) {
-               _isSheetExpanded = false;
+              if (_isProgrammaticMove) {
+                return;
               }
-             });
-            }
-           },
+
+              if (!_isMapMoving) {
+                setState(() {
+                  _isMapMoving = true;
+
+                  if (_currentStep == 0 || _currentStep == 1) {
+                    _isSheetExpanded = false;
+                  }
+                });
+              }
+            },
             onCameraIdle: () {
-  final bool wasProgrammaticMove = _isProgrammaticMove;
+              final bool wasProgrammaticMove = _isProgrammaticMove;
+              _isProgrammaticMove = false;
 
-  _isProgrammaticMove = false;
+              if (_isMapMoving && mounted) {
+                setState(() {
+                  _isMapMoving = false;
+                });
+              }
 
-  if (_isMapMoving && mounted) {
-    setState(() {
-      _isMapMoving = false;
-    });
-  }
-
-  if (!wasProgrammaticMove &&
-      _currentStep < 2 &&
-      _mapController != null) {
-    _updateAddressFromCamera(
-      _mapController!.cameraPosition!.target,
-    );
-  }
-},
+              if (!wasProgrammaticMove && _currentStep < 2 && _mapController != null) {
+                _updateAddressFromCamera(
+                  _mapController!.cameraPosition!.target,
+                );
+              }
+            },
             onMapClick: (_, __) {},
+          ),
 
-          // 📍 پین مرکز نقشه
           if (_currentStep < 2)
             IgnorePointer(
               child: Center(
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // 🔹 اصلاح ۲: سایه دایره‌ای یکدست و محو بدون Border
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 160),
                       width: _isMapMoving ? 42 : 32,
@@ -928,7 +922,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                         ),
                       ),
                     ),
-
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 160),
                       curve: Curves.easeOutCubic,
