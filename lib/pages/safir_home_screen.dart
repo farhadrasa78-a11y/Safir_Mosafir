@@ -197,20 +197,17 @@ class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProv
 
     final activeService = services[_activeSelectedIndex];
 
-    Widget buildDrawer() {
+        Widget buildDrawer() {
       return Drawer(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        width: MediaQuery.of(context).size.width * 0.78,
+        width: MediaQuery.of(context).size.width, // ✅ تغییر به عرض کل صفحه (۱۰۰٪)
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16, right: 12, left: 12),
-            child: ProfileAnimatedMenu(
-              currentLanguage: context.locale.languageCode,
-              onLanguageChanged: (newLang) {
-                context.setLocale(Locale(newLang));
-              },
-            ),
+          child: ProfileAnimatedMenu(
+            currentLanguage: context.locale.languageCode,
+            onLanguageChanged: (newLang) {
+              context.setLocale(Locale(newLang));
+            },
           ),
         ),
       );
