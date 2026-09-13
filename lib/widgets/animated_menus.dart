@@ -40,7 +40,7 @@ Future<void> _makeSupportCall(BuildContext context) async {
   } else if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('امکان برقراری تماس وجود ندارد: $phone'),
+        content: Text('can_not_make_call'.tr(args: [phone])),
       ),
     );
   }
@@ -53,18 +53,13 @@ void _shareInviteCode(BuildContext context) {
       ? user.uid.substring(0, 6).toUpperCase()
       : 'SAFIR2026';
 
-  final String shareMessage =
-      '''سلام! از اپلیکیشن سفیر برای درخواست تاکسی و پیک استفاده کن.
-با وارد کردن کد معرفی من ($referralCode) تخفیف بگیر!
-دانلود برنامه: https://safirapp.com/download''';
+  final String shareMessage = 'invite_message'.tr(args: [referralCode]);
 
   Share.share(shareMessage);
 }
 
 void _showDiscountModal(BuildContext context) {
-  final TextEditingController discountController =
-      TextEditingController();
-
+  final TextEditingController discountController = TextEditingController();
   bool isLoading = false;
 
   showModalBottomSheet(
@@ -98,9 +93,7 @@ void _showDiscountModal(BuildContext context) {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'discount_code'.tr().isEmpty
-                          ? 'ثبت کد تخفیف'
-                          : 'discount_code'.tr(),
+                      'discount_code'.tr(),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -113,7 +106,7 @@ void _showDiscountModal(BuildContext context) {
                   controller: discountController,
                   textDirection: TextDirection.rtl,
                   decoration: InputDecoration(
-                    hintText: 'کد تخفیف را وارد کنید',
+                    hintText: 'enter_discount_code'.tr(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -137,26 +130,21 @@ void _showDiscountModal(BuildContext context) {
                     onPressed: isLoading
                         ? null
                         : () async {
-                            final String code =
-                                discountController.text.trim();
+                            final String code = discountController.text.trim();
 
-                            if (code.isEmpty) {
-                              return;
-                            }
+                            if (code.isEmpty) return;
 
                             setModalState(() {
                               isLoading = true;
                             });
 
                             try {
-                              final DatabaseReference couponRef =
-                                  FirebaseDatabase.instance
-                                      .ref()
-                                      .child('coupons')
-                                      .child(code);
+                              final DatabaseReference couponRef = FirebaseDatabase.instance
+                                  .ref()
+                                  .child('coupons')
+                                  .child(code);
 
-                              final DataSnapshot snapshot =
-                                  await couponRef.get();
+                              final DataSnapshot snapshot = await couponRef.get();
 
                               if (!context.mounted) return;
 
@@ -168,19 +156,15 @@ void _showDiscountModal(BuildContext context) {
                                 Navigator.pop(sheetContext);
 
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'کد تخفیف با موفقیت اعمال شد!',
-                                    ),
+                                  SnackBar(
+                                    content: Text('discount_applied_success'.tr()),
                                     backgroundColor: Colors.green,
                                   ),
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'کد تخفیف معتبر نیست',
-                                    ),
+                                  SnackBar(
+                                    content: Text('discount_invalid'.tr()),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -194,7 +178,7 @@ void _showDiscountModal(BuildContext context) {
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('خطا: $e'),
+                                  content: Text('error_occurred'.tr(args: [e.toString()])),
                                 ),
                               );
                             }
@@ -208,9 +192,9 @@ void _showDiscountModal(BuildContext context) {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
-                            'اعمال کد',
-                            style: TextStyle(
+                        : Text(
+                            'apply_code'.tr(),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
@@ -244,9 +228,7 @@ void _showAboutAppDialog(BuildContext context) {
               ),
               const SizedBox(width: 8),
               Text(
-                'about_app'.tr().isEmpty
-                    ? 'درباره سفیر'
-                    : 'about_app'.tr(),
+                'about_app'.tr(),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -255,11 +237,7 @@ void _showAboutAppDialog(BuildContext context) {
             ],
           ),
           content: Text(
-            'about_app_desc'.tr().isEmpty
-                ? '''اپلیکیشن آنلاین درخواست تاکسی، باربری و خدمات بین‌شهری سفیر.
-نسخه: 1.0.0
-ارائه‌دهنده خدمات حمل‌ونقل ایمن و سریع.'''
-                : 'about_app_desc'.tr(),
+            'about_app_desc'.tr(),
             style: const TextStyle(
               fontSize: 13,
               height: 1.6,
@@ -269,7 +247,7 @@ void _showAboutAppDialog(BuildContext context) {
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
-                'close'.tr().isEmpty ? 'بستن' : 'close'.tr(),
+                'close'.tr(),
                 style: const TextStyle(
                   color: safirBrandColor,
                   fontWeight: FontWeight.bold,
@@ -294,8 +272,7 @@ class ProfileAnimatedMenu extends StatefulWidget {
   final ValueChanged<String>? onLanguageChanged;
 
   @override
-  State<ProfileAnimatedMenu> createState() =>
-      _ProfileAnimatedMenuState();
+  State<ProfileAnimatedMenu> createState() => _ProfileAnimatedMenuState();
 }
 
 class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
@@ -303,155 +280,118 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
     if (userName.trim().isNotEmpty) {
       return userName.trim();
     }
-
-    final String translated = 'user_default'.tr();
-
-    if (translated.isNotEmpty && translated != 'user_default') {
-      return translated;
-    }
-
-    return 'کاربر سفیر';
+    return 'user_default'.tr();
   }
 
   String _displayPhone() {
     if (userPhone.trim().isNotEmpty) {
       return userPhone.trim();
     }
-
-    return '۰۹۹۰۷۰۲۷۱۲۳';
+    return '09907027123';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF6F8F7),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            tooltip: 'بازگشت',
-            icon: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Colors.black87,
-              size: 20,
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F8F7),
+      appBar: AppBar(
+  backgroundColor: Colors.white,
+  elevation: 0,
+  automaticallyImplyLeading: false,
+  leading: IconButton(
+    tooltip: 'back'.tr(),
+    icon: const Icon(
+      Icons.arrow_back_ios_new_rounded,
+      color: Colors.black87,
+      size: 20,
+    ),
+    onPressed: () => Navigator.pop(context),
+  ),
+  // title حذف شد تا بالای صفحه کاملاً خالی باشد
+),
+      body: SafeArea(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 30),
+          children: [
+            _buildProfileHeader(),
+            const SizedBox(height: 24),
+            _buildSectionTitle('user_account_section'.tr()),
+            _buildMenuItem(
+              icon: Icons.history_rounded,
+              title: 'trips_history'.tr(),
+              subtitle: 'trips_history_sub'.tr(),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TripsScreen(),
+                  ),
+                );
+              },
             ),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            'profile'.tr().isEmpty
-                ? 'پروفایل'
-                : 'profile'.tr(),
-            style: const TextStyle(
-              color: Colors.black87,
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
+            _buildMenuItem(
+              icon: Icons.person_add_alt_1_rounded,
+              title: 'invite_friends'.tr(),
+              subtitle: 'invite_friends_sub'.tr(),
+              onTap: () => _shareInviteCode(context),
             ),
-          ),
-        ),
-        body: SafeArea(
-          child: ListView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 18, 16, 30),
-            children: [
-              _buildProfileHeader(),
-              const SizedBox(height: 24),
-              _buildSectionTitle('حساب کاربری'),
-              _buildMenuItem(
-                icon: Icons.history_rounded,
-                title: 'trips_history'.tr().isEmpty
-                    ? 'سفرها'
-                    : 'trips_history'.tr(),
-                subtitle: 'مشاهده سفرهای قبلی',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const TripsScreen(),
+            _buildMenuItem(
+              icon: Icons.mail_outline_rounded,
+              title: 'messages'.tr(),
+              subtitle: 'messages_sub'.tr(),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const MessagesScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 18),
+            _buildSectionTitle('services_and_support_section'.tr()),
+            _buildMenuItem(
+              icon: Icons.local_offer_outlined,
+              title: 'discount_code'.tr(),
+              subtitle: 'discount_code_sub'.tr(),
+              onTap: () => _showDiscountModal(context),
+            ),
+            _buildMenuItem(
+              icon: Icons.headset_mic_outlined,
+              title: 'support_contact'.tr(),
+              subtitle: 'support_contact_sub'.tr(),
+              onTap: () => _makeSupportCall(context),
+            ),
+            _buildMenuItem(
+              icon: Icons.settings_outlined,
+              title: 'settings'.tr(),
+              subtitle: 'settings_sub'.tr(),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SettingsScreen(
+                      currentLanguage: widget.currentLanguage ?? 'fa',
+                      onLanguageChanged: widget.onLanguageChanged ?? (_) {},
                     ),
-                  );
-                },
-              ),
-              _buildMenuItem(
-                icon: Icons.person_add_alt_1_rounded,
-                title: 'invite_friends'.tr().isEmpty
-                    ? 'دعوت دوستان'
-                    : 'invite_friends'.tr(),
-                subtitle: 'دوستان خود را به سفیر دعوت کنید',
-                onTap: () => _shareInviteCode(context),
-              ),
-              _buildMenuItem(
-                icon: Icons.mail_outline_rounded,
-                title: 'messages'.tr().isEmpty
-                    ? 'پیام‌ها'
-                    : 'messages'.tr(),
-                subtitle: 'پیام‌ها و اطلاعیه‌ها',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const MessagesScreen(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 18),
-              _buildSectionTitle('خدمات و پشتیبانی'),
-              _buildMenuItem(
-                icon: Icons.local_offer_outlined,
-                title: 'discount_code'.tr().isEmpty
-                    ? 'کد تخفیف'
-                    : 'discount_code'.tr(),
-                subtitle: 'ثبت و استفاده از کد تخفیف',
-                onTap: () => _showDiscountModal(context),
-              ),
-              _buildMenuItem(
-                icon: Icons.headset_mic_outlined,
-                title: 'support_contact'.tr().isEmpty
-                    ? 'تماس با پشتیبانی'
-                    : 'support_contact'.tr(),
-                subtitle: 'ما همیشه آماده کمک هستیم',
-                onTap: () => _makeSupportCall(context),
-              ),
-              _buildMenuItem(
-                icon: Icons.settings_outlined,
-                title: 'settings'.tr().isEmpty
-                    ? 'تنظیمات'
-                    : 'settings'.tr(),
-                subtitle: 'زبان و تنظیمات برنامه',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SettingsScreen(
-                        currentLanguage:
-                            widget.currentLanguage ?? 'fa',
-                        onLanguageChanged:
-                            widget.onLanguageChanged ?? (_) {},
-                      ),
-                    ),
-                  );
-                },
-              ),
-              _buildMenuItem(
-                icon: Icons.info_outline_rounded,
-                title: 'about_app'.tr().isEmpty
-                    ? 'درباره برنامه'
-                    : 'about_app'.tr(),
-                subtitle: 'اطلاعات نسخه و سفیر',
-                onTap: () => _showAboutAppDialog(context),
-              ),
-            ],
-          ),
+                  ),
+                );
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.info_outline_rounded,
+              title: 'about_app'.tr(),
+              subtitle: 'about_app_sub'.tr(),
+              onTap: () => _showAboutAppDialog(context),
+            ),
+          ],
         ),
       ),
     );
   }
 
-    Widget _buildProfileHeader() {
+  Widget _buildProfileHeader() {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -534,9 +474,9 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                   ),
                 ),
                 const Icon(
-                  Icons.arrow_back_ios_new_rounded,
+                  Icons.chevron_left_rounded,
                   color: Colors.white,
-                  size: 20,
+                  size: 24,
                 ),
               ],
             ),
