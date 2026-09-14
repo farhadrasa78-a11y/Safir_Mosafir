@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- تم جدید و استاندارد اسپلش اسکرین اندروید -->
+    <!-- تم اسپلش اسکرین -->
     <style name="LaunchTheme" parent="Theme.SplashScreen">
-        <!-- رنگ پس‌زمینه -->
         <item name="windowSplashScreenBackground">#FFFFFF</item>
-        <!-- اشاره مستقیم به عکس جدید شما در پوشه drawable -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
-        <!-- تم بعدی پس از بالا آمدن فلاتر -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
         <item name="postSplashScreenTheme">@style/NormalTheme</item>
     </style>
-    
+
+    <!-- تم اصلی برنامه -->
     <style name="NormalTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
