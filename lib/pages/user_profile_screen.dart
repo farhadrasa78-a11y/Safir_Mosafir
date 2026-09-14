@@ -283,10 +283,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           radius: 45,
                           backgroundColor: Colors.white,
                           backgroundImage: _photoUrl.isNotEmpty
-                            ? NetworkImage(_photoUrl)
-                            : const AssetImage(
-                                'assets/images/default_profile.png',
-                            ) as ImageProvider,
+                              ? NetworkImage(_photoUrl)
+                              : const AssetImage(
+                                  'assets/images/default_profile.png',
+                                ) as ImageProvider,
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -305,7 +305,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ),
                   const SizedBox(height: 25),
 
-                  // کارت اطلاعات کاربر (دقیقاً مو به مو مطابق تصویر ۱)
+                  // کارت اطلاعات کاربر
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -497,7 +497,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-                          onTap: _openEditProfileDrawer,
+                          onTap: () => _handleLogout(isSwitchAccount: true),
                         ),
                         const Divider(height: 1, indent: 16, endIndent: 16),
                         ListTile(
@@ -830,13 +830,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Center(
                       child: Stack(
                         children: [
-                          const CircleAvatar(
-                                  radius: 50,
-                                  backgroundColor: Colors.white,
-                                 backgroundImage: AssetImage(
-                                    'assets/images/default_profile.png',
-                                   ),
-                             ),
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundColor: Colors.white,
+                            backgroundImage: _imageFile != null
+                                ? FileImage(_imageFile!)
+                                : (_photoUrl.isNotEmpty
+                                    ? NetworkImage(_photoUrl)
+                                    : const AssetImage(
+                                        'assets/images/default_profile.png',
+                                      )) as ImageProvider,
+                          ),
                           Positioned(
                             bottom: 0,
                             right: 0,
