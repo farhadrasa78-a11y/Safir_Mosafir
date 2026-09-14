@@ -295,20 +295,19 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8F7),
       appBar: AppBar(
-  backgroundColor: Colors.white,
-  elevation: 0,
-  automaticallyImplyLeading: false,
-  leading: IconButton(
-    tooltip: 'back'.tr(),
-    icon: const Icon(
-      Icons.arrow_back_ios_new_rounded,
-      color: Colors.black87,
-      size: 20,
-    ),
-    onPressed: () => Navigator.pop(context),
-  ),
-  // title حذف شد تا بالای صفحه کاملاً خالی باشد
-),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          tooltip: 'back'.tr(),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.black87,
+            size: 20,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: ListView(
           physics: const BouncingScrollPhysics(),
@@ -415,34 +414,29 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => const UserProfileScreen(),
               ),
             );
+            if (mounted) {
+              setState(() {});
+            }
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
             child: Row(
               children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.45),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    color: Colors.white,
-                    size: 34,
-                  ),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  backgroundImage: (userProfileImage.trim().isNotEmpty
+                      ? NetworkImage(userProfileImage)
+                      : const AssetImage(
+                          'assets/images/default_profile.png',
+                        )) as ImageProvider,
                 ),
                 const SizedBox(width: 14),
                 Expanded(
