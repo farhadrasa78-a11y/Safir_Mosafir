@@ -281,11 +281,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: 45,
-                          backgroundColor: Colors.purple.shade50,
-                          backgroundImage: _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
-                          child: _photoUrl.isEmpty
-                              ? Icon(Icons.person, size: 50, color: Colors.purple.shade400)
-                              : null,
+                          backgroundColor: Colors.white,
+                          backgroundImage: _photoUrl.isNotEmpty
+                            ? NetworkImage(_photoUrl)
+                            : const AssetImage(
+                                'assets/images/default_profile.png',
+                            ) as ImageProvider,
                         ),
                         const SizedBox(height: 8),
                         Row(
