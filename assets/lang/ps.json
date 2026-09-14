@@ -68,7 +68,7 @@
   "user_account": "کارن حساب",
   "user_account_title": "کارن حساب",
   "user_info_section_title": "د کاروونکي معلومات",
-  "main_account_info_title": "د حساب مهم معلومات",
+  "main_account_info_title": "د حساب معلومات",
   "guest_profile_prompt": "ټولو اسانتیاوو ته د لاسرسي لپاره دننه شئ",
   "complete_info_warning": "مهرباني وکړئ خپل نیمګړي معلومات بشپړ کړئ!",
   "save_changes_btn": "بدلونونه خوندي کړئ",
@@ -553,6 +553,10 @@
     "about_app": "د اپلیکیشن په اړه",
     "cancel_request_title": "د غوښتنې لغوه کول",
     "select_cancel_reason_title": "مهرباني وکړئ د فرمایش د لغوه کولو علت غوره کړئ",
-    "confirm_cancel_btn": "تایید او فرمایش لغوه کول"
+    "confirm_cancel_btn": "تایید او فرمایش لغوه کول",
+    "settings_sub": "د اپلیکیشن او ژبې تنظیمات",
+    "tab_completed": "بشپړ شوي",
+    "tab_active": "روان",
+    "tab_canceled": "لغوه شوي"
   }
 }
