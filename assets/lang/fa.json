@@ -553,6 +553,10 @@
     "about_app": "درباره برنامه",
     "cancel_request_title": "لغو درخواست",
     "select_cancel_reason_title": "لطفاً دلیل لغو سفارش را انتخاب کنید",
-    "confirm_cancel_btn": "تأیید و لغو سفارش"
+    "confirm_cancel_btn": "تأیید و لغو سفارش",
+    "settings_sub": "تنظیمات برنامه و زبان",
+    "tab_completed": "تکمیل شده",
+    "tab_active": "جاری",
+    "tab_canceled": "لغو شده"
   }
 }
