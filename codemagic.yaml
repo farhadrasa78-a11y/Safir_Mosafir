@@ -6,7 +6,7 @@ workflows:
 
     environment:
       groups:
-        - safir_mosafir # گروه متغیرهای مسافر
+        - safir_mosafir
       flutter: 3.29.3
       java: 21
 
@@ -20,6 +20,10 @@ workflows:
         script: |
           flutter pub get
 
+      - name: Generate Splash Screen
+        script: |
+          dart run flutter_native_splash:create
+
       - name: Set up Keystore
         script: |
           echo $CM_KEYSTORE | base64 --decode > /tmp/release.jks
@@ -28,7 +32,7 @@ workflows:
         script: |
           keytool -list -v -keystore /tmp/release.jks -alias $CM_KEY_ALIAS -storepass $CM_KEYSTORE_PASSWORD
 
-      - name: Build Release APK
+      - name: Build ARM64 Release APK
         script: |
           cat <<EOF > android/key.properties
           storePassword=$CM_KEYSTORE_PASSWORD
@@ -36,7 +40,7 @@ workflows:
           keyAlias=$CM_KEY_ALIAS
           storeFile=/tmp/release.jks
           EOF
-          flutter build apk --release --split-per-abi
+          flutter build apk --release --target-platform=android-arm64 --tree-shake-icons
 
     artifacts:
-      - build/app/outputs/flutter-apk/*-release.apk
+      - build/app/outputs/flutter-apk/app-release.apk
