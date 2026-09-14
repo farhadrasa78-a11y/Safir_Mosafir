@@ -20,10 +20,6 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Generate Splash Screen
-        script: |
-          dart run flutter_native_splash:create
-
       - name: Set up Keystore
         script: |
           echo $CM_KEYSTORE | base64 --decode > /tmp/release.jks
@@ -32,7 +28,7 @@ workflows:
         script: |
           keytool -list -v -keystore /tmp/release.jks -alias $CM_KEY_ALIAS -storepass $CM_KEYSTORE_PASSWORD
 
-      - name: Build ARM64 Release APK
+      - name: Build Release APK
         script: |
           cat <<EOF > android/key.properties
           storePassword=$CM_KEYSTORE_PASSWORD
@@ -40,7 +36,7 @@ workflows:
           keyAlias=$CM_KEY_ALIAS
           storeFile=/tmp/release.jks
           EOF
-          flutter build apk --release --target-platform=android-arm64 --tree-shake-icons
+          flutter build apk --release --split-per-abi
 
     artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
+      - build/app/outputs/flutter-apk/*-release.apk
