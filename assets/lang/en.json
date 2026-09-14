@@ -553,6 +553,10 @@
     "about_app": "About App",
     "cancel_request_title": "Cancel Request",
     "select_cancel_reason_title": "Please select order cancellation reason",
-    "confirm_cancel_btn": "Confirm & Cancel Order"
+    "confirm_cancel_btn": "Confirm & Cancel Order",
+    "settings_sub": "App settings and language",
+   "tab_completed": "Completed",
+   "tab_active": "Active",
+   "tab_canceled": "Canceled"
   }
 }
