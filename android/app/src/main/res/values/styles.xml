@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- تم اعمال شده در زمان شروع برنامه برای سفیر (حالت روز) -->
-    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <!-- نمایش اسپلش اسکرین در شروع فرآیند برنامه -->
-        <item name="android:windowBackground">@drawable/launch_background</item>
+    <!-- تم جدید و استاندارد اسپلش اسکرین اندروید -->
+    <style name="LaunchTheme" parent="Theme.SplashScreen">
+        <!-- رنگ پس‌زمینه -->
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <!-- اشاره مستقیم به عکس جدید شما در پوشه drawable -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+        <!-- تم بعدی پس از بالا آمدن فلاتر -->
+        <item name="postSplashScreenTheme">@style/NormalTheme</item>
     </style>
     
-    <!-- تم اصلی پس از لود شدن کامل فلاتر با حذف نوار ابزار اضافی -->
     <style name="NormalTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
