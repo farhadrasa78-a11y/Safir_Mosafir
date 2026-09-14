@@ -496,7 +496,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-                          onTap: () => _handleLogout(isSwitchAccount: true),
+                          onTap: _openEditProfileDrawer,
                         ),
                         const Divider(height: 1, indent: 16, endIndent: 16),
                         ListTile(
