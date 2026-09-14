@@ -279,11 +279,41 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Center(
                     child: Column(
                       children: [
-                        const CircleAvatar(
-                          radius: 45,
-                          backgroundColor: Colors.white,
-                          backgroundImage: AssetImage(
-                            'assets/images/default_profile.png',
+                        // 🟢 دایره مجزا و کادر دور آواتار (طرح اسنپ)
+                        Container(
+                          width: 100,
+                          height: 100,
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFFEFEFEF),
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: _photoUrl.isNotEmpty
+                                ? Image.network(
+                                    _photoUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                                      'assets/images/default_profile.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Image.asset(
+                                    'assets/images/default_profile.png',
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -519,7 +549,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 // -------------------------------------------------------------
-// ۲. صفحه ویرایش مشخصات (بدون لرزش کیبورد)
+// ۲. صفحه ویرایش مشخصات
 // -------------------------------------------------------------
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -828,25 +858,61 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Center(
                       child: Stack(
                         children: [
-                          const CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Colors.white,
-                            backgroundImage: AssetImage(
-                              'assets/images/default_profile.png',
+                          // 🟢 دایره مجزا و کادر دور آواتار (طرح اسنپ در صفحه ویرایش)
+                          Container(
+                            width: 110,
+                            height: 110,
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFEFEFEF),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 10,
+                                  spreadRadius: 1,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: _imageFile != null
+                                  ? Image.file(
+                                      _imageFile!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : (_photoUrl.isNotEmpty
+                                      ? Image.network(
+                                          _photoUrl,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) => Image.asset(
+                                            'assets/images/default_profile.png',
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Image.asset(
+                                          'assets/images/default_profile.png',
+                                          fit: BoxFit.cover,
+                                        )),
                             ),
                           ),
                           Positioned(
-                            bottom: 0,
-                            right: 0,
+                            bottom: 2,
+                            right: 2,
                             child: InkWell(
                               onTap: _pickProfileImage,
                               child: Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   color: AppColors.primaryBrand,
                                   shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
                                 ),
-                                child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                                child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
                               ),
                             ),
                           ),
