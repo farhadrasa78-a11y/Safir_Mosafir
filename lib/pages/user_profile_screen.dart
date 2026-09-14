@@ -832,14 +832,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         children: [
                           CircleAvatar(
                             radius: 50,
-                            backgroundColor: Colors.purple.shade50,
+                            backgroundColor: Colors.white,
                             backgroundImage: _imageFile != null
-                                ? FileImage(_imageFile!)
-                                : (_photoUrl.isNotEmpty ? NetworkImage(_photoUrl) as ImageProvider : null),
-                            child: (_imageFile == null && _photoUrl.isEmpty)
-                                ? Icon(Icons.person, size: 55, color: Colors.purple.shade400)
-                                : null,
+                        ? FileImage(_imageFile!)
+                      : _photoUrl.isNotEmpty
+                      ? NetworkImage(_photoUrl)
+                   : const AssetImage(
+                        'assets/images/default_profile.png',
                           ),
+                         ),
                           Positioned(
                             bottom: 0,
                             right: 0,
