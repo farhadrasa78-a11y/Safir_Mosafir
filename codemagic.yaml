@@ -16,10 +16,6 @@ Workflows:
           flutter --version
           dart --version
 
-      - name: Clean Flutter cache
-        script: |
-          flutter clean
-
       - name: Get Flutter packages
         script: |
           flutter pub get
