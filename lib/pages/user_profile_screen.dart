@@ -279,12 +279,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Center(
                     child: Column(
                       children: [
-                        CircleAvatar(
+                        const CircleAvatar(
                           radius: 45,
                           backgroundColor: Colors.white,
-                          backgroundImage: const AssetImage(
-                                  'assets/images/default_profile.png',
-                                ) as ImageProvider,
+                          backgroundImage: AssetImage(
+                            'assets/images/default_profile.png',
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -828,12 +828,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Center(
                       child: Stack(
                         children: [
-                          CircleAvatar(
+                          const CircleAvatar(
                             radius: 50,
                             backgroundColor: Colors.white,
-                            backgroundImage: const AssetImage(
-                                        'assets/images/default_profile.png',
-                                      )) as ImageProvider,
+                            backgroundImage: AssetImage(
+                              'assets/images/default_profile.png',
+                            ),
                           ),
                           Positioned(
                             bottom: 0,
