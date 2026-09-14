@@ -282,9 +282,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         CircleAvatar(
                           radius: 45,
                           backgroundColor: Colors.white,
-                          backgroundImage: _photoUrl.isNotEmpty
-                              ? NetworkImage(_photoUrl)
-                              : const AssetImage(
+                          backgroundImage: const AssetImage(
                                   'assets/images/default_profile.png',
                                 ) as ImageProvider,
                         ),
@@ -833,11 +831,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           CircleAvatar(
                             radius: 50,
                             backgroundColor: Colors.white,
-                            backgroundImage: _imageFile != null
-                                ? FileImage(_imageFile!)
-                                : (_photoUrl.isNotEmpty
-                                    ? NetworkImage(_photoUrl)
-                                    : const AssetImage(
+                            backgroundImage: const AssetImage(
                                         'assets/images/default_profile.png',
                                       )) as ImageProvider,
                           ),
