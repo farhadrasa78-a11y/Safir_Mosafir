@@ -390,91 +390,57 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
     );
   }
 
-  Widget _buildProfileHeader() {
-  return Container(
-    decoration: BoxDecoration(
-      gradient: const LinearGradient(
-        colors: [
-          Color(0xFF145A41),
-          Color(0xFF21825D),
-        ],
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-      ),
-      borderRadius: BorderRadius.circular(24),
-      boxShadow: [
-        BoxShadow(
-          color: safirBrandColor.withOpacity(0.22),
-          blurRadius: 18,
-          offset: const Offset(0, 8),
-        ),
-      ],
-    ),
-    child: Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const UserProfileScreen(),
+  Widget _buildProfileAvatarSection() {
+  return Column(
+    children: [
+      Container(
+        width: 110,
+        height: 110,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: const Color(0xFFE8ECE9),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              spreadRadius: 2,
+              offset: const Offset(0, 4),
             ),
-          );
-          if (mounted) {
-            setState(() {});
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-          child: Row(
-            children: [
-              const CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white,
-                backgroundImage: AssetImage(
-                  'assets/images/default_profile.png',
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _displayName(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      _displayPhone(),
-                      textDirection: TextDirection.ltr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.chevron_left_rounded,
-                color: Colors.white,
-                size: 24,
-              ),
-            ],
+          ],
+        ),
+        child: ClipOval(
+          child: Image.asset(
+            'assets/images/default_profile.png',
+            fit: BoxFit.cover,
           ),
         ),
       ),
-    ),
+      const SizedBox(height: 8),
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(
+            Icons.star_rounded,
+            color: Color(0xFFFFB800),
+            size: 18,
+          ),
+          SizedBox(width: 4),
+          Text(
+            '۴.۵',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    ],
   );
 }
 
