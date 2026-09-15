@@ -198,19 +198,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // آیکون برند
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryBrand.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.local_taxi_rounded,
-                        color: AppColors.primaryBrand,
-                        size: 24,
-                      ),
-                    ),
 
                     // 🟢 دکمه انتخاب زبان دقیقاً مطابق نمونه تصویر اول
                     GestureDetector(
