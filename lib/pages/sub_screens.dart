@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:safir_passengers/global/global_var.dart';
 
 final Color safirBrandColor = const Color(0xFF145A41);
 final Color safirAccentColor = const Color(0xFF22C55E);
@@ -19,7 +19,7 @@ class TripsScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppBar(
           title: Text(
-            getTranslation(context, "trips_history_title") ?? "تاریخچه سفرها",
+            "trips_history_title".tr(),
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           backgroundColor: safirBrandColor,
@@ -30,24 +30,24 @@ class TripsScreen extends StatelessWidget {
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             tabs: [
-              Tab(text: getTranslation(context, "tab_completed") ?? "تکمیل‌شده"),
-              Tab(text: getTranslation(context, "tab_active") ?? "جاری"),
-              Tab(text: getTranslation(context, "tab_canceled") ?? "لغوشده"),
+              Tab(text: "tab_completed".tr()),
+              Tab(text: "tab_active".tr()),
+              Tab(text: "tab_canceled".tr()),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            _buildEmptyState(context, Icons.history, "trips_history_empty_msg", "هنوز سفری انجام نداده‌اید"),
-            _buildEmptyState(context, Icons.directions_car_filled_outlined, "no_active_trips", "سفر جاری وجود ندارد"),
-            _buildEmptyState(context, Icons.cancel_outlined, "no_canceled_trips", "سفر لغوشده‌ای ندارید"),
+            _buildEmptyState(context, Icons.history, "trips_history_empty_msg"),
+            _buildEmptyState(context, Icons.directions_car_filled_outlined, "no_active_trips"),
+            _buildEmptyState(context, Icons.cancel_outlined, "no_canceled_trips"),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, IconData icon, String key, String fallback) {
+  Widget _buildEmptyState(BuildContext context, IconData icon, String translationKey) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -55,7 +55,7 @@ class TripsScreen extends StatelessWidget {
           Icon(icon, size: 70, color: Colors.grey.shade300),
           const SizedBox(height: 16),
           Text(
-            getTranslation(context, key) ?? fallback,
+            translationKey.tr(),
             style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w500),
           ),
         ],
@@ -78,7 +78,7 @@ class InviteFriendsScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          getTranslation(context, "invite_friends_title") ?? "دعوت از دوستان",
+          "invite_friends_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -100,13 +100,12 @@ class InviteFriendsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              getTranslation(context, "invite_friends_main_title") ?? "سفر رایگان هدیه بدهید!",
+              "invite_friends_main_title".tr(),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(height: 12),
             Text(
-              getTranslation(context, "invite_friends_subtext") ??
-                  "با ارسال کد زیر به دوستانتان، پس از اولین سفر آن‌ها، یک کد تخفیف سفر رایگان دریافت کنید.",
+              "invite_friends_subtext".tr(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade600, fontSize: 13, height: 1.5),
             ),
@@ -134,11 +133,11 @@ class InviteFriendsScreen extends StatelessWidget {
                       Clipboard.setData(const ClipboardData(text: referralCode));
                       HapticFeedback.mediumImpact();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(getTranslation(context, "code_copied") ?? "کد در حافظه کپی شد")),
+                        SnackBar(content: Text("code_copied".tr())),
                       );
                     },
                     icon: const Icon(Icons.copy, size: 16, color: Colors.white),
-                    label: Text(getTranslation(context, "copy_btn") ?? "کپی", style: const TextStyle(color: Colors.white)),
+                    label: Text("copy_btn".tr(), style: const TextStyle(color: Colors.white)),
                   )
                 ],
               ),
@@ -162,7 +161,7 @@ class MessagesScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          getTranslation(context, "messages_title") ?? "پیام‌ها و اعلانات",
+          "messages_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -180,9 +179,9 @@ class MessagesScreen extends StatelessWidget {
                 backgroundColor: safirBrandColor.withOpacity(0.1),
                 child: Icon(Icons.mark_email_read_outlined, color: safirBrandColor),
               ),
-              title: const Text("خوش آمدید!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              subtitle: const Text("به اپلیکیشن تاکسی سفیر خوش آمدید. سفر خوشی را برایتان آرزومندیم.", style: TextStyle(fontSize: 12)),
-              trailing: const Text("امروز", style: TextStyle(fontSize: 10, color: Colors.grey)),
+              title: Text("welcome_title".tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              subtitle: Text("welcome_msg".tr(), style: const TextStyle(fontSize: 12)),
+              trailing: Text("today_label".tr(), style: const TextStyle(fontSize: 10, color: Colors.grey)),
             ),
           ),
         ],
@@ -205,7 +204,7 @@ class DiscountCodeScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          getTranslation(context, "discounts_title") ?? "کدهای تخفیف",
+          "discounts_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -222,7 +221,7 @@ class DiscountCodeScreen extends StatelessWidget {
                   child: TextField(
                     controller: codeController,
                     decoration: InputDecoration(
-                      hintText: getTranslation(context, "enter_discount_code") ?? "کد تخفیف را وارد کنید",
+                      hintText: "enter_discount_code".tr(),
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -240,18 +239,18 @@ class DiscountCodeScreen extends StatelessWidget {
                   onPressed: () {
                     HapticFeedback.lightImpact();
                   },
-                  child: Text(getTranslation(context, "apply_btn") ?? "اعمال", style: const TextStyle(color: Colors.white)),
+                  child: Text("apply_btn".tr(), style: const TextStyle(color: Colors.white)),
                 ),
               ],
             ),
-            const Expanded(
+            Expanded(
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.local_offer_outlined, size: 64, color: Colors.grey),
-                    SizedBox(height: 12),
-                    Text("هیچ کد تخفیف فعالی ندارید", style: TextStyle(color: Colors.grey)),
+                    const Icon(Icons.local_offer_outlined, size: 64, color: Colors.grey),
+                    const SizedBox(height: 12),
+                    Text("no_active_discounts".tr(), style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -275,7 +274,7 @@ class BinShahriScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          getTranslation(context, "intercity_title") ?? "سفر بین شهری (ولایات)",
+          "intercity_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -296,14 +295,14 @@ class BinShahriScreen extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.my_location, color: Colors.blue),
-                      title: Text(getTranslation(context, "origin") ?? "مبدأ (ولایت فعلی)"),
-                      subtitle: const Text("کابل"),
+                      title: Text("origin".tr()),
+                      subtitle: Text("kabul_city".tr()),
                     ),
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.location_on, color: Colors.red),
-                      title: Text(getTranslation(context, "destination") ?? "مقصد (ولایت مقصد)"),
-                      subtitle: const Text("انتخاب کنید..."),
+                      title: Text("destination".tr()),
+                      subtitle: Text("select_destination".tr()),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                       onTap: () {},
                     ),
@@ -321,7 +320,7 @@ class BinShahriScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () {},
-                child: Text(getTranslation(context, "search_intercity_driver") ?? "جستجوی موتر ولایتی",
+                child: Text("search_intercity_driver".tr(),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             )
@@ -344,7 +343,7 @@ class BarbariScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          getTranslation(context, "freight_title") ?? "باربری سفیر",
+          "freight_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -357,10 +356,10 @@ class BarbariScreen extends StatelessWidget {
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         children: [
-          _buildFreightCard(context, Icons.electric_rickshaw, "سه‌چرخ باربری", "تا ۵۰۰ کیلوگرم"),
-          _buildFreightCard(context, Icons.local_shipping_outlined, "پیکاپ / کاماز", "تا ۲ تن"),
-          _buildFreightCard(context, Icons.fire_truck_outlined, "کامیون سنگین", "بالای ۵ تن"),
-          _buildFreightCard(context, Icons.inventory_2_outlined, "بسته‌بندی و کارگر", "خدمات اسباب‌کشی"),
+          _buildFreightCard(context, Icons.electric_rickshaw, "rickshaw_freight".tr(), "rickshaw_weight".tr()),
+          _buildFreightCard(context, Icons.local_shipping_outlined, "pickup_freight".tr(), "pickup_weight".tr()),
+          _buildFreightCard(context, Icons.fire_truck_outlined, "truck_freight".tr(), "truck_weight".tr()),
+          _buildFreightCard(context, Icons.inventory_2_outlined, "packing_services".tr(), "moving_help".tr()),
         ],
       ),
     );
@@ -403,7 +402,7 @@ class RegistrationScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          getTranslation(context, "driver_registration_title") ?? "ثبت‌نام راننده",
+          "driver_registration_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -417,12 +416,12 @@ class RegistrationScreen extends StatelessWidget {
             Icon(Icons.time_to_leave_rounded, size: 90, color: safirBrandColor),
             const SizedBox(height: 20),
             Text(
-              getTranslation(context, "join_safir_drivers") ?? "به ناوگان سفیر بپیوندید",
+              "join_safir_drivers".tr(),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              getTranslation(context, "driver_reg_desc") ?? "با ثبت‌نام به‌عنوان راننده در سفیر، در ساعات دلخواه کار کنید و درآمد عالی داشته باشید.",
+              "driver_reg_desc".tr(),
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.5),
             ),
@@ -436,7 +435,7 @@ class RegistrationScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () {},
-                child: Text(getTranslation(context, "start_driver_registration") ?? "شروع ثبت‌نام راننده",
+                child: Text("start_driver_registration".tr(),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             )
