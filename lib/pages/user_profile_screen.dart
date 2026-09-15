@@ -260,25 +260,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     child: Column(
                       children: [
                         Container(
-                          width: 90,
-                          height: 90,
-                          padding: const EdgeInsets.all(2),
+                          width: 100,
+                          height: 100,
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.grey.shade200, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                            border: Border.all(
+                              color: const Color(0xFFE5E5E5), // رنگ خاکستری بسیار ملایم
+                              width: 0.6, // ضخامت بسیار نازک (مویی)
+                            ),
                           ),
                           child: ClipOval(
                             child: Image.asset(
                               'assets/images/default_profile.png',
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
@@ -783,9 +778,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.white, // ۱. پس‌زمینه اصلی کامل سفید
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white, // ۲. اپ‌بار کاملاً سفید و یکپارچه با پس‌زمینه
+        backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
@@ -797,20 +792,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(5),
+          child: Container(
+            height: 5,
+            decoration: BoxDecoration(
+              color: Colors.white,
+
+              // خط واضح؛ مرز AppBar مانند تیغ مشخص می‌شود
+              border: const Border(
+                bottom: BorderSide(
+                  color: Color(0xFFD6DADF),
+                  width: 1.2,
+                ),
+              ),
+
+              // سایهٔ بسیار کوتاه زیر خط، برای حس شناوربودن
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.10),
+                  blurRadius: 2,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBrand))
           : SafeArea(
               child: Container(
-                margin: const EdgeInsets.only(top: 10), // ۳. فاصله کم از بالا جهت مشخص شدن سایه
+                margin: const EdgeInsets.only(top: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white, // کارت اصلی سفید
+                  color: Colors.white,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24), // گرد کردن گوشه‌های بالایی
+                    topLeft: Radius.circular(24),
                     topRight: Radius.circular(24),
                   ),
                   boxShadow: [
-                    // ۴. تنها عامل جداکننده: ایجاد سایه نرم رو به بالا و اطراف
                     BoxShadow(
                       color: Colors.black.withOpacity(0.06),
                       blurRadius: 15,
@@ -833,25 +854,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         const SizedBox(height: 20),
                         Center(
                           child: Container(
-                            width: 90,
-                            height: 90,
-                            padding: const EdgeInsets.all(2),
+                            width: 100,
+                            height: 100,
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey.shade200, width: 2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                              border: Border.all(
+                                color: const Color(0xFFE5E5E5), // رنگ خاکستری بسیار ملایم
+                                width: 0.6, // ضخامت بسیار نازک (مویی)
+                              ),
                             ),
                             child: ClipOval(
                               child: Image.asset(
                                 'assets/images/default_profile.png',
-                                fit: BoxFit.cover,
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ),
