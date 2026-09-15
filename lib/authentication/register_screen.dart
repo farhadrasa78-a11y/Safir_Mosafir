@@ -26,7 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    // 🇦🇫 قفل کردن زبان پیش‌فرض برنامه روی فارسی (دری) در بدو ورود
+    // 🇦ف قفل کردن زبان پیش‌فرض برنامه روی فارسی (دری) در بدو ورود
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.locale.languageCode == 'en') {
         context.setLocale(const Locale('fa'));
@@ -38,6 +38,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     phoneController.dispose();
     super.dispose();
+  }
+
+  // 🌐 دریافت متن کوتاه زبان جهت نمایش در آیکون دایره‌ای
+  String _getLanguageCodeText(BuildContext context) {
+    switch (context.locale.languageCode) {
+      case 'ps':
+        return 'PS';
+      case 'en':
+        return 'EN';
+      case 'fa':
+      default:
+        return 'FA';
+    }
   }
 
   // 🌐 نمایش منوی مدرن و مینیمال انتخاب زبان
@@ -64,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: minAxisSizeTile(ctx),
             children: [
               // دستگیره بالای کشو
               Container(
@@ -114,6 +127,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       },
     );
   }
+
+  MainAxisSize minAxisSizeTile(BuildContext context) => MainAxisSize.min;
 
   Widget _buildLanguageTile({
     required BuildContext context,
@@ -179,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🌐 هدر بالای صفحه (فقط آیکون لوگو و آیکون کره زمین)
+                // 🌐 هدر بالای صفحه (لوگو و دکمه انتخاب زبان سه لایه مدرن)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -197,23 +212,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
 
-                    // دکمه کره زمین برای انتخاب زبان (بدون متن اضافی)
-                    InkWell(
+                    // 🟢 دکمه مدرن انتخاب زبان با ساختار سه لایه و حروف FA / PS / EN
+                    GestureDetector(
                       onTap: () => showLanguageBottomSheet(context),
-                      borderRadius: BorderRadius.circular(14),
                       child: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundLight,
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.borderLight, width: 1),
+                          color: Color(0xFF2C2C2E), // حلقه تیره بیرونی
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.language_rounded,
-                            size: 22,
-                            color: AppColors.primaryBrand,
+                        padding: const EdgeInsets.all(2.5),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFF48484A), // خط خاکستری دور دایره
+                              width: 1.2,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(2.5),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFF27B463), // دایره سبز اصلی
+                            ),
+                            child: Center(
+                              child: Text(
+                                _getLanguageCodeText(context),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -223,23 +257,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 28),
 
-                // عناوین خوش‌آمدگویی
+                // ✏️ عناوین خوش‌آمدگویی آپدیت شده
                 Text(
-                  getTranslation(context, "register_title"),
+                  'خوش آمدید', // 👈 عنوان اصلی روشن و بزرگ‌تر
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
                   style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
                     color: AppColors.textPrimary,
                     height: 1.2,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  getTranslation(context, "register_subtitle"),
+                  'شماره موبایل خود را وارد کنید', // 👈 زیرعنوان جدید
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
                   style: const TextStyle(
-                    fontSize: 13.5,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     color: AppColors.textSecondary,
                     height: 1.4,
                   ),
