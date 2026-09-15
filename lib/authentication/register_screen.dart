@@ -183,6 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationProvider>(context);
     bool isRtl = context.locale.languageCode == 'fa' || context.locale.languageCode == 'ps';
+    bool isValidPhone = _isPhoneValid(phoneController.text);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -194,53 +195,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🌐 هدر بالای صفحه (لوگو و دکمه انتخاب زبان سه لایه مدرن)
+                // 🌐 هدر بالای صفحه (دکمه انتخاب زبان سه لایه مدرن)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-
-                    // 🟢 دکمه انتخاب زبان دقیقاً مطابق نمونه تصویر اول
+                    const SizedBox(),
+                    // 🟢 دکمه انتخاب زبان
                     GestureDetector(
                       onTap: () => showLanguageBottomSheet(context),
                       child: Container(
                         width: 48,
-                       height: 48,
-                       decoration: BoxDecoration(
-                         shape: BoxShape.circle,
-                        // رنگ تیره ملایم پس‌زمینه لایه بیرونی (مشابه سایه بی رنگ)
-                         color: const Color(0xFF2C2C2E).withOpacity(0.12),
-                        // خط نازک جداکننده دور دایره برای جدا کردن از صفحه
-                         border: Border.all(
-                           color: Colors.black.withOpacity(0.15),
-                           width: 1.0,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFF2C2C2E).withOpacity(0.12),
+                          border: Border.all(
+                            color: Colors.black.withOpacity(0.15),
+                            width: 1.0,
+                          ),
                         ),
-                     ),
-                     padding: const EdgeInsets.all(4.0), // فاصله بین لایه بیرونی و دایره سبز
-                     child: Container(
-                       decoration: const BoxDecoration(
-                         shape: BoxShape.circle,
-                         color: Color(0xFF27B463), // دایره سبز اصلی
-                       ),
-                       child: Center(
-                         child: Text(
-                           _getLanguageCodeText(context),
-                           style: const TextStyle(
-                             color: Colors.white,
-                             fontSize: 13,
-                             fontWeight: FontWeight.bold,
-                             letterSpacing: 0.5,
-                           ),
-                         ),
-                       ),
+                        padding: const EdgeInsets.all(4.0),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF27B463),
+                          ),
+                          child: Center(
+                            child: Text(
+                              _getLanguageCodeText(context),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
 
                 const SizedBox(height: 28),
 
-                // ✏️ عناوین خوش‌آمدگویی آپدیت شده
+                // ✏️ عناوین خوش‌آمدگویی متصل به فایل‌های ترجمه (tr)
                 Text(
-                  'خوش آمدید!', // 👈 عنوان اصلی روشن و بزرگ‌تر
+                  'welcome_title'.tr(),
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
                   style: const TextStyle(
                     fontSize: 24,
@@ -251,7 +252,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'شماره موبایل خود را وارد کنید', // 👈 زیرعنوان جدید
+                  'enter_phone_subtitle'.tr(),
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
                   style: const TextStyle(
                     fontSize: 14,
@@ -301,7 +302,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       color: AppColors.textSecondary,
                       size: 22,
                     ),
-                    suffixIcon: _isPhoneValid(phoneController.text)
+                    suffixIcon: isValidPhone
                         ? const Icon(
                             Icons.check_circle_rounded,
                             color: AppColors.success,
@@ -312,16 +313,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // دکمه ارسال پیامک
+                // 🔘 دکمه ارسال پیامک (تغییر حالت بر اساس صحت و پر شدن شماره)
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: sendPhoneNumber,
+                    onPressed: isValidPhone ? sendPhoneNumber : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryButton,
+                      backgroundColor: isValidPhone ? AppColors.primaryButton : Colors.grey.shade300,
+                      disabledBackgroundColor: Colors.grey.shade200,
                       overlayColor: AppColors.primaryButtonPressed,
-                      foregroundColor: AppColors.buttonText,
+                      foregroundColor: isValidPhone ? AppColors.buttonText : Colors.grey.shade500,
+                      disabledForegroundColor: Colors.grey.shade400,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -338,8 +341,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           )
                         : Text(
                             getTranslation(context, "get_otp_btn"),
-                            style: const TextStyle(
-                              color: AppColors.buttonText,
+                            style: TextStyle(
+                              color: isValidPhone ? AppColors.buttonText : Colors.grey.shade500,
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
