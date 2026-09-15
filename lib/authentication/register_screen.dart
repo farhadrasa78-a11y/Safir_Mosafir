@@ -253,7 +253,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // ✏️ عناوین خوش‌آمدگویی آپدیت شده
                 Text(
-                  'خوش آمدید', // 👈 عنوان اصلی روشن و بزرگ‌تر
+                  'خوش آمدید!', // 👈 عنوان اصلی روشن و بزرگ‌تر
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
                   style: const TextStyle(
                     fontSize: 24,
