@@ -284,7 +284,7 @@ class IntercitySheets {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'intercity.origin'.tr().isEmpty ? 'مبدأ' : 'intercity.origin'.tr(),
+                                'intercity_origin'.tr().isEmpty ? 'مبدأ' : 'intercity_origin'.tr(),
                                 style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
                               ),
                               Text(
@@ -317,7 +317,7 @@ class IntercitySheets {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'intercity.destination'.tr().isEmpty ? 'مقصد' : 'intercity.destination'.tr(),
+                                'intercity_destination'.tr().isEmpty ? 'مقصد' : 'intercity.destination'.tr(),
                                 style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
                               ),
                               Text(
