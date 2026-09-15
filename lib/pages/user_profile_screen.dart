@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
@@ -31,7 +29,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String _userName = '';
   String _userPhone = '';
   String _userRating = '4.5';
-  String _photoUrl = '';
 
   @override
   void initState() {
@@ -44,7 +41,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (currentUser != null) {
       _userName = currentUser.displayName ?? '';
       _userPhone = currentUser.phoneNumber ?? '';
-      _photoUrl = currentUser.photoURL ?? '';
 
       try {
         DatabaseEvent event = await _userRef
@@ -69,7 +65,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 '';
             _userRating = userData["rating"]?.toString() ?? '4.5';
             _useWheelchair = userData["useWheelchair"] ?? false;
-            _photoUrl = userData["photoUrl"] ?? userData["photoURL"] ?? currentUser.photoURL ?? '';
           });
         }
       } catch (e) {
@@ -279,41 +274,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Center(
                     child: Column(
                       children: [
-                        // 🟢 دایره مجزا و کادر دور آواتار (طرح اسنپ)
+                        // 🟢 آواتار طبق تکه کد ارسالی شما
                         Container(
-                          width: 100,
-                          height: 100,
-                          padding: const EdgeInsets.all(6),
+                          width: 60,
+                          height: 60,
+                          padding: const EdgeInsets.all(3),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFFEFEFEF),
-                              width: 1.5,
-                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                blurRadius: 10,
-                                spreadRadius: 1,
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 6,
                                 offset: const Offset(0, 3),
                               ),
                             ],
                           ),
                           child: ClipOval(
-                            child: _photoUrl.isNotEmpty
-                                ? Image.network(
-                                    _photoUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => Image.asset(
-                                      'assets/images/default_profile.png',
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : Image.asset(
-                                    'assets/images/default_profile.png',
-                                    fit: BoxFit.cover,
-                                  ),
+                            child: Image.asset(
+                              'assets/images/default_profile.png',
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -580,9 +561,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isPremium = false;
   bool _isChanged = false;
 
-  File? _imageFile;
-  String _photoUrl = "";
-
   @override
   void initState() {
     super.initState();
@@ -610,25 +588,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         (currentEmail != _initialEmail) ||
         (currentAddress != _initialAddress) ||
         (currentDob != cleanInitialDob) ||
-        (_isPremium != _initialPremium) ||
-        (_imageFile != null);
+        (_isPremium != _initialPremium);
 
     if (hasChanged != _isChanged && mounted) {
       setState(() {
         _isChanged = hasChanged;
       });
-    }
-  }
-
-  Future<void> _pickProfileImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-      _checkChanges();
     }
   }
 
@@ -638,7 +603,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _initialPhone = currentUser.phoneNumber ?? "";
       _initialEmail = currentUser.email ?? "";
       _initialName = currentUser.displayName ?? "";
-      _photoUrl = currentUser.photoURL ?? "";
 
       try {
         DatabaseEvent event = await _userRef
@@ -655,7 +619,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _initialAddress = userData["address"] ?? "";
           _initialDob = userData["dob"] ?? "";
           _initialPremium = userData["isPremium"] ?? false;
-          _photoUrl = userData["photoUrl"] ?? userData["photoURL"] ?? _photoUrl;
         }
       } catch (e) {
         debugPrint("Error fetching edit data: $e");
@@ -688,20 +651,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     String cleanedPhone = toEnglishDigits(_phoneController.text.trim());
     String cleanedDob = toEnglishDigits(_dobController.text.trim());
-    String uploadedPhotoUrl = _photoUrl;
 
     try {
-      if (_imageFile != null) {
-        Reference storageRef = FirebaseStorage.instance
-            .ref()
-            .child("user_profiles")
-            .child("${currentUser.uid}.jpg");
-
-        UploadTask uploadTask = storageRef.putFile(_imageFile!);
-        TaskSnapshot snapshot = await uploadTask;
-        uploadedPhotoUrl = await snapshot.ref.getDownloadURL();
-      }
-
       Map<String, dynamic> updateData = {
         "name": _nameController.text.trim(),
         "phone": cleanedPhone,
@@ -709,16 +660,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         "address": _addressController.text.trim(),
         "dob": cleanedDob,
         "isPremium": _isPremium,
-        "photoUrl": uploadedPhotoUrl,
       };
 
       await _userRef.child("users").child(currentUser.uid).update(updateData);
 
       if (_nameController.text.trim().isNotEmpty) {
         await currentUser.updateDisplayName(_nameController.text.trim());
-      }
-      if (uploadedPhotoUrl.isNotEmpty) {
-        await currentUser.updatePhotoURL(uploadedPhotoUrl);
       }
 
       if (mounted) {
@@ -856,67 +803,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Center(
-                      child: Stack(
-                        children: [
-                          // 🟢 دایره مجزا و کادر دور آواتار (طرح اسنپ در صفحه ویرایش)
-                          Container(
-                            width: 110,
-                            height: 110,
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFFEFEFEF),
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 10,
-                                  spreadRadius: 1,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
+                      // 🟢 آواتار طبق تکه کد ارسالی شما در صفحه ویرایش
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
                             ),
-                            child: ClipOval(
-                              child: _imageFile != null
-                                  ? Image.file(
-                                      _imageFile!,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : (_photoUrl.isNotEmpty
-                                      ? Image.network(
-                                          _photoUrl,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) => Image.asset(
-                                            'assets/images/default_profile.png',
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )
-                                      : Image.asset(
-                                          'assets/images/default_profile.png',
-                                          fit: BoxFit.cover,
-                                        )),
-                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/default_profile.png',
+                            fit: BoxFit.cover,
                           ),
-                          Positioned(
-                            bottom: 2,
-                            right: 2,
-                            child: InkWell(
-                              onTap: _pickProfileImage,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryBrand,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                                child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 25),
