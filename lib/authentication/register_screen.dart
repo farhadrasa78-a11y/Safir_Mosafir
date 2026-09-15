@@ -212,47 +212,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
 
-                    // 🟢 دکمه مدرن انتخاب زبان با ساختار سه لایه و حروف FA / PS / EN
+                    // 🟢 دکمه انتخاب زبان دقیقاً مطابق نمونه تصویر اول
                     GestureDetector(
                       onTap: () => showLanguageBottomSheet(context),
                       child: Container(
                         width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFF2C2C2E), // حلقه تیره بیرونی
+                       height: 48,
+                       decoration: BoxDecoration(
+                         shape: BoxShape.circle,
+                        // رنگ تیره ملایم پس‌زمینه لایه بیرونی (مشابه سایه بی رنگ)
+                         color: const Color(0xFF2C2C2E).withOpacity(0.12),
+                        // خط نازک جداکننده دور دایره برای جدا کردن از صفحه
+                         border: Border.all(
+                           color: Colors.black.withOpacity(0.15),
+                           width: 1.0,
                         ),
-                        padding: const EdgeInsets.all(2.5),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFF48484A), // خط خاکستری دور دایره
-                              width: 1.2,
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(2.5),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFF27B463), // دایره سبز اصلی
-                            ),
-                            child: Center(
-                              child: Text(
-                                _getLanguageCodeText(context),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                     ),
+                     padding: const EdgeInsets.all(4.0), // فاصله بین لایه بیرونی و دایره سبز
+                     child: Container(
+                       decoration: const BoxDecoration(
+                         shape: BoxShape.circle,
+                         color: Color(0xFF27B463), // دایره سبز اصلی
+                       ),
+                       child: Center(
+                         child: Text(
+                           _getLanguageCodeText(context),
+                           style: const TextStyle(
+                             color: Colors.white,
+                             fontSize: 13,
+                             fontWeight: FontWeight.bold,
+                             letterSpacing: 0.5,
+                           ),
+                         ),
+                       ),
                     ),
-                  ],
+                  ),
                 ),
 
                 const SizedBox(height: 28),
