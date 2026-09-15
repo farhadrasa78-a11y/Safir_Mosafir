@@ -256,7 +256,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   'خوش آمدید', // 👈 عنوان اصلی روشن و بزرگ‌تر
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
                   style: const TextStyle(
-                    fontSize: 26,
+                    fontSize: 24,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textPrimary,
                     height: 1.2,
