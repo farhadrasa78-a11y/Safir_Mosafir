@@ -558,5 +558,7 @@
     "tab_completed": "تکمیل شده",
     "tab_active": "جاری",
     "tab_canceled": "لغو شده"
-  }
+  },
+  "welcome_title": "خوش آمدید",
+  "enter_phone_subtitle": "شماره موبایل خود را وارد کنید"
 }
