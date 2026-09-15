@@ -11,7 +11,7 @@ import 'package:safir_passengers/theme/app_colors.dart';
 import 'package:safir_passengers/authentication/register_screen.dart';
 
 // -------------------------------------------------------------
-// ۱. صفحه اصلی پروفایل
+// ۱. صفحه اصلی پروفایل (حساب کاربری)
 // -------------------------------------------------------------
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -91,36 +91,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Future<void> _openEditProfileDrawer() async {
     HapticFeedback.lightImpact();
 
-    await showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'EditProfileDrawer',
-      barrierColor: Colors.black.withOpacity(0.5),
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation1, animation2) {
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.88,
-            height: double.infinity,
-            child: const EditProfileScreen(),
-          ),
-        );
-      },
-      transitionBuilder: (context, anim1, anim2, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(-1, 0),
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(
-              parent: anim1,
-              curve: Curves.easeOutCubic,
-            ),
-          ),
-          child: child,
-        );
-      },
+    await Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const EditProfileScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
     );
 
     _loadProfileData();
@@ -251,11 +235,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 2.0, // ایجاد سایه زیر نوار بالایی
-        shadowColor: Colors.black.withOpacity(0.15),
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
           "user_account_title".tr().isEmpty ? "حساب کاربری" : "user_account_title".tr(),
           style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
@@ -275,7 +259,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Center(
                     child: Column(
                       children: [
-                        // آواتار بزرگتر مطابق تصویر
                         Container(
                           width: 90,
                           height: 90,
@@ -316,7 +299,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // کارت اطلاعات کاربر
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Container(
@@ -553,7 +535,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 // -------------------------------------------------------------
-// ۲. صفحه ویرایش مشخصات
+// ۲. صفحه اطلاعات کاربری (ویرایش) - لایه‌بندی کاملاً سفید با سایه
 // -------------------------------------------------------------
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -801,13 +783,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white, // ۱. پس‌زمینه اصلی کامل سفید
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 2.0, // سایه نوار بالایی جهت تفکیک کامل
-        shadowColor: Colors.black.withOpacity(0.15),
+        backgroundColor: Colors.white, // ۲. اپ‌بار کاملاً سفید و یکپارچه با پس‌زمینه
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
-          "user_info_section_title".tr().isEmpty ? "اطلاعات کاربر" : "user_info_section_title".tr(),
+          "user_info_section_title".tr().isEmpty ? "اطلاعات کاربری" : "user_info_section_title".tr(),
           style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
@@ -819,167 +801,188 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBrand))
           : SafeArea(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                physics: const ClampingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Center(
-                      // آواتار بزرگتر همراه با استایل دقیق عکس ۲
-                      child: Container(
-                        width: 90,
-                        height: 90,
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade200, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/images/default_profile.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-
-                    // بخش اول: اطلاعات اصلی
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "main_account_info_title".tr().isEmpty ? "اطلاعات اصلی" : "main_account_info_title".tr(),
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                          ),
-                          const SizedBox(height: 15),
-                          _buildInputField(
-                            _nameController,
-                            "full_name_label".tr().isEmpty ? "نام و نام خانوادگی" : "full_name_label".tr(),
-                            textInputAction: TextInputAction.next,
-                          ),
-                          GestureDetector(
-                            onTap: _showChangePhoneBottomSheet,
-                            child: AbsorbPointer(
-                              child: _buildInputField(
-                                _phoneController,
-                                "phone_number_label".tr().isEmpty ? "شماره موبایل" : "phone_number_label".tr(),
-                                readOnly: true,
-                                isLtr: true,
-                              ),
-                            ),
-                          ),
-                          _buildInputField(
-                            _emailController,
-                            "email_label".tr().isEmpty ? "ایمیل" : "email_label".tr(),
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            isLtr: true,
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // 🟢 خط جداکننده کامل بین بخش اطلاعات اصلی و اطلاعات فرعی (مطابق با عکس دومی)
-                    Container(
-                      height: 8,
-                      width: double.infinity,
-                      color: const Color(0xFFF1F5F9),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // بخش دوم: اطلاعات فرعی
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "sub_account_info_title".tr().isEmpty ? "اطلاعات فرعی" : "sub_account_info_title".tr(),
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                          ),
-                          const SizedBox(height: 15),
-                          _buildInputField(
-                            _addressController,
-                            "address_label".tr().isEmpty ? "آدرس" : "address_label".tr(),
-                            textInputAction: TextInputAction.next,
-                          ),
-                          _buildInputField(
-                            _dobController,
-                            "dob_label".tr().isEmpty ? "تاریخ تولد" : "dob_label".tr(),
-                            keyboardType: TextInputType.datetime,
-                            textInputAction: TextInputAction.done,
-                            isLtr: true,
-                          ),
-                          const SizedBox(height: 15),
-                          Card(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(color: Colors.grey.withOpacity(0.2)),
-                            ),
-                            child: SwitchListTile(
-                              activeColor: AppColors.primaryBrand,
-                              title: Text(
-                                "premium_account_title".tr().isEmpty ? "حساب ویژه (پریمیوم)" : "premium_account_title".tr(),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
-                              ),
-                              subtitle: Text(
-                                "premium_account_subtitle".tr().isEmpty ? "دریافت قابلیت‌ها و تخفیف‌های ویژه سفیر" : "premium_account_subtitle".tr(),
-                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                              ),
-                              value: _isPremium,
-                              onChanged: (val) {
-                                HapticFeedback.selectionClick();
-                                setState(() => _isPremium = val);
-                                _checkChanges();
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _isChanged ? AppColors.primaryButton : Colors.grey.shade300,
-                                overlayColor: AppColors.primaryButtonPressed,
-                                elevation: _isChanged ? 2 : 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              onPressed: (_isChanged && !_isSaving) ? _updateUserData : null,
-                              child: _isSaving
-                                  ? const CircularProgressIndicator(color: AppColors.buttonText)
-                                  : Text(
-                                      "save_changes_btn".tr().isEmpty ? "ذخیره" : "save_changes_btn".tr(),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: _isChanged ? AppColors.buttonText : Colors.grey.shade600,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
+              child: Container(
+                margin: const EdgeInsets.only(top: 10), // ۳. فاصله کم از بالا جهت مشخص شدن سایه
+                decoration: BoxDecoration(
+                  color: Colors.white, // کارت اصلی سفید
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24), // گرد کردن گوشه‌های بالایی
+                    topRight: Radius.circular(24),
+                  ),
+                  boxShadow: [
+                    // ۴. تنها عامل جداکننده: ایجاد سایه نرم رو به بالا و اطراف
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 15,
+                      spreadRadius: 1,
+                      offset: const Offset(0, -4),
                     ),
                   ],
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
+                  child: SingleChildScrollView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    physics: const ClampingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 20),
+                        Center(
+                          child: Container(
+                            width: 90,
+                            height: 90,
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade200, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/images/default_profile.png',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "main_account_info_title".tr().isEmpty ? "اطلاعات اصلی" : "main_account_info_title".tr(),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                              ),
+                              const SizedBox(height: 15),
+                              _buildInputField(
+                                _nameController,
+                                "full_name_label".tr().isEmpty ? "نام و نام خانوادگی" : "full_name_label".tr(),
+                                textInputAction: TextInputAction.next,
+                              ),
+                              GestureDetector(
+                                onTap: _showChangePhoneBottomSheet,
+                                child: AbsorbPointer(
+                                  child: _buildInputField(
+                                    _phoneController,
+                                    "phone_number_label".tr().isEmpty ? "شماره موبایل" : "phone_number_label".tr(),
+                                    readOnly: true,
+                                    isLtr: true,
+                                  ),
+                                ),
+                              ),
+                              _buildInputField(
+                                _emailController,
+                                "email_label".tr().isEmpty ? "ایمیل" : "email_label".tr(),
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                isLtr: true,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        Container(
+                          height: 8,
+                          width: double.infinity,
+                          color: const Color(0xFFF1F5F9),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "sub_account_info_title".tr().isEmpty ? "اطلاعات فرعی" : "sub_account_info_title".tr(),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                              ),
+                              const SizedBox(height: 15),
+                              _buildInputField(
+                                _addressController,
+                                "address_label".tr().isEmpty ? "آدرس" : "address_label".tr(),
+                                textInputAction: TextInputAction.next,
+                              ),
+                              _buildInputField(
+                                _dobController,
+                                "dob_label".tr().isEmpty ? "تاریخ تولد" : "dob_label".tr(),
+                                keyboardType: TextInputType.datetime,
+                                textInputAction: TextInputAction.done,
+                                isLtr: true,
+                              ),
+                              const SizedBox(height: 15),
+                              Card(
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                                ),
+                                child: SwitchListTile(
+                                  activeColor: AppColors.primaryBrand,
+                                  title: Text(
+                                    "premium_account_title".tr().isEmpty ? "حساب ویژه (پریمیوم)" : "premium_account_title".tr(),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                                  ),
+                                  subtitle: Text(
+                                    "premium_account_subtitle".tr().isEmpty ? "دریافت قابلیت‌ها و تخفیف‌های ویژه سفیر" : "premium_account_subtitle".tr(),
+                                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  ),
+                                  value: _isPremium,
+                                  onChanged: (val) {
+                                    HapticFeedback.selectionClick();
+                                    setState(() => _isPremium = val);
+                                    _checkChanges();
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _isChanged ? AppColors.primaryButton : Colors.grey.shade300,
+                                    overlayColor: AppColors.primaryButtonPressed,
+                                    elevation: _isChanged ? 2 : 0,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                  onPressed: (_isChanged && !_isSaving) ? _updateUserData : null,
+                                  child: _isSaving
+                                      ? const CircularProgressIndicator(color: AppColors.buttonText)
+                                      : Text(
+                                          "save_changes_btn".tr().isEmpty ? "ذخیره" : "save_changes_btn".tr(),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: _isChanged ? AppColors.buttonText : Colors.grey.shade600,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
