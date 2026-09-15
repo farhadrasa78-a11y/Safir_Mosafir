@@ -6,7 +6,7 @@ final Color safirBrandColor = const Color(0xFF145A41);
 final Color safirAccentColor = const Color(0xFF22C55E);
 
 // ----------------------------------------------------
-// ۱. صفحه تاریخچه سفرها (با تب‌بندی مدرن)
+// ۱. صفحه تاریخچه سفرها
 // ----------------------------------------------------
 class TripsScreen extends StatelessWidget {
   const TripsScreen({super.key});
@@ -19,7 +19,7 @@ class TripsScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppBar(
           title: Text(
-            "trips_history_title".tr(),
+            "trips.history_title".tr(),
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           backgroundColor: safirBrandColor,
@@ -30,17 +30,17 @@ class TripsScreen extends StatelessWidget {
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             tabs: [
-              Tab(text: "tab_completed".tr()),
-              Tab(text: "tab_active".tr()),
-              Tab(text: "tab_canceled".tr()),
+              Tab(text: "tab.completed".tr()),
+              Tab(text: "tab.active".tr()),
+              Tab(text: "tab.canceled".tr()),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            _buildEmptyState(context, Icons.history, "trips_history_empty_msg"),
-            _buildEmptyState(context, Icons.directions_car_filled_outlined, "no_active_trips"),
-            _buildEmptyState(context, Icons.cancel_outlined, "no_canceled_trips"),
+            _buildEmptyState(context, Icons.history, "trips.history_empty_msg"),
+            _buildEmptyState(context, Icons.directions_car_filled_outlined, "trips.no_active_trips"),
+            _buildEmptyState(context, Icons.cancel_outlined, "trips.no_canceled_trips"),
           ],
         ),
       ),
@@ -65,7 +65,7 @@ class TripsScreen extends StatelessWidget {
 }
 
 // ----------------------------------------------------
-// ۲. صفحه دعوت از دوستان (با قابلیت کپی کد)
+// ۲. صفحه دعوت از دوستان
 // ----------------------------------------------------
 class InviteFriendsScreen extends StatelessWidget {
   const InviteFriendsScreen({super.key});
@@ -78,7 +78,7 @@ class InviteFriendsScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "invite_friends_title".tr(),
+          "invite.title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -100,12 +100,12 @@ class InviteFriendsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              "invite_friends_main_title".tr(),
+              "invite.main_title".tr(),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(height: 12),
             Text(
-              "invite_friends_subtext".tr(),
+              "invite.subtext".tr(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade600, fontSize: 13, height: 1.5),
             ),
@@ -133,11 +133,11 @@ class InviteFriendsScreen extends StatelessWidget {
                       Clipboard.setData(const ClipboardData(text: referralCode));
                       HapticFeedback.mediumImpact();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("code_copied".tr())),
+                        SnackBar(content: Text("common.copy".tr())),
                       );
                     },
                     icon: const Icon(Icons.copy, size: 16, color: Colors.white),
-                    label: Text("copy_btn".tr(), style: const TextStyle(color: Colors.white)),
+                    label: Text("common.copy".tr(), style: const TextStyle(color: Colors.white)),
                   )
                 ],
               ),
@@ -150,7 +150,7 @@ class InviteFriendsScreen extends StatelessWidget {
 }
 
 // ----------------------------------------------------
-// ۳. صفحه پیام‌ها و صندوق اعلانات
+// ۳. صفحه پیام‌ها
 // ----------------------------------------------------
 class MessagesScreen extends StatelessWidget {
   const MessagesScreen({super.key});
@@ -161,7 +161,7 @@ class MessagesScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "messages_title".tr(),
+          "messages.title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -179,9 +179,9 @@ class MessagesScreen extends StatelessWidget {
                 backgroundColor: safirBrandColor.withOpacity(0.1),
                 child: Icon(Icons.mark_email_read_outlined, color: safirBrandColor),
               ),
-              title: Text("welcome_title".tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              subtitle: Text("welcome_msg".tr(), style: const TextStyle(fontSize: 12)),
-              trailing: Text("today_label".tr(), style: const TextStyle(fontSize: 10, color: Colors.grey)),
+              title: Text("app.welcome_title".tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              subtitle: Text("messages.desc".tr(), style: const TextStyle(fontSize: 12)),
+              trailing: Text("intercity.today".tr(), style: const TextStyle(fontSize: 10, color: Colors.grey)),
             ),
           ),
         ],
@@ -191,7 +191,7 @@ class MessagesScreen extends StatelessWidget {
 }
 
 // ----------------------------------------------------
-// ۴. صفحه کدهای تخفیف (ورودی و لیست)
+// ۴. صفحه کدهای تخفیف
 // ----------------------------------------------------
 class DiscountCodeScreen extends StatelessWidget {
   const DiscountCodeScreen({super.key});
@@ -204,7 +204,7 @@ class DiscountCodeScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "discounts_title".tr(),
+          "discounts.title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -221,7 +221,7 @@ class DiscountCodeScreen extends StatelessWidget {
                   child: TextField(
                     controller: codeController,
                     decoration: InputDecoration(
-                      hintText: "enter_discount_code".tr(),
+                      hintText: "discounts.enter_code".tr(),
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -239,7 +239,7 @@ class DiscountCodeScreen extends StatelessWidget {
                   onPressed: () {
                     HapticFeedback.lightImpact();
                   },
-                  child: Text("apply_btn".tr(), style: const TextStyle(color: Colors.white)),
+                  child: Text("discounts.apply_btn".tr(), style: const TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -250,7 +250,7 @@ class DiscountCodeScreen extends StatelessWidget {
                   children: [
                     const Icon(Icons.local_offer_outlined, size: 64, color: Colors.grey),
                     const SizedBox(height: 12),
-                    Text("no_active_discounts".tr(), style: const TextStyle(color: Colors.grey)),
+                    Text("discounts.empty_msg".tr(), style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -263,7 +263,7 @@ class DiscountCodeScreen extends StatelessWidget {
 }
 
 // ----------------------------------------------------
-// ۵. صفحه سفر بین شهری (ولایات)
+// ۵. صفحه سفر بین شهری
 // ----------------------------------------------------
 class BinShahriScreen extends StatelessWidget {
   const BinShahriScreen({super.key});
@@ -274,7 +274,7 @@ class BinShahriScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "intercity_title".tr(),
+          "intercity.title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -295,14 +295,14 @@ class BinShahriScreen extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.my_location, color: Colors.blue),
-                      title: Text("origin".tr()),
-                      subtitle: Text("kabul_city".tr()),
+                      title: Text("intercity.origin".tr()),
+                      subtitle: Text("intercity.origin_province_hint".tr()),
                     ),
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.location_on, color: Colors.red),
-                      title: Text("destination".tr()),
-                      subtitle: Text("select_destination".tr()),
+                      title: Text("intercity.destination".tr()),
+                      subtitle: Text("location.select_destination".tr()),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                       onTap: () {},
                     ),
@@ -320,7 +320,7 @@ class BinShahriScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () {},
-                child: Text("search_intercity_driver".tr(),
+                child: Text("intercity.request_trip".tr(),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             )
@@ -343,7 +343,7 @@ class BarbariScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "freight_title".tr(),
+          "cargo.title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -356,10 +356,10 @@ class BarbariScreen extends StatelessWidget {
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         children: [
-          _buildFreightCard(context, Icons.electric_rickshaw, "rickshaw_freight".tr(), "rickshaw_weight".tr()),
-          _buildFreightCard(context, Icons.local_shipping_outlined, "pickup_freight".tr(), "pickup_weight".tr()),
-          _buildFreightCard(context, Icons.fire_truck_outlined, "truck_freight".tr(), "truck_weight".tr()),
-          _buildFreightCard(context, Icons.inventory_2_outlined, "packing_services".tr(), "moving_help".tr()),
+          _buildFreightCard(context, Icons.electric_rickshaw, "cargo.vehicle_zaranj_title".tr(), "cargo.capacity_zaranj".tr()),
+          _buildFreightCard(context, Icons.local_shipping_outlined, "cargo.vehicle_pickup_title".tr(), "cargo.capacity_pickup".tr()),
+          _buildFreightCard(context, Icons.fire_truck_outlined, "cargo.vehicle_truck_title".tr(), "cargo.capacity_truck".tr()),
+          _buildFreightCard(context, Icons.inventory_2_outlined, "cargo.extra_services_section".tr(), "cargo.packing_help_label".tr()),
         ],
       ),
     );
@@ -402,7 +402,7 @@ class RegistrationScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "driver_registration_title".tr(),
+          "driver.registration_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -416,12 +416,12 @@ class RegistrationScreen extends StatelessWidget {
             Icon(Icons.time_to_leave_rounded, size: 90, color: safirBrandColor),
             const SizedBox(height: 20),
             Text(
-              "join_safir_drivers".tr(),
+              "auth.register_subtitle".tr(),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              "driver_reg_desc".tr(),
+              "driver.registration_coming_soon".tr(),
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.5),
             ),
@@ -435,7 +435,7 @@ class RegistrationScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () {},
-                child: Text("start_driver_registration".tr(),
+                child: Text("common.continue_btn".tr(),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             )
