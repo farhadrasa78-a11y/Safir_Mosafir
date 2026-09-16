@@ -7,11 +7,36 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:safir_passengers/global/global_var.dart';
-import 'package:safir_passengers/theme/app_colors.dart';
 import 'package:safir_passengers/authentication/register_screen.dart';
 
+// ثوابت رنگی مطابق با دیزاین جدید
+class AppColors {
+  static const Color primaryBrand = Color(0xFF565DFF);
+  static const Color primaryButton = Color(0xFF565DFF);
+  static const Color primaryButtonPressed = Color(0xFF4348D6);
+  static const Color buttonText = Colors.white;
+  static const Color textPrimary = Color(0xFF26293D);
+  static const Color textSecondary = Color(0xFF9AA0A6);
+  static const Color appBarDivider = Color(0xFFD6DADF);
+  static const Color sectionDivider = Color(0xFFF1F5F9);
+  static const Color fieldBorder = Color(0xFFD8DBE0);
+  static const Color wheelGreen = Color(0xFF39B169);
+}
+
+// تابع کمکی برای تبدیل اعداد به انگلیسی
+String toEnglishDigits(String input) {
+  const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+  for (int i = 0; i < 10; i++) {
+    input = input.replaceAll(farsi[i], english[i]).replaceAll(arabic[i], english[i]);
+  }
+  return input;
+}
+
 // -------------------------------------------------------------
-// ۱. صفحه اصلی پروفایل (حساب کاربری)
+// ۱. صفحه اصلی پروفایل (حساب کاربری) - دست نخورده
 // -------------------------------------------------------------
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -534,7 +559,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 // -------------------------------------------------------------
-// ۲. صفحه اطلاعات کاربری (ویرایش) - اصلاح شده با تاریخ شمسی/دری و جنسیت
+// ۲. صفحه اطلاعات کاربری (ویرایش) - جایگزین‌شده با دیزاین جدید
 // -------------------------------------------------------------
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -717,141 +742,80 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  // ---------------- شیت انتخاب جنسیت (با دیزاین جدید) ----------------
   void _showGenderPicker() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("جنسیت را انتخاب کنید", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-              const SizedBox(height: 15),
-              ListTile(
-                title: const Text("مرد", textAlign: TextAlign.center, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                onTap: () {
-                  setState(() => _selectedGender = "مرد");
-                  _checkChanges();
-                  Navigator.pop(context);
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                title: const Text("زن", textAlign: TextAlign.center, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                onTap: () {
-                  setState(() => _selectedGender = "زن");
-                  _checkChanges();
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showDatePicker() {
-    HapticFeedback.lightImpact();
-    int selectedDay = 15;
-    int selectedMonthIndex = 5; // سنبله
-    int selectedYear = 1375;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) {
+        String tempGender = _selectedGender;
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('تاریخ تولد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                      const Text(
+                        'جنسیت',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: AppColors.textPrimary),
+                        onPressed: () => Navigator.pop(context),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 160,
-                    child: Row(
-                      children: [
-                        // روز
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            itemExtent: 40,
-                            perspective: 0.005,
-                            diameterRatio: 1.2,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (index) => setModalState(() => selectedDay = index + 1),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              childCount: 31,
-                              builder: (context, index) => Center(
-                                child: Text("${index + 1}", style: TextStyle(fontSize: 16, fontWeight: (selectedDay == index + 1) ? FontWeight.bold : FontWeight.normal)),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // ماه (دری)
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            itemExtent: 40,
-                            perspective: 0.005,
-                            diameterRatio: 1.2,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (index) => setModalState(() => selectedMonthIndex = index),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              childCount: _dariMonths.length,
-                              builder: (context, index) => Center(
-                                child: Text(_dariMonths[index], style: TextStyle(fontSize: 16, fontWeight: (selectedMonthIndex == index) ? FontWeight.bold : FontWeight.normal, color: AppColors.primaryBrand)),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // سال
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            itemExtent: 40,
-                            perspective: 0.005,
-                            diameterRatio: 1.2,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (index) => setModalState(() => selectedYear = 1340 + index),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              childCount: 70,
-                              builder: (context, index) => Center(
-                                child: Text("${1340 + index}", style: TextStyle(fontSize: 16, fontWeight: (selectedYear == 1340 + index) ? FontWeight.bold : FontWeight.normal)),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 8),
+                  _genderOptionTile(
+                    label: 'مرد',
+                    value: 'مرد',
+                    groupValue: tempGender,
+                    onTap: () => setModalState(() => tempGender = 'مرد'),
                   ),
-                  const SizedBox(height: 20),
+                  const Divider(height: 1, color: AppColors.fieldBorder),
+                  _genderOptionTile(
+                    label: 'زن',
+                    value: 'زن',
+                    groupValue: tempGender,
+                    onTap: () => setModalState(() => tempGender = 'زن'),
+                  ),
+                  const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: 50,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryButton,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       onPressed: () {
-                        setState(() {
-                          _selectedDob = "$selectedDay ${_dariMonths[selectedMonthIndex]} $selectedYear";
-                        });
+                        setState(() => _selectedGender = tempGender);
                         _checkChanges();
                         Navigator.pop(context);
                       },
-                      child: const Text('تایید', style: TextStyle(color: AppColors.buttonText, fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'تایید',
+                        style: TextStyle(
+                          color: AppColors.buttonText,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -863,12 +827,255 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  Widget _genderOptionTile({
+    required String label,
+    required String value,
+    required String groupValue,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            Radio<String>(
+              value: value,
+              groupValue: groupValue,
+              activeColor: AppColors.primaryBrand,
+              onChanged: (_) => onTap(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------- شیت انتخاب تاریخ تولد (با دیزاین جدید) ----------------
+  void _showDatePicker() {
+  HapticFeedback.lightImpact();
+  int selectedDay = 15;
+  int selectedMonthIndex = 5; // سنبله
+  int selectedYear = 1375;
+
+  // محاسبه دقیق تعداد روزهای ماه بر اساس تقویم افغانستان
+  int getMaxDays(int monthIndex) {
+    if (monthIndex < 6) return 31; // حمل تا سنبله
+    if (monthIndex < 11) return 30; // میزان تا دلو
+    return 29; // حوت (بدون احتساب کبیسه برای سادگی)
+  }
+
+  final dayController = FixedExtentScrollController(initialItem: selectedDay - 1);
+  final monthController = FixedExtentScrollController(initialItem: selectedMonthIndex);
+  final yearController = FixedExtentScrollController(initialItem: selectedYear - 1340);
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.white,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setModalState) {
+          int maxDays = getMaxDays(selectedMonthIndex);
+
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'تاریخ تولد',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: AppColors.textPrimary),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                SizedBox(
+                  height: 180,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IgnorePointer(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(height: 2, color: AppColors.wheelGreen),
+                            const SizedBox(height: 40),
+                            Container(height: 2, color: AppColors.wheelGreen),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          // روز
+                          Expanded(
+                            child: ListWheelScrollView.useDelegate(
+                              controller: dayController,
+                              itemExtent: 42,
+                              perspective: 0.005,
+                              diameterRatio: 1.3,
+                              physics: const FixedExtentScrollPhysics(),
+                              onSelectedItemChanged: (index) =>
+                                  setModalState(() => selectedDay = index + 1),
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                childCount: maxDays, // تعداد روزهای متغیر بر اساس ماه
+                                builder: (context, index) => Center(
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: selectedDay == index + 1
+                                          ? AppColors.textPrimary
+                                          : AppColors.textSecondary,
+                                      fontWeight: selectedDay == index + 1
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // ماه (افغانستان - دری)
+                          Expanded(
+                            child: ListWheelScrollView.useDelegate(
+                              controller: monthController,
+                              itemExtent: 42,
+                              perspective: 0.005,
+                              diameterRatio: 1.3,
+                              physics: const FixedExtentScrollPhysics(),
+                              onSelectedItemChanged: (index) {
+                                setModalState(() {
+                                  selectedMonthIndex = index;
+                                  // اگر روز انتخاب‌شده از حداکثر روزهای ماه جدید بیشتر بود، تصحیح شود
+                                  int newMax = getMaxDays(index);
+                                  if (selectedDay > newMax) {
+                                    selectedDay = newMax;
+                                  }
+                                });
+                              },
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                childCount: _dariMonths.length,
+                                builder: (context, index) => Center(
+                                  child: Text(
+                                    _dariMonths[index],
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: selectedMonthIndex == index
+                                          ? AppColors.textPrimary
+                                          : AppColors.textSecondary,
+                                      fontWeight: selectedMonthIndex == index
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // سال
+                          Expanded(
+                            child: ListWheelScrollView.useDelegate(
+                              controller: yearController,
+                              itemExtent: 42,
+                              perspective: 0.005,
+                              diameterRatio: 1.3,
+                              physics: const FixedExtentScrollPhysics(),
+                              onSelectedItemChanged: (index) =>
+                                  setModalState(() => selectedYear = 1340 + index),
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                childCount: 70,
+                                builder: (context, index) => Center(
+                                  child: Text(
+                                    '${1340 + index}',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: selectedYear == 1340 + index
+                                          ? AppColors.textPrimary
+                                          : AppColors.textSecondary,
+                                      fontWeight: selectedYear == 1340 + index
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryButton,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _selectedDob = "$selectedDay ${_dariMonths[selectedMonthIndex]} $selectedYear";
+                      });
+                      _checkChanges();
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'تایید',
+                      style: TextStyle(
+                        color: AppColors.buttonText,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+  // ---------------- شیت تغییر شماره موبایل ----------------
   void _showChangePhoneBottomSheet() {
     HapticFeedback.lightImpact();
     final TextEditingController newPhoneController = TextEditingController();
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -876,7 +1083,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
             top: 20,
             left: 20,
             right: 20,
@@ -889,15 +1096,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   Text(
                     'change_phone_title'.tr().isEmpty ? 'تغییر شماره تماس' : 'change_phone_title'.tr(),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.close, color: AppColors.textPrimary),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 'change_phone_subtitle'.tr().isEmpty ? 'شماره جدید خود را جهت ارسال کد تایید وارد کنید' : 'change_phone_subtitle'.tr(),
                 style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
@@ -910,7 +1121,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   labelText: "phone_number_label".tr().isEmpty ? "شماره تلفن" : "phone_number_label".tr(),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -920,14 +1133,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryButton,
-                    overlayColor: AppColors.primaryButtonPressed,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () {
                     if (newPhoneController.text.trim().isNotEmpty) {
                       HapticFeedback.mediumImpact();
-                      String newPhone = newPhoneController.text.trim();
-                      _phoneController.text = newPhone;
+                      _phoneController.text = newPhoneController.text.trim();
                       _checkChanges();
                       Navigator.pop(context);
 
@@ -936,7 +1149,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       );
                     }
                   },
-                  child: Text('continue_btn'.tr().isEmpty ? 'ادامه' : 'continue_btn'.tr(), style: const TextStyle(color: AppColors.buttonText, fontSize: 16)),
+                  child: Text(
+                    'continue_btn'.tr().isEmpty ? 'ادامه' : 'continue_btn'.tr(),
+                    style: const TextStyle(color: AppColors.buttonText, fontSize: 16),
+                  ),
                 ),
               ),
             ],
@@ -955,21 +1171,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
+        centerTitle: true,
         title: Text(
           "user_info_section_title".tr().isEmpty ? "اطلاعات کاربری" : "user_info_section_title".tr(),
-          style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
-        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.maybePop(context),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: const Color(0xFFD6DADF),
-          ),
+          child: Container(height: 1, color: AppColors.appBarDivider),
         ),
       ),
       body: _isLoading
@@ -1001,12 +1218,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           child: Image.asset(
                             'assets/images/default_profile.png',
                             fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: const Color(0xFFF3F4F6),
+                              child: Icon(
+                                Icons.person,
+                                size: 56,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 25),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: Column(
@@ -1014,7 +1238,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         children: [
                           Text(
                             "main_account_info_title".tr().isEmpty ? "اطلاعات اصلی" : "main_account_info_title".tr(),
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 15),
                           _buildInputField(
@@ -1043,17 +1271,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     Container(
                       height: 8,
                       width: double.infinity,
-                      color: const Color(0xFFF1F5F9),
+                      color: AppColors.sectionDivider,
                     ),
-
                     const SizedBox(height: 20),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: Column(
@@ -1061,7 +1285,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         children: [
                           Text(
                             "sub_account_info_title".tr().isEmpty ? "اطلاعات فرعی" : "sub_account_info_title".tr(),
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 15),
                           _buildInputField(
@@ -1070,19 +1298,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             hintText: "آدرس‌تان را بنویسید.",
                             textInputAction: TextInputAction.next,
                           ),
-                          
-                          // جنسیت
                           GestureDetector(
                             onTap: _showGenderPicker,
-                            child: _buildSelectableTile("جنسیت", _selectedGender),
+                            child: AbsorbPointer(
+                              child: _buildInputField(
+                                TextEditingController(text: _selectedGender),
+                                "جنسیت",
+                                readOnly: true,
+                              ),
+                            ),
                           ),
-
-                          // تاریخ تولد
                           GestureDetector(
                             onTap: _showDatePicker,
-                            child: _buildSelectableTile("تاریخ تولد", _selectedDob.isEmpty ? "انتخاب تاریخ" : _selectedDob),
+                            child: AbsorbPointer(
+                              child: _buildInputField(
+                                TextEditingController(text: _selectedDob),
+                                "تاریخ تولد",
+                                readOnly: true,
+                              ),
+                            ),
                           ),
-
                           const SizedBox(height: 15),
                           Card(
                             elevation: 0,
@@ -1108,26 +1343,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 25),
                           SizedBox(
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: _isChanged ? AppColors.primaryButton : Colors.grey.shade300,
-                                overlayColor: AppColors.primaryButtonPressed,
+                                backgroundColor: _isChanged
+                                    ? AppColors.primaryButton
+                                    : Colors.grey.shade300,
                                 elevation: _isChanged ? 2 : 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
-                              onPressed: (_isChanged && !_isSaving) ? _updateUserData : null,
+                              onPressed:
+                                  (_isChanged && !_isSaving) ? _updateUserData : null,
                               child: _isSaving
-                                  ? const CircularProgressIndicator(color: AppColors.buttonText)
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.buttonText,
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
                                   : Text(
                                       "save_changes_btn".tr().isEmpty ? "ذخیره" : "save_changes_btn".tr(),
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: _isChanged ? AppColors.buttonText : Colors.grey.shade600,
+                                        color: _isChanged
+                                            ? AppColors.buttonText
+                                            : Colors.grey.shade600,
                                       ),
                                     ),
                             ),
@@ -1143,7 +1391,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // ورودی اصلاح شده جهت جلوگیری از بهم ریختگی label و placeholder
+  // فیلد ورودی با استایل دقیق دیزاین جدید
   Widget _buildInputField(
     TextEditingController controller,
     String label, {
@@ -1161,55 +1409,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         textDirection: isLtr ? ui.TextDirection.ltr : ui.TextDirection.rtl,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+        textAlign: TextAlign.right,
+        style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
-          floatingLabelBehavior: FloatingLabelBehavior.always, // ماندن برچسب روی خط به شکل دقیق
           alignLabelWithHint: true,
           hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
-          labelStyle: const TextStyle(color: AppColors.primaryBrand, fontSize: 14, fontWeight: FontWeight.w600),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+          floatingLabelStyle: const TextStyle(
+            color: AppColors.primaryBrand,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: const BorderSide(color: AppColors.fieldBorder),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: const BorderSide(color: AppColors.fieldBorder),
           ),
           focusedBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide(color: AppColors.primaryBrand, width: 1.5),
+            borderSide: BorderSide(color: AppColors.primaryBrand, width: 1.4),
           ),
-        ),
-      ),
-    );
-  }
-
-  // ویجت فیلدهای انتخابی (جنسیت و تاریخ تولد)
-  Widget _buildSelectableTile(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: const TextStyle(color: AppColors.primaryBrand, fontSize: 12, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(value, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14)),
-                const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-              ],
-            ),
-          ],
         ),
       ),
     );
