@@ -19,7 +19,7 @@ class TripsScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppBar(
           title: Text(
-            "trips.history_title".tr(),
+            "trips_history_title".tr(),
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           backgroundColor: safirBrandColor,
@@ -30,17 +30,17 @@ class TripsScreen extends StatelessWidget {
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             tabs: [
-              Tab(text: "tab.completed".tr()),
-              Tab(text: "tab.active".tr()),
-              Tab(text: "tab.canceled".tr()),
+              Tab(text: "tab_completed".tr()),
+              Tab(text: "tab_active".tr()),
+              Tab(text: "tab_canceled".tr()),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            _buildEmptyState(context, Icons.history, "trips.history_empty_msg"),
-            _buildEmptyState(context, Icons.directions_car_filled_outlined, "trips.no_active_trips"),
-            _buildEmptyState(context, Icons.cancel_outlined, "trips.no_canceled_trips"),
+            _buildEmptyState(context, Icons.history, "trips_history_empty_msg"),
+            _buildEmptyState(context, Icons.directions_car_filled_outlined, "no_active_trips"),
+            _buildEmptyState(context, Icons.cancel_outlined, "no_canceled_trips"),
           ],
         ),
       ),
@@ -78,7 +78,7 @@ class InviteFriendsScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "invite.title".tr(),
+          "invite_friends_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -100,12 +100,12 @@ class InviteFriendsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              "invite.main_title".tr(),
+              "invite_friends_main_title".tr(),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(height: 12),
             Text(
-              "invite.subtext".tr(),
+              "invite_friends_subtext".tr(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade600, fontSize: 13, height: 1.5),
             ),
@@ -133,11 +133,11 @@ class InviteFriendsScreen extends StatelessWidget {
                       Clipboard.setData(const ClipboardData(text: referralCode));
                       HapticFeedback.mediumImpact();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("common.copy".tr())),
+                        SnackBar(content: Text("copy_btn".tr())),
                       );
                     },
                     icon: const Icon(Icons.copy, size: 16, color: Colors.white),
-                    label: Text("common.copy".tr(), style: const TextStyle(color: Colors.white)),
+                    label: Text("copy_btn".tr(), style: const TextStyle(color: Colors.white)),
                   )
                 ],
               ),
@@ -161,7 +161,7 @@ class MessagesScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "messages.title".tr(),
+          "messages_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -179,9 +179,9 @@ class MessagesScreen extends StatelessWidget {
                 backgroundColor: safirBrandColor.withOpacity(0.1),
                 child: Icon(Icons.mark_email_read_outlined, color: safirBrandColor),
               ),
-              title: Text("app.welcome_title".tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              subtitle: Text("messages.desc".tr(), style: const TextStyle(fontSize: 12)),
-              trailing: Text("intercity.today".tr(), style: const TextStyle(fontSize: 10, color: Colors.grey)),
+              title: Text("welcome_title".tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              subtitle: Text("messages_desc".tr(), style: const TextStyle(fontSize: 12)),
+              trailing: Text("today".tr(), style: const TextStyle(fontSize: 10, color: Colors.grey)),
             ),
           ),
         ],
@@ -204,7 +204,7 @@ class DiscountCodeScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "discounts.title".tr(),
+          "discounts_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -221,7 +221,7 @@ class DiscountCodeScreen extends StatelessWidget {
                   child: TextField(
                     controller: codeController,
                     decoration: InputDecoration(
-                      hintText: "discounts.enter_code".tr(),
+                      hintText: "enter_discount_code".tr(),
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -239,7 +239,7 @@ class DiscountCodeScreen extends StatelessWidget {
                   onPressed: () {
                     HapticFeedback.lightImpact();
                   },
-                  child: Text("discounts.apply_btn".tr(), style: const TextStyle(color: Colors.white)),
+                  child: Text("apply_btn".tr(), style: const TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -250,7 +250,7 @@ class DiscountCodeScreen extends StatelessWidget {
                   children: [
                     const Icon(Icons.local_offer_outlined, size: 64, color: Colors.grey),
                     const SizedBox(height: 12),
-                    Text("discounts.empty_msg".tr(), style: const TextStyle(color: Colors.grey)),
+                    Text("discounts_empty_msg".tr(), style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -274,7 +274,7 @@ class BinShahriScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "intercity.title".tr(),
+          "intercity_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -295,14 +295,14 @@ class BinShahriScreen extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.my_location, color: Colors.blue),
-                      title: Text("intercity.origin".tr()),
-                      subtitle: Text("intercity.origin_province_hint".tr()),
+                      title: Text("origin".tr()),
+                      subtitle: Text("origin_province_hint".tr()),
                     ),
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.location_on, color: Colors.red),
-                      title: Text("intercity.destination".tr()),
-                      subtitle: Text("location.select_destination".tr()),
+                      title: Text("destination".tr()),
+                      subtitle: Text("select_destination".tr()),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                       onTap: () {},
                     ),
@@ -320,7 +320,7 @@ class BinShahriScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () {},
-                child: Text("intercity.request_trip".tr(),
+                child: Text("request_intercity_ride".tr(),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             )
@@ -343,7 +343,7 @@ class BarbariScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "cargo.title".tr(),
+          "cargo_services_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -356,10 +356,10 @@ class BarbariScreen extends StatelessWidget {
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         children: [
-          _buildFreightCard(context, Icons.electric_rickshaw, "cargo.vehicle_zaranj_title".tr(), "cargo.capacity_zaranj".tr()),
-          _buildFreightCard(context, Icons.local_shipping_outlined, "cargo.vehicle_pickup_title".tr(), "cargo.capacity_pickup".tr()),
-          _buildFreightCard(context, Icons.fire_truck_outlined, "cargo.vehicle_truck_title".tr(), "cargo.capacity_truck".tr()),
-          _buildFreightCard(context, Icons.inventory_2_outlined, "cargo.extra_services_section".tr(), "cargo.packing_help_label".tr()),
+          _buildFreightCard(context, Icons.electric_rickshaw, "vehicle_zaranj_title".tr(), "capacity_zaranj".tr()),
+          _buildFreightCard(context, Icons.local_shipping_outlined, "vehicle_pickup_title".tr(), "capacity_pickup".tr()),
+          _buildFreightCard(context, Icons.fire_truck_outlined, "vehicle_truck_title".tr(), "capacity_truck".tr()),
+          _buildFreightCard(context, Icons.inventory_2_outlined, "extra_cargo_services_section".tr(), "packing_help_label".tr()),
         ],
       ),
     );
@@ -402,7 +402,7 @@ class RegistrationScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "driver.registration_title".tr(),
+          "driver_registration_title".tr(),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: safirBrandColor,
@@ -416,12 +416,12 @@ class RegistrationScreen extends StatelessWidget {
             Icon(Icons.time_to_leave_rounded, size: 90, color: safirBrandColor),
             const SizedBox(height: 20),
             Text(
-              "auth.register_subtitle".tr(),
+              "register_subtitle".tr(),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              "driver.registration_coming_soon".tr(),
+              "driver_registration_coming_soon".tr(),
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.5),
             ),
@@ -435,7 +435,7 @@ class RegistrationScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () {},
-                child: Text("common.continue_btn".tr(),
+                child: Text("continue_btn".tr(),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             )
