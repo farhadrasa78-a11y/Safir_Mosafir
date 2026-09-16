@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:safir_passengers/global/global_var.dart';
@@ -22,7 +22,7 @@ class UserProfileScreen extends StatefulWidget {
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final DatabaseReference _userRef = FirebaseDatabase.instance.ref();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool _useWheelchair = false;
   bool _isLoading = true;
@@ -43,19 +43,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       _userPhone = currentUser.phoneNumber ?? '';
 
       try {
-        DatabaseEvent event = await _userRef
-            .child("users")
-            .child(currentUser.uid)
-            .once()
+        DocumentSnapshot userDoc = await _firestore
+            .collection("users")
+            .doc(currentUser.uid)
+            .get()
             .timeout(const Duration(seconds: 8));
 
-        if (event.snapshot.value != null && mounted) {
-          Map userData = Map<dynamic, dynamic>.from(event.snapshot.value as Map);
+        if (userDoc.exists && userDoc.data() != null && mounted) {
+          Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
           setState(() {
             _userName = userData["name"] ??
+                userData["full_name"] ??
                 userData["fullName"] ??
                 userData["userName"] ??
-                userData["user_name"] ??
                 currentUser.displayName ??
                 '';
             _userPhone = userData["phone"] ??
@@ -84,7 +84,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     setState(() => _useWheelchair = val);
     User? currentUser = _auth.currentUser;
     if (currentUser != null) {
-      await _userRef.child("users").child(currentUser.uid).update({"useWheelchair": val});
+      await _firestore.collection("users").doc(currentUser.uid).set(
+        {"useWheelchair": val},
+        SetOptions(merge: true),
+      );
     }
   }
 
@@ -253,6 +256,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBrand))
           : SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Column(
                 children: [
@@ -267,7 +271,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: const Color(0xFFE5E5E5),
-                              width: 0.6,
+                              width: 0.8,
                             ),
                           ),
                           child: ClipOval(
@@ -530,7 +534,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 // -------------------------------------------------------------
-// ۲. صفحه اطلاعات کاربری (ویرایش) - لایه‌بندی کاملاً سفید و یکدست
+// ۲. صفحه اطلاعات کاربری (ویرایش) - بدون لرزش و هماهنگ با Firestore
 // -------------------------------------------------------------
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -541,7 +545,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final DatabaseReference _userRef = FirebaseDatabase.instance.ref();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -605,15 +609,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _initialName = currentUser.displayName ?? "";
 
       try {
-        DatabaseEvent event = await _userRef
-            .child("users")
-            .child(currentUser.uid)
-            .once()
+        DocumentSnapshot userDoc = await _firestore
+            .collection("users")
+            .doc(currentUser.uid)
+            .get()
             .timeout(const Duration(seconds: 8));
 
-        if (event.snapshot.value != null && mounted) {
-          Map userData = Map<dynamic, dynamic>.from(event.snapshot.value as Map);
-          _initialName = userData["name"] ?? userData["fullName"] ?? userData["userName"] ?? userData["user_name"] ?? _initialName;
+        if (userDoc.exists && userDoc.data() != null && mounted) {
+          Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+          _initialName = userData["name"] ?? userData["full_name"] ?? userData["fullName"] ?? userData["userName"] ?? _initialName;
           _initialPhone = userData["phone"] ?? userData["phoneNumber"] ?? userData["phone_number"] ?? _initialPhone;
           _initialEmail = userData["email"] ?? _initialEmail;
           _initialAddress = userData["address"] ?? "";
@@ -662,7 +666,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         "isPremium": _isPremium,
       };
 
-      await _userRef.child("users").child(currentUser.uid).update(updateData);
+      await _firestore.collection("users").doc(currentUser.uid).set(
+        updateData,
+        SetOptions(merge: true),
+      );
 
       if (_nameController.text.trim().isNotEmpty) {
         await currentUser.updateDisplayName(_nameController.text.trim());
@@ -796,7 +803,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           preferredSize: const Size.fromHeight(1),
           child: Container(
             height: 1,
-            color: const Color(0xFFD6DADF), // خط جداکننده یکدست و صاف بدون سایه
+            color: const Color(0xFFD6DADF),
           ),
         ),
       ),
@@ -805,7 +812,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           : SafeArea(
               child: SingleChildScrollView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                physics: const ClampingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -819,7 +829,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: const Color(0xFFE5E5E5),
-                            width: 0.6,
+                            width: 0.8,
                           ),
                         ),
                         child: ClipOval(
