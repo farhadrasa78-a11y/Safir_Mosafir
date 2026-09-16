@@ -284,7 +284,7 @@ class IntercitySheets {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'intercity.origin'.tr().isEmpty ? 'مبدأ' : 'intercity_origin'.tr(),
+                                'intercity.origin'.tr().isEmpty ? 'مبدأ' : 'intercity.origin'.tr(),
                                 style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
                               ),
                               Text(
@@ -427,7 +427,7 @@ class IntercitySheets {
                               style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
                             ),
                             Text(
-                              '${passengerCount.toString()} نفر',
+                              '$passengerCount ${'person'.tr().isEmpty ? 'نفر' : 'person'.tr()}',
                               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange),
                             ),
                           ],
