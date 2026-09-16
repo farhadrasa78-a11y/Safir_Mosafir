@@ -244,8 +244,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   'welcome_title'.tr(),
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
                   style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                     height: 1.2,
                   ),
