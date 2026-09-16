@@ -30,8 +30,8 @@ class _OTPScreenState extends State<OTPScreen> {
       width: 54,
       height: 54,
       textStyle: const TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
+        fontSize: 20,
+        fontWeight: FontWeight.w600, // 👈 ضخامت متناسب و استاندارد
         color: AppColors.textPrimary,
       ),
       decoration: BoxDecoration(
@@ -68,15 +68,27 @@ class _OTPScreenState extends State<OTPScreen> {
                 ),
                 const SizedBox(height: 24),
 
+                // 👈 جایگزینی otp.title با otp_title
                 Text(
-                  'otp.title'.tr(),
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  'otp_title'.tr(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600, // 👈 اصلاح به w600 به جای bold
+                    color: AppColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 10),
+                
+                // 👈 جایگزینی otp.subtitle با otp_subtitle
                 Text(
-                  'otp.subtitle'.tr(),
+                  'otp_subtitle'.tr(),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
                 ),
                 const SizedBox(height: 32),
 
@@ -117,9 +129,14 @@ class _OTPScreenState extends State<OTPScreen> {
                 TextButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.primaryBrand),
+                  // 👈 جایگزینی otp.resend_btn با otp_resend_btn
                   label: Text(
-                    'otp.resend_btn'.tr(),
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryBrand),
+                    'otp_resend_btn'.tr(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600, // 👈 اصلاح به w600
+                      color: AppColors.primaryBrand,
+                    ),
                   ),
                 ),
               ],
