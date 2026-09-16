@@ -534,7 +534,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 // -------------------------------------------------------------
-// ۲. صفحه اطلاعات کاربری (ویرایش) - بدون لرزش و هماهنگ با Firestore
+// ۲. صفحه اطلاعات کاربری (ویرایش) - اصلاح شده با تاریخ شمسی/دری و جنسیت
 // -------------------------------------------------------------
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -551,19 +551,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
 
   String _initialName = "";
   String _initialPhone = "";
   String _initialEmail = "";
   String _initialAddress = "";
+  String _initialGender = "مرد";
   String _initialDob = "";
   bool _initialPremium = false;
+
+  String _selectedGender = "مرد";
+  String _selectedDob = "";
 
   bool _isLoading = true;
   bool _isSaving = false;
   bool _isPremium = false;
   bool _isChanged = false;
+
+  // لیست ماه‌های هجری شمسی به زبان دری (افغانی)
+  final List<String> _dariMonths = [
+    "حمل",
+    "ثور",
+    "جوزا",
+    "سرطان",
+    "اسد",
+    "سنبله",
+    "میزان",
+    "عقرب",
+    "قوس",
+    "جدی",
+    "دلو",
+    "حوت"
+  ];
 
   @override
   void initState() {
@@ -574,7 +593,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController.addListener(_checkChanges);
     _emailController.addListener(_checkChanges);
     _addressController.addListener(_checkChanges);
-    _dobController.addListener(_checkChanges);
   }
 
   void _checkChanges() {
@@ -582,16 +600,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     String currentPhone = toEnglishDigits(_phoneController.text.trim());
     String currentEmail = _emailController.text.trim();
     String currentAddress = _addressController.text.trim();
-    String currentDob = toEnglishDigits(_dobController.text.trim());
 
     String cleanInitialPhone = toEnglishDigits(_initialPhone);
-    String cleanInitialDob = toEnglishDigits(_initialDob);
 
     bool hasChanged = (currentName != _initialName) ||
         (currentPhone != cleanInitialPhone) ||
         (currentEmail != _initialEmail) ||
         (currentAddress != _initialAddress) ||
-        (currentDob != cleanInitialDob) ||
+        (_selectedGender != _initialGender) ||
+        (_selectedDob != _initialDob) ||
         (_isPremium != _initialPremium);
 
     if (hasChanged != _isChanged && mounted) {
@@ -621,6 +638,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _initialPhone = userData["phone"] ?? userData["phoneNumber"] ?? userData["phone_number"] ?? _initialPhone;
           _initialEmail = userData["email"] ?? _initialEmail;
           _initialAddress = userData["address"] ?? "";
+          _initialGender = userData["gender"] ?? "مرد";
           _initialDob = userData["dob"] ?? "";
           _initialPremium = userData["isPremium"] ?? false;
         }
@@ -633,7 +651,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _phoneController.text = _initialPhone;
         _emailController.text = _initialEmail;
         _addressController.text = _initialAddress;
-        _dobController.text = _initialDob;
+        _selectedGender = _initialGender;
+        _selectedDob = _initialDob;
         _isPremium = _initialPremium;
       }
     }
@@ -654,7 +673,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _isSaving = true);
 
     String cleanedPhone = toEnglishDigits(_phoneController.text.trim());
-    String cleanedDob = toEnglishDigits(_dobController.text.trim());
 
     try {
       Map<String, dynamic> updateData = {
@@ -662,7 +680,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         "phone": cleanedPhone,
         "email": _emailController.text.trim(),
         "address": _addressController.text.trim(),
-        "dob": cleanedDob,
+        "gender": _selectedGender,
+        "dob": _selectedDob,
         "isPremium": _isPremium,
       };
 
@@ -696,6 +715,152 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+
+  void _showGenderPicker() {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("جنسیت را انتخاب کنید", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              const SizedBox(height: 15),
+              ListTile(
+                title: const Text("مرد", textAlign: TextAlign.center, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                onTap: () {
+                  setState(() => _selectedGender = "مرد");
+                  _checkChanges();
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                title: const Text("زن", textAlign: TextAlign.center, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                onTap: () {
+                  setState(() => _selectedGender = "زن");
+                  _checkChanges();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDatePicker() {
+    HapticFeedback.lightImpact();
+    int selectedDay = 15;
+    int selectedMonthIndex = 5; // سنبله
+    int selectedYear = 1375;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('تاریخ تولد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 160,
+                    child: Row(
+                      children: [
+                        // روز
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 40,
+                            perspective: 0.005,
+                            diameterRatio: 1.2,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) => setModalState(() => selectedDay = index + 1),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 31,
+                              builder: (context, index) => Center(
+                                child: Text("${index + 1}", style: TextStyle(fontSize: 16, fontWeight: (selectedDay == index + 1) ? FontWeight.bold : FontWeight.normal)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // ماه (دری)
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 40,
+                            perspective: 0.005,
+                            diameterRatio: 1.2,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) => setModalState(() => selectedMonthIndex = index),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: _dariMonths.length,
+                              builder: (context, index) => Center(
+                                child: Text(_dariMonths[index], style: TextStyle(fontSize: 16, fontWeight: (selectedMonthIndex == index) ? FontWeight.bold : FontWeight.normal, color: AppColors.primaryBrand)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // سال
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 40,
+                            perspective: 0.005,
+                            diameterRatio: 1.2,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) => setModalState(() => selectedYear = 1340 + index),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 70,
+                              builder: (context, index) => Center(
+                                child: Text("${1340 + index}", style: TextStyle(fontSize: 16, fontWeight: (selectedYear == 1340 + index) ? FontWeight.bold : FontWeight.normal)),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryButton,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _selectedDob = "$selectedDay ${_dariMonths[selectedMonthIndex]} $selectedYear";
+                        });
+                        _checkChanges();
+                        Navigator.pop(context);
+                      },
+                      child: const Text('تایید', style: TextStyle(color: AppColors.buttonText, fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _showChangePhoneBottomSheet() {
@@ -902,15 +1067,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           _buildInputField(
                             _addressController,
                             "address_label".tr().isEmpty ? "آدرس" : "address_label".tr(),
+                            hintText: "آدرس‌تان را بنویسید.",
                             textInputAction: TextInputAction.next,
                           ),
-                          _buildInputField(
-                            _dobController,
-                            "dob_label".tr().isEmpty ? "تاریخ تولد" : "dob_label".tr(),
-                            keyboardType: TextInputType.datetime,
-                            textInputAction: TextInputAction.done,
-                            isLtr: true,
+                          
+                          // جنسیت
+                          GestureDetector(
+                            onTap: _showGenderPicker,
+                            child: _buildSelectableTile("جنسیت", _selectedGender),
                           ),
+
+                          // تاریخ تولد
+                          GestureDetector(
+                            onTap: _showDatePicker,
+                            child: _buildSelectableTile("تاریخ تولد", _selectedDob.isEmpty ? "انتخاب تاریخ" : _selectedDob),
+                          ),
+
                           const SizedBox(height: 15),
                           Card(
                             elevation: 0,
@@ -971,9 +1143,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  // ورودی اصلاح شده جهت جلوگیری از بهم ریختگی label و placeholder
   Widget _buildInputField(
     TextEditingController controller,
     String label, {
+    String? hintText,
     bool readOnly = false,
     bool isLtr = false,
     TextInputType keyboardType = TextInputType.text,
@@ -987,11 +1161,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         textDirection: isLtr ? ui.TextDirection.ltr : ui.TextDirection.rtl,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          hintText: hintText,
+          floatingLabelBehavior: FloatingLabelBehavior.always, // ماندن برچسب روی خط به شکل دقیق
+          alignLabelWithHint: true,
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+          labelStyle: const TextStyle(color: AppColors.primaryBrand, fontSize: 14, fontWeight: FontWeight.w600),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -1009,13 +1187,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  // ویجت فیلدهای انتخابی (جنسیت و تاریخ تولد)
+  Widget _buildSelectableTile(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(color: AppColors.primaryBrand, fontSize: 12, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(value, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14)),
+                const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
     _addressController.dispose();
-    _dobController.dispose();
     super.dispose();
   }
 }
