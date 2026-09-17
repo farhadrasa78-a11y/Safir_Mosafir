@@ -583,5 +583,7 @@
   "welcome_title": "Welcome",
   "enter_phone_subtitle": "Enter your mobile number",
   "sub_account_info_title": "Additional Info",
-  "confirm_btn": "Confirm"
+  "confirm_btn": "Confirm",
+  "gender_sheet_title": "Select Gender"
+
 }
