@@ -11,8 +11,8 @@ import 'package:safir_passengers/authentication/register_screen.dart';
 
 // ثوابت رنگی مطابق با دیزاین جدید
 class AppColors {
-  static const Color primaryBrand = Color(0xFF0066FF);
-  static const Color primaryButton = Color(0xFF0066FF);
+  static const Color primaryBrand = Color(0xFF565DFF);
+  static const Color primaryButton = Color(0xFF565DFF);
   static const Color primaryButtonPressed = Color(0xFF4348D6);
   static const Color buttonText = Colors.white;
   static const Color textPrimary = Color(0xFF26293D);
@@ -36,7 +36,7 @@ String toEnglishDigits(String input) {
 }
 
 // -------------------------------------------------------------
-// ۱. صفحه اصلی پروفایل (حساب کاربری) - دست نخورده
+// ۱. صفحه اصلی پروفایل (حساب کاربری)
 // -------------------------------------------------------------
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -191,7 +191,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("متوجه شدم", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    "got_it_btn".tr().isEmpty ? "متوجه شدم" : "got_it_btn".tr(),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
@@ -391,8 +394,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         Expanded(
                           child: InkWell(
                             onTap: () => _showBadgeDetails(
-                              "مسافر بااخلاق",
-                              "رانندگان سفیر رفتار محترمانه و صمیمانه شما در طول سفر را تحسین کرده‌اند. از همراهی باارزش شما سپاسگزاریم!",
+                              "badge_polite_title".tr().isEmpty ? "مسافر بااخلاق" : "badge_polite_title".tr(),
+                              "badge_polite_desc".tr().isEmpty ? "رانندگان سفیر رفتار محترمانه و صمیمانه شما در طول سفر را تحسین کرده‌اند. از همراهی باارزش شما سپاسگزاریم!" : "badge_polite_desc".tr(),
                               Icons.stars,
                               const Color(0xFF15A968),
                             ),
@@ -429,8 +432,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         Expanded(
                           child: InkWell(
                             onTap: () => _showBadgeDetails(
-                              "مسافر وقت‌شناس",
-                              "حضور به موقع شما در مبدأ باعث سفری سریع‌تر و روان‌تر برای شما و راننده می‌شود. شما الگوی وقت‌شناسی هستید!",
+                              "badge_punctual_title".tr().isEmpty ? "مسافر وقت‌شناس" : "badge_punctual_title".tr(),
+                              "badge_punctual_desc".tr().isEmpty ? "حضور به موقع شما در مبدأ باعث سفری سریع‌تر و روان‌تر برای شما و راننده می‌شود. شما الگوی وقت‌شناسی هستید!" : "badge_punctual_desc".tr(),
                               Icons.access_time_filled,
                               const Color(0xFF7B1FA2),
                             ),
@@ -559,11 +562,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 // -------------------------------------------------------------
-// ۲. صفحه اطلاعات کاربری (ویرایش) — UI جدید
-// نکته: طبق درخواست، فقط دو مورد از نسخه قبلی حفظ شده:
-//   ۱) ماه‌های افغانستان (دری) به همراه محاسبه تعداد روز هر ماه
-//   ۲) فرمت شماره افغانستان (+93)
-// بقیه بخش‌های این کلاس بر اساس UI جدید بازنویسی شده‌اند.
+// ۲. صفحه اطلاعات کاربری (ویرایش)
 // -------------------------------------------------------------
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -595,27 +594,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isSaving = false;
   bool _isChanged = false;
 
-  // لیست ماه‌های هجری شمسی به زبان دری (افغانی) — حفظ‌شده از نسخه قبلی
+  // لیست ماه‌های هجری شمسی به زبان دری (افغانی)
   final List<String> _dariMonths = [
-    'حمل',
-    'ثور',
-    'جوزا',
-    'سرطان',
-    'اسد',
-    'سنبله',
-    'میزان',
-    'عقرب',
-    'قوس',
-    'جدی',
-    'دلو',
-    'حوت'
+    'month_hamal'.tr().isEmpty ? 'حمل' : 'month_hamal'.tr(),
+    'month_sawr'.tr().isEmpty ? 'ثور' : 'month_sawr'.tr(),
+    'month_jawza'.tr().isEmpty ? 'جوزا' : 'month_jawza'.tr(),
+    'month_saratan'.tr().isEmpty ? 'سرطان' : 'month_saratan'.tr(),
+    'month_asad'.tr().isEmpty ? 'اسد' : 'month_asad'.tr(),
+    'month_sonbola'.tr().isEmpty ? 'سنبله' : 'month_sonbola'.tr(),
+    'month_mizan'.tr().isEmpty ? 'میزان' : 'month_mizan'.tr(),
+    'month_aqrab'.tr().isEmpty ? 'عقرب' : 'month_aqrab'.tr(),
+    'month_qaws'.tr().isEmpty ? 'قوس' : 'month_qaws'.tr(),
+    'month_jady'.tr().isEmpty ? 'جدی' : 'month_jady'.tr(),
+    'month_dalwa'.tr().isEmpty ? 'دلو' : 'month_dalwa'.tr(),
+    'month_hoot'.tr().isEmpty ? 'حوت' : 'month_hoot'.tr(),
   ];
 
-  // محاسبه دقیق تعداد روزهای ماه بر اساس تقویم افغانستان — حفظ‌شده از نسخه قبلی
   int _getMaxDays(int monthIndex) {
-    if (monthIndex < 6) return 31; // حمل تا سنبله
-    if (monthIndex < 11) return 30; // میزان تا دلو
-    return 29; // حوت
+    if (monthIndex < 6) return 31;
+    if (monthIndex < 11) return 30;
+    return 29;
   }
 
   @override
@@ -629,7 +627,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _addressController.addListener(_checkChanges);
   }
 
-  // بارگذاری اطلاعات واقعی کاربر از Firebase Auth / Firestore
   Future<void> _getUserData() async {
     User? currentUser = _auth.currentUser;
     if (currentUser != null) {
@@ -699,7 +696,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // ذخیره اطلاعات در Firestore + بروزرسانی displayName در Firebase Auth
   Future<void> _updateUserData() async {
     User? currentUser = _auth.currentUser;
     if (currentUser == null) return;
@@ -757,7 +753,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // ---------------- شیت انتخاب جنسیت ----------------
   void _showGenderPicker() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -797,16 +792,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const SizedBox(height: 8),
                   _genderOptionTile(
                     label: 'gender_male'.tr().isEmpty ? 'مرد' : 'gender_male'.tr(),
-                    value: 'مرد',
+                    value: 'gender_male'.tr().isEmpty ? 'مرد' : 'gender_male'.tr(),
                     groupValue: tempGender,
-                    onTap: () => setModalState(() => tempGender = 'مرد'),
+                    onTap: () => setModalState(() => tempGender = 'gender_male'.tr().isEmpty ? 'مرد' : 'gender_male'.tr()),
                   ),
                   const Divider(height: 1, color: AppColors.fieldBorder),
                   _genderOptionTile(
                     label: 'gender_female'.tr().isEmpty ? 'زن' : 'gender_female'.tr(),
-                    value: 'زن',
+                    value: 'gender_female'.tr().isEmpty ? 'زن' : 'gender_female'.tr(),
                     groupValue: tempGender,
-                    onTap: () => setModalState(() => tempGender = 'زن'),
+                    onTap: () => setModalState(() => tempGender = 'gender_female'.tr().isEmpty ? 'زن' : 'gender_female'.tr()),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -877,11 +872,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // ---------------- شیت انتخاب تاریخ تولد (ماه‌های افغانستان) ----------------
   void _showDatePicker() {
     HapticFeedback.lightImpact();
     int selectedDay = 15;
-    int selectedMonthIndex = 5; // سنبله
+    int selectedMonthIndex = 5;
     int selectedYear = 1375;
 
     final dayController =
@@ -931,7 +925,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // خطوط سبز شناور که ردیف انتخاب‌شده را مشخص می‌کند
                         IgnorePointer(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -944,7 +937,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         Row(
                           children: [
-                            // روز
                             Expanded(
                               child: ListWheelScrollView.useDelegate(
                                 controller: dayController,
@@ -958,7 +950,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   childCount: maxDays,
                                   builder: (context, index) => Center(
                                     child: Text(
-                                      '${index + 1}',
+                                      formatNumberByLocale(context, '${index + 1}'),
                                       style: TextStyle(
                                         fontSize: 17,
                                         color: selectedDay == index + 1
@@ -973,7 +965,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ),
                               ),
                             ),
-                            // ماه (افغانستان - دری)
                             Expanded(
                               child: ListWheelScrollView.useDelegate(
                                 controller: monthController,
@@ -1009,7 +1000,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ),
                               ),
                             ),
-                            // سال
                             Expanded(
                               child: ListWheelScrollView.useDelegate(
                                 controller: yearController,
@@ -1023,7 +1013,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   childCount: 70,
                                   builder: (context, index) => Center(
                                     child: Text(
-                                      '${1340 + index}',
+                                      formatNumberByLocale(context, '${1340 + index}'),
                                       style: TextStyle(
                                         fontSize: 17,
                                         color: selectedYear == 1340 + index
@@ -1058,7 +1048,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onPressed: () {
                         setState(() {
                           _selectedDob =
-                              '$selectedDay ${_dariMonths[selectedMonthIndex]} $selectedYear';
+                              '${formatNumberByLocale(context, selectedDay.toString())} ${_dariMonths[selectedMonthIndex]} ${formatNumberByLocale(context, selectedYear.toString())}';
                         });
                         _checkChanges();
                         Navigator.pop(context);
@@ -1082,7 +1072,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // ---------------- شیت تغییر شماره موبایل (فرمت افغانستان +93) ----------------
   void _showChangePhoneBottomSheet() {
     HapticFeedback.lightImpact();
     final TextEditingController newPhoneController =
@@ -1404,7 +1393,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // فیلد ورودی یکسان برای همه‌ی بخش‌ها
+  // فیلد ورودی کاملاً هوشمند و سفارشی برای تنظیم دقیق بریده‌گی و متن در فارسی/انگلیسی
   Widget _buildInputField(
     TextEditingController controller,
     String label, {
@@ -1416,44 +1405,66 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Directionality(
-        textDirection: isLtr ? ui.TextDirection.ltr : ui.TextDirection.rtl,
-        child: TextField(
-          controller: controller,
-          readOnly: readOnly,
-          keyboardType: keyboardType,
-          textInputAction: textInputAction,
-          textAlign: TextAlign.right,
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
-          decoration: InputDecoration(
-            labelText: label,
-            hintText: hintText,
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
-            labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-            floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
-              final bool focused = states.contains(WidgetState.focused);
-              return TextStyle(
-                color: focused ? AppColors.primaryBrand : Colors.grey,
-                fontSize: 13,
-                fontWeight: focused ? FontWeight.w600 : FontWeight.normal,
-              );
-            }),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.fieldBorder),
+      child: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: controller,
+        builder: (context, value, child) {
+          // تشخیص خودکار جهت متن تایپ‌شده
+          bool isDynamicRtl = true;
+          if (isLtr) {
+            isDynamicRtl = false;
+          } else if (value.text.trim().isNotEmpty) {
+            final String firstChar = value.text.trim().substring(0, 1);
+            final RegExp rtlRegex = RegExp(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]');
+            isDynamicRtl = rtlRegex.hasMatch(firstChar);
+          }
+
+          final ui.TextDirection textDir =
+              isDynamicRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr;
+          final TextAlign textAlign =
+              isDynamicRtl ? TextAlign.right : TextAlign.left;
+
+          return Directionality(
+            textDirection: textDir,
+            child: TextField(
+              controller: controller,
+              readOnly: readOnly,
+              keyboardType: keyboardType,
+              textInputAction: textInputAction,
+              textAlign: textAlign,
+              textDirection: textDir,
+              style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+              decoration: InputDecoration(
+                labelText: label,
+                hintText: hintText,
+                alignLabelWithHint: true,
+                hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+                labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+                  final bool focused = states.contains(WidgetState.focused);
+                  return TextStyle(
+                    color: focused ? AppColors.primaryBrand : Colors.grey,
+                    fontSize: 13,
+                    fontWeight: focused ? FontWeight.w600 : FontWeight.normal,
+                  );
+                }),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.fieldBorder),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.fieldBorder),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: AppColors.primaryBrand, width: 1.4),
+                ),
+              ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.fieldBorder),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-              borderSide: BorderSide(color: AppColors.primaryBrand, width: 1.4),
-            ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
