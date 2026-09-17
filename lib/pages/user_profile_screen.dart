@@ -1397,14 +1397,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
-          alignLabelWithHint: true,
           hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
           labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-          floatingLabelStyle: const TextStyle(
-            color: AppColors.primaryBrand,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
+          floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+            final bool focused = states.contains(WidgetState.focused);
+            return TextStyle(
+              color: focused ? AppColors.primaryBrand : Colors.grey,
+              fontSize: 13,
+              fontWeight: focused ? FontWeight.w600 : FontWeight.normal,
+            );
+          }),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: OutlineInputBorder(
