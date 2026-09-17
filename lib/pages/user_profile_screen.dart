@@ -592,25 +592,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isSaving = false;
   bool _isChanged = false;
 
-  final List<String> _dariMonths = [
-    'month_hamal'.tr().isEmpty ? 'حمل' : 'month_hamal'.tr(),
-    'month_sawr'.tr().isEmpty ? 'ثور' : 'month_sawr'.tr(),
-    'month_jawza'.tr().isEmpty ? 'جوزا' : 'month_jawza'.tr(),
-    'month_saratan'.tr().isEmpty ? 'سرطان' : 'month_saratan'.tr(),
-    'month_asad'.tr().isEmpty ? 'اسد' : 'month_asad'.tr(),
-    'month_sonbola'.tr().isEmpty ? 'سنبله' : 'month_sonbola'.tr(),
-    'month_mizan'.tr().isEmpty ? 'میزان' : 'month_mizan'.tr(),
-    'month_aqrab'.tr().isEmpty ? 'عقرب' : 'month_aqrab'.tr(),
-    'month_qaws'.tr().isEmpty ? 'قوس' : 'month_qaws'.tr(),
-    'month_jady'.tr().isEmpty ? 'جدی' : 'month_jady'.tr(),
-    'month_dalwa'.tr().isEmpty ? 'دلو' : 'month_dalwa'.tr(),
-    'month_hoot'.tr().isEmpty ? 'حوت' : 'month_hoot'.tr(),
-  ];
+  List<String> _getDariMonths() {
+    return [
+      'month_hamal'.tr().isEmpty ? 'حمل' : 'month_hamal'.tr(),
+      'month_sawr'.tr().isEmpty ? 'ثور' : 'month_sawr'.tr(),
+      'month_jawza'.tr().isEmpty ? 'جوزا' : 'month_jawza'.tr(),
+      'month_saratan'.tr().isEmpty ? 'سرطان' : 'month_saratan'.tr(),
+      'month_asad'.tr().isEmpty ? 'اسد' : 'month_asad'.tr(),
+      'month_sonbola'.tr().isEmpty ? 'سنبله' : 'month_sonbola'.tr(),
+      'month_mizan'.tr().isEmpty ? 'میزان' : 'month_mizan'.tr(),
+      'month_aqrab'.tr().isEmpty ? 'عقرب' : 'month_aqrab'.tr(),
+      'month_qaws'.tr().isEmpty ? 'قوس' : 'month_qaws'.tr(),
+      'month_jady'.tr().isEmpty ? 'جدی' : 'month_jady'.tr(),
+      'month_dalwa'.tr().isEmpty ? 'دلو' : 'month_dalwa'.tr(),
+      'month_hoot'.tr().isEmpty ? 'حوت' : 'month_hoot'.tr(),
+    ];
+  }
 
   int _getMaxDays(int monthIndex) {
     if (monthIndex < 6) return 31;
     if (monthIndex < 11) return 30;
     return 29;
+  }
+
+  bool get _isRtl {
+    final String code = context.locale.languageCode;
+    return code == 'fa' || code == 'ps';
+  }
+
+  String _tr(String key, String fallback) {
+    final String translated = key.tr();
+    return translated.isEmpty || translated == key ? fallback : translated;
   }
 
   @override
@@ -625,31 +637,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _getUserData() async {
-    User? currentUser = _auth.currentUser;
+    final User? currentUser = _auth.currentUser;
+
     if (currentUser != null) {
       _initialPhone = currentUser.phoneNumber ?? '';
       _initialEmail = currentUser.email ?? '';
       _initialName = currentUser.displayName ?? '';
 
       try {
-        DocumentSnapshot userDoc = await _firestore
+        final DocumentSnapshot userDoc = await _firestore
             .collection('users')
             .doc(currentUser.uid)
             .get()
             .timeout(const Duration(seconds: 8));
 
         if (userDoc.exists && userDoc.data() != null && mounted) {
-          Map<String, dynamic> userData =
+          final Map<String, dynamic> userData =
               userDoc.data() as Map<String, dynamic>;
+
           _initialName = userData['name'] ??
               userData['full_name'] ??
               userData['fullName'] ??
               userData['userName'] ??
               _initialName;
+
           _initialPhone = userData['phone'] ??
               userData['phoneNumber'] ??
               userData['phone_number'] ??
               _initialPhone;
+
           _initialEmail = userData['email'] ?? _initialEmail;
           _initialAddress = userData['address'] ?? '';
           _initialGender = userData['gender'] ?? '';
@@ -681,12 +697,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final String currentPhone = toEnglishDigits(_phoneController.text.trim());
     final String cleanInitialPhone = toEnglishDigits(_initialPhone);
 
-    final bool hasChanged = (_nameController.text.trim() != _initialName) ||
-        (currentPhone != cleanInitialPhone) ||
-        (_emailController.text.trim() != _initialEmail) ||
-        (_addressController.text.trim() != _initialAddress) ||
-        (_selectedGender != _initialGender) ||
-        (_selectedDob != _initialDob);
+    final bool hasChanged =
+        _nameController.text.trim() != _initialName ||
+        currentPhone != cleanInitialPhone ||
+        _emailController.text.trim() != _initialEmail ||
+        _addressController.text.trim() != _initialAddress ||
+        _selectedGender != _initialGender ||
+        _selectedDob != _initialDob;
 
     if (hasChanged != _isChanged && mounted) {
       setState(() => _isChanged = hasChanged);
@@ -694,57 +711,55 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _updateUserData() async {
-    User? currentUser = _auth.currentUser;
+    final User? currentUser = _auth.currentUser;
     if (currentUser == null) return;
 
     HapticFeedback.mediumImpact();
     setState(() => _isSaving = true);
 
-    final String cleanedPhone = toEnglishDigits(_phoneController.text.trim());
-
     try {
-      final Map<String, dynamic> updateData = {
-        'name': _nameController.text.trim(),
-        'phone': cleanedPhone,
-        'email': _emailController.text.trim(),
-        'address': _addressController.text.trim(),
-        'gender': _selectedGender,
-        'dob': _selectedDob,
-      };
-
       await _firestore.collection('users').doc(currentUser.uid).set(
-            updateData,
-            SetOptions(merge: true),
-          );
+        {
+          'name': _nameController.text.trim(),
+          'phone': toEnglishDigits(_phoneController.text.trim()),
+          'email': _emailController.text.trim(),
+          'address': _addressController.text.trim(),
+          'gender': _selectedGender,
+          'dob': _selectedDob,
+        },
+        SetOptions(merge: true),
+      );
 
       if (_nameController.text.trim().isNotEmpty) {
         await currentUser.updateDisplayName(_nameController.text.trim());
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'profile_update_success'.tr().isEmpty
-                  ? 'اطلاعات با موفقیت به‌روزرسانی شد'
-                  : 'profile_update_success'.tr(),
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _tr(
+              'profile_update_success',
+              'اطلاعات با موفقیت به‌روزرسانی شد',
             ),
-            backgroundColor: AppColors.primaryBrand,
           ),
-        );
-        Navigator.pop(context);
-      }
+          backgroundColor: AppColors.primaryBrand,
+        ),
+      );
+
+      Navigator.pop(context);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${'profile_update_error'.tr().isEmpty ? 'خطا در به‌روزرسانی' : 'profile_update_error'.tr()}: $e',
-            ),
-            backgroundColor: Colors.red,
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${_tr('profile_update_error', 'خطا در به‌روزرسانی اطلاعات')}: $e',
           ),
-        );
-      }
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -752,16 +767,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _showGenderPicker() {
     HapticFeedback.lightImpact();
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         String tempGender = _selectedGender;
+
         return StatefulBuilder(
           builder: (context, setModalState) {
+            final String male = _tr('gender_male', 'مرد');
+            final String female = _tr('gender_female', 'زن');
+
             return Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
               child: Column(
@@ -771,9 +791,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'gender_sheet_title'.tr().isEmpty
-                            ? 'جنسیت'
-                            : 'gender_sheet_title'.tr(),
+                        _tr('gender_sheet_title', 'جنسیت'),
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -781,26 +799,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: AppColors.textPrimary),
-                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(sheetContext),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
                   _genderOptionTile(
-                    label: 'gender_male'.tr().isEmpty ? 'مرد' : 'gender_male'.tr(),
-                    value: 'gender_male'.tr().isEmpty ? 'مرد' : 'gender_male'.tr(),
+                    label: male,
+                    value: male,
                     groupValue: tempGender,
-                    onTap: () => setModalState(() => tempGender = 'gender_male'.tr().isEmpty ? 'مرد' : 'gender_male'.tr()),
+                    onTap: () => setModalState(() => tempGender = male),
                   ),
                   const Divider(height: 1, color: AppColors.fieldBorder),
                   _genderOptionTile(
-                    label: 'gender_female'.tr().isEmpty ? 'زن' : 'gender_female'.tr(),
-                    value: 'gender_female'.tr().isEmpty ? 'زن' : 'gender_female'.tr(),
+                    label: female,
+                    value: female,
                     groupValue: tempGender,
-                    onTap: () => setModalState(() => tempGender = 'gender_female'.tr().isEmpty ? 'زن' : 'gender_female'.tr()),
+                    onTap: () => setModalState(() => tempGender = female),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 22),
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -815,10 +832,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onPressed: () {
                         setState(() => _selectedGender = tempGender);
                         _checkChanges();
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                       },
                       child: Text(
-                        'confirm_btn'.tr().isEmpty ? 'تایید' : 'confirm_btn'.tr(),
+                        _tr('confirm_btn', 'تأیید'),
                         style: const TextStyle(
                           color: AppColors.buttonText,
                           fontSize: 16,
@@ -845,7 +862,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -871,15 +888,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _showDatePicker() {
     HapticFeedback.lightImpact();
+
     int selectedDay = 15;
     int selectedMonthIndex = 5;
     int selectedYear = 1375;
 
-    final dayController =
+    final List<String> months = _getDariMonths();
+
+    final FixedExtentScrollController dayController =
         FixedExtentScrollController(initialItem: selectedDay - 1);
-    final monthController =
+
+    final FixedExtentScrollController monthController =
         FixedExtentScrollController(initialItem: selectedMonthIndex);
-    final yearController =
+
+    final FixedExtentScrollController yearController =
         FixedExtentScrollController(initialItem: selectedYear - 1340);
 
     showModalBottomSheet(
@@ -889,7 +911,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setModalState) {
             final int maxDays = _getMaxDays(selectedMonthIndex);
@@ -903,7 +925,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'dob_label'.tr().isEmpty ? 'تاریخ تولد' : 'dob_label'.tr(),
+                        _tr('dob_label', 'تاریخ تولد'),
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -911,121 +933,130 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: AppColors.textPrimary),
-                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(sheetContext),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   SizedBox(
                     height: 180,
-                    child: Stack(
-                      alignment: Alignment.center,
+                    child: Row(
                       children: [
-                        IgnorePointer(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(height: 2, color: AppColors.wheelGreen),
-                              const SizedBox(height: 40),
-                              Container(height: 2, color: AppColors.wheelGreen),
-                            ],
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            controller: dayController,
+                            itemExtent: 42,
+                            perspective: 0.005,
+                            diameterRatio: 1.3,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) {
+                              setModalState(() => selectedDay = index + 1);
+                            },
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: maxDays,
+                              builder: (context, index) {
+                                final bool selected =
+                                    selectedDay == index + 1;
+
+                                return Center(
+                                  child: Text(
+                                    formatNumberByLocale(
+                                      context,
+                                      '${index + 1}',
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: selected
+                                          ? AppColors.textPrimary
+                                          : AppColors.textSecondary,
+                                      fontWeight: selected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ListWheelScrollView.useDelegate(
-                                controller: dayController,
-                                itemExtent: 42,
-                                perspective: 0.005,
-                                diameterRatio: 1.3,
-                                physics: const FixedExtentScrollPhysics(),
-                                onSelectedItemChanged: (index) =>
-                                    setModalState(() => selectedDay = index + 1),
-                                childDelegate: ListWheelChildBuilderDelegate(
-                                  childCount: maxDays,
-                                  builder: (context, index) => Center(
-                                    child: Text(
-                                      formatNumberByLocale(context, '${index + 1}'),
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        color: selectedDay == index + 1
-                                            ? AppColors.textPrimary
-                                            : AppColors.textSecondary,
-                                        fontWeight: selectedDay == index + 1
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            controller: monthController,
+                            itemExtent: 42,
+                            perspective: 0.005,
+                            diameterRatio: 1.3,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) {
+                              setModalState(() {
+                                selectedMonthIndex = index;
+
+                                final int newMaxDays = _getMaxDays(index);
+                                if (selectedDay > newMaxDays) {
+                                  selectedDay = newMaxDays;
+                                }
+                              });
+                            },
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: months.length,
+                              builder: (context, index) {
+                                final bool selected =
+                                    selectedMonthIndex == index;
+
+                                return Center(
+                                  child: Text(
+                                    months[index],
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: selected
+                                          ? AppColors.textPrimary
+                                          : AppColors.textSecondary,
+                                      fontWeight: selected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
-                            Expanded(
-                              child: ListWheelScrollView.useDelegate(
-                                controller: monthController,
-                                itemExtent: 42,
-                                perspective: 0.005,
-                                diameterRatio: 1.3,
-                                physics: const FixedExtentScrollPhysics(),
-                                onSelectedItemChanged: (index) {
-                                  setModalState(() {
-                                    selectedMonthIndex = index;
-                                    final int newMax = _getMaxDays(index);
-                                    if (selectedDay > newMax) {
-                                      selectedDay = newMax;
-                                    }
-                                  });
-                                },
-                                childDelegate: ListWheelChildBuilderDelegate(
-                                  childCount: _dariMonths.length,
-                                  builder: (context, index) => Center(
-                                    child: Text(
-                                      _dariMonths[index],
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        color: selectedMonthIndex == index
-                                            ? AppColors.textPrimary
-                                            : AppColors.textSecondary,
-                                        fontWeight: selectedMonthIndex == index
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            controller: yearController,
+                            itemExtent: 42,
+                            perspective: 0.005,
+                            diameterRatio: 1.3,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) {
+                              setModalState(() => selectedYear = 1340 + index);
+                            },
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 70,
+                              builder: (context, index) {
+                                final int year = 1340 + index;
+                                final bool selected = selectedYear == year;
+
+                                return Center(
+                                  child: Text(
+                                    formatNumberByLocale(
+                                      context,
+                                      '$year',
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: selected
+                                          ? AppColors.textPrimary
+                                          : AppColors.textSecondary,
+                                      fontWeight: selected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
-                            Expanded(
-                              child: ListWheelScrollView.useDelegate(
-                                controller: yearController,
-                                itemExtent: 42,
-                                perspective: 0.005,
-                                diameterRatio: 1.3,
-                                physics: const FixedExtentScrollPhysics(),
-                                onSelectedItemChanged: (index) => setModalState(
-                                    () => selectedYear = 1340 + index),
-                                childDelegate: ListWheelChildBuilderDelegate(
-                                  childCount: 70,
-                                  builder: (context, index) => Center(
-                                    child: Text(
-                                      formatNumberByLocale(context, '${1340 + index}'),
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        color: selectedYear == 1340 + index
-                                            ? AppColors.textPrimary
-                                            : AppColors.textSecondary,
-                                        fontWeight: selectedYear == 1340 + index
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
@@ -1045,13 +1076,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onPressed: () {
                         setState(() {
                           _selectedDob =
-                              '${formatNumberByLocale(context, selectedDay.toString())} ${_dariMonths[selectedMonthIndex]} ${formatNumberByLocale(context, selectedYear.toString())}';
+                              '${formatNumberByLocale(context, '$selectedDay')} '
+                              '${months[selectedMonthIndex]} '
+                              '${formatNumberByLocale(context, '$selectedYear')}';
                         });
+
                         _checkChanges();
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                       },
                       child: Text(
-                        'confirm_btn'.tr().isEmpty ? 'تایید' : 'confirm_btn'.tr(),
+                        _tr('confirm_btn', 'تأیید'),
                         style: const TextStyle(
                           color: AppColors.buttonText,
                           fontSize: 16,
@@ -1071,6 +1105,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _showChangePhoneBottomSheet() {
     HapticFeedback.lightImpact();
+
     final TextEditingController newPhoneController =
         TextEditingController(text: '+93');
 
@@ -1081,13 +1116,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         return Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
             top: 20,
-            left: 20,
             right: 20,
+            left: 20,
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1096,9 +1131,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'change_phone_title'.tr().isEmpty
-                        ? 'تغییر شماره تماس'
-                        : 'change_phone_title'.tr(),
+                    _tr('change_phone_title', 'تغییر شماره تماس'),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -1106,41 +1139,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textPrimary),
-                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(sheetContext),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               Text(
-                'change_phone_subtitle'.tr().isEmpty
-                    ? 'شماره جدید خود را جهت ارسال کد تایید وارد کنید'
-                    : 'change_phone_subtitle'.tr(),
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: newPhoneController,
-                keyboardType: TextInputType.phone,
-                textDirection: ui.TextDirection.ltr,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                  labelText: 'phone_number_label'.tr().isEmpty
-                      ? 'شماره تلفن'
-                      : 'phone_number_label'.tr(),
-                  hintText: '+93 7XX XXX XXX',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                _tr(
+                  'change_phone_subtitle',
+                  'شمارهٔ جدید خود را برای دریافت کد تأیید وارد کنید.',
+                ),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
                 ),
               ),
               const SizedBox(height: 20),
+              _buildInputField(
+                controller: newPhoneController,
+                label: _tr('phone_number_label', 'شمارهٔ موبایل'),
+                hintText: '+93 7XX XXX XXX',
+                isLtr: true,
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.done,
+              ),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryButton,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1148,16 +1179,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   onPressed: () {
                     final String cleaned =
                         toEnglishDigits(newPhoneController.text.trim());
+
                     if (cleaned.isNotEmpty && cleaned != '+93') {
                       HapticFeedback.mediumImpact();
                       _phoneController.text = cleaned;
                       _checkChanges();
-                      Navigator.pop(context);
+                      Navigator.pop(sheetContext);
                     }
                   },
                   child: Text(
-                    'continue_btn'.tr().isEmpty ? 'ادامه' : 'continue_btn'.tr(),
-                    style: const TextStyle(color: AppColors.buttonText, fontSize: 16),
+                    _tr('continue_btn', 'ادامه'),
+                    style: const TextStyle(
+                      color: AppColors.buttonText,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -1175,13 +1210,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
         title: Text(
-          'user_info_section_title'.tr().isEmpty
-              ? 'اطلاعات کاربری'
-              : 'user_info_section_title'.tr(),
+          _tr('user_info_section_title', 'اطلاعات کاربری'),
           style: const TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
@@ -1189,214 +1223,280 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.maybePop(context),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: AppColors.appBarDivider),
+          child: Container(
+            height: 1,
+            color: AppColors.appBarDivider,
+          ),
         ),
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: AppColors.primaryBrand),
+              child: CircularProgressIndicator(
+                color: AppColors.primaryBrand,
+              ),
             )
           : SafeArea(
-        child: SingleChildScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Center(
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFFE5E5E5),
-                      width: 0.8,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/default_profile.png',
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: const Color(0xFFF3F4F6),
-                        child: Icon(
-                          Icons.person,
-                          size: 56,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ),
-                  ),
+              top: false,
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                 ),
-              ),
-              const SizedBox(height: 25),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'main_account_info_title'.tr().isEmpty
-                          ? 'اطلاعات اصلی'
-                          : 'main_account_info_title'.tr(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    _buildInputField(
-                      _nameController,
-                      'full_name_label'.tr().isEmpty
-                          ? 'نام و نام خانوادگی'
-                          : 'full_name_label'.tr(),
-                      textInputAction: TextInputAction.next,
-                    ),
-                    GestureDetector(
-                      onTap: _showChangePhoneBottomSheet,
-                      child: AbsorbPointer(
-                        child: _buildInputField(
-                          _phoneController,
-                          'phone_number_label'.tr().isEmpty
-                              ? 'شمارهٔ موبایل'
-                              : 'phone_number_label'.tr(),
-                          readOnly: true,
-                        ),
-                      ),
-                    ),
-                    _buildInputField(
-                      _emailController,
-                      'email_label'.tr().isEmpty ? 'ایمیل' : 'email_label'.tr(),
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                height: 8,
-                width: double.infinity,
-                color: AppColors.sectionDivider,
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'sub_account_info_title'.tr().isEmpty
-                          ? 'اطلاعات فرعی'
-                          : 'sub_account_info_title'.tr(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    _buildInputField(
-                      _addressController,
-                      'address_label'.tr().isEmpty ? 'آدرس' : 'address_label'.tr(),
-                      hintText: 'address_hint'.tr().isEmpty
-                          ? 'آدرس‌تان را بنویسید.'
-                          : 'address_hint'.tr(),
-                      textInputAction: TextInputAction.next,
-                    ),
-                    GestureDetector(
-                      onTap: _showGenderPicker,
-                      child: AbsorbPointer(
-                        child: _buildInputField(
-                          TextEditingController(text: _selectedGender),
-                          'gender_label'.tr().isEmpty
-                              ? 'جنسیت'
-                              : 'gender_label'.tr(),
-                          readOnly: true,
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: _showDatePicker,
-                      child: AbsorbPointer(
-                        child: _buildInputField(
-                          TextEditingController(text: _selectedDob),
-                          'dob_label'.tr().isEmpty ? 'تاریخ تولد' : 'dob_label'.tr(),
-                          readOnly: true,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isChanged
-                              ? AppColors.primaryButton
-                              : Colors.grey.shade300,
-                          elevation: _isChanged ? 2 : 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 20),
+
+                    Center(
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFE5E5E5),
+                            width: 0.8,
                           ),
                         ),
-                        onPressed:
-                            (_isChanged && !_isSaving) ? _updateUserData : null,
-                        child: _isSaving
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  color: AppColors.buttonText,
-                                  strokeWidth: 2.5,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/default_profile.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: const Color(0xFFF3F4F6),
+                                child: Icon(
+                                  Icons.person,
+                                  size: 56,
+                                  color: Colors.grey.shade400,
                                 ),
-                              )
-                            : Text(
-                                'save_changes_btn'.tr().isEmpty
-                                    ? 'ذخیره'
-                                    : 'save_changes_btn'.tr(),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: _isChanged
-                                      ? AppColors.buttonText
-                                      : Colors.grey.shade600,
-                                ),
-                              ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
                     ),
+
+                    const SizedBox(height: 25),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _tr('main_account_info_title', 'اطلاعات حساب'),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+
+                          _buildInputField(
+                            controller: _nameController,
+                            label: _tr(
+                              'full_name_label',
+                              'نام و نام خانوادگی',
+                            ),
+                            hintText: _tr(
+                              'name_hint',
+                              'نام کامل‌تان را بنویسید',
+                            ),
+                            textInputAction: TextInputAction.next,
+                          ),
+
+                          GestureDetector(
+                            onTap: _showChangePhoneBottomSheet,
+                            child: AbsorbPointer(
+                              child: _buildInputField(
+                                controller: _phoneController,
+                                label: _tr(
+                                  'phone_number_label',
+                                  'شمارهٔ موبایل',
+                                ),
+                                hintText: _tr(
+                                  'phone_hint',
+                                  'شمارهٔ موبایل را وارد کنید',
+                                ),
+                                readOnly: true,
+                                isLtr: true,
+                                keyboardType: TextInputType.phone,
+                              ),
+                            ),
+                          ),
+
+                          _buildInputField(
+                            controller: _emailController,
+                            label: _tr('email_label', 'ایمیل'),
+                            hintText: _tr(
+                              'email_hint',
+                              'آدرس ایمیل را وارد کنید',
+                            ),
+                            isLtr: true,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                          ),
+                        ],
+                      ),
+                    ),
+
                     const SizedBox(height: 20),
+
+                    Container(
+                      width: double.infinity,
+                      height: 8,
+                      color: AppColors.sectionDivider,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _tr(
+                              'sub_account_info_title',
+                              'اطلاعات تکمیلی',
+                            ),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+
+                          _buildInputField(
+                            controller: _addressController,
+                            label: _tr('address_label', 'آدرس'),
+                            hintText: _tr(
+                              'address_hint',
+                              'آدرس‌تان را بنویسید.',
+                            ),
+                            textInputAction: TextInputAction.next,
+                          ),
+
+                          _buildSelectionField(
+                            label: _tr('gender_label', 'جنسیت'),
+                            hintText: _tr(
+                              'gender_hint',
+                              'جنسیت خود را انتخاب کنید',
+                            ),
+                            value: _selectedGender,
+                            onTap: _showGenderPicker,
+                          ),
+
+                          _buildSelectionField(
+                            label: _tr('dob_label', 'تاریخ تولد'),
+                            hintText: _tr(
+                              'dob_hint',
+                              'تاریخ تولد را انتخاب کنید',
+                            ),
+                            value: _selectedDob,
+                            onTap: _showDatePicker,
+                          ),
+
+                          const SizedBox(height: 25),
+
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _isChanged
+                                    ? AppColors.primaryButton
+                                    : Colors.grey.shade300,
+                                elevation: _isChanged ? 2 : 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: _isChanged && !_isSaving
+                                  ? _updateUserData
+                                  : null,
+                              child: _isSaving
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.buttonText,
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : Text(
+                                      _tr(
+                                        'save_changes_btn',
+                                        'ذخیرهٔ تغییرات',
+                                      ),
+                                      style: TextStyle(
+                                        color: _isChanged
+                                            ? AppColors.buttonText
+                                            : Colors.grey.shade600,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
-  // فیلد استاندارد مطابقت‌یافته با جهت کامل صفحه (LTR و RTL)
-  Widget _buildInputField(
-    TextEditingController controller,
-    String label, {
+  // -------------------------------------------------------------
+  // فیلدهای متن: عنوان بالا در بریدگی + راهنما داخل فیلد
+  // -------------------------------------------------------------
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
     String? hintText,
     bool readOnly = false,
+    bool isLtr = false,
     TextInputType keyboardType = TextInputType.text,
     TextInputAction textInputAction = TextInputAction.next,
   }) {
+    final bool rtl = _isRtl && !isLtr;
+
+    final OutlineInputBorder normalBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(
+        color: AppColors.fieldBorder,
+        width: 1,
+      ),
+      gapPadding: 7,
+    );
+
+    final OutlineInputBorder activeBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(
+        color: AppColors.primaryBrand,
+        width: 1.4,
+      ),
+      gapPadding: 7,
+    );
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextField(
@@ -1404,34 +1504,160 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         readOnly: readOnly,
         keyboardType: keyboardType,
         textInputAction: textInputAction,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+        textDirection: isLtr
+            ? ui.TextDirection.ltr
+            : (rtl ? ui.TextDirection.rtl : ui.TextDirection.ltr),
+        textAlign: isLtr
+            ? TextAlign.left
+            : (rtl ? TextAlign.right : TextAlign.left),
+        style: const TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 15,
+          fontWeight: FontWeight.w400,
+        ),
         decoration: InputDecoration(
+          // متن کوتاه روی بریدگی خط
           labelText: label,
+
+          // متن توضیحی داخل مستطیل تا قبل از تایپ
           hintText: hintText,
-          alignLabelWithHint: true,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
-          labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-          floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
-            final bool focused = states.contains(WidgetState.focused);
-            return TextStyle(
-              color: focused ? AppColors.primaryBrand : Colors.grey,
-              fontSize: 13,
-              fontWeight: focused ? FontWeight.w600 : FontWeight.normal,
-            );
-          }),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.fieldBorder),
+
+          // عنوان همیشه در بالای خط است
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+
+          // فارسی/پشتو: راست، انگلیسی: چپ
+          floatingLabelAlignment: rtl
+              ? FloatingLabelAlignment.end
+              : FloatingLabelAlignment.start,
+
+          labelStyle: const TextStyle(
+            color: Colors.grey,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            backgroundColor: Colors.white,
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.fieldBorder),
+
+          floatingLabelStyle: const TextStyle(
+            color: Colors.grey,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            backgroundColor: Colors.white,
           ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide(color: AppColors.primaryBrand, width: 1.4),
+
+          hintStyle: const TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+          ),
+
+          contentPadding: const EdgeInsetsDirectional.fromSTEB(
+            16,
+            17,
+            16,
+            15,
+          ),
+
+          filled: true,
+          fillColor: Colors.white,
+
+          border: normalBorder,
+          enabledBorder: normalBorder,
+          disabledBorder: normalBorder,
+          focusedBorder: activeBorder,
+        ),
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------
+  // فیلدهای انتخابی: جنسیت و تاریخ تولد با همان ظاهر فیلد متن
+  // -------------------------------------------------------------
+  Widget _buildSelectionField({
+    required String label,
+    required String hintText,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    final bool rtl = _isRtl;
+    final bool hasValue = value.trim().isNotEmpty;
+
+    final OutlineInputBorder normalBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(
+        color: AppColors.fieldBorder,
+        width: 1,
+      ),
+      gapPadding: 7,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: InputDecorator(
+          textDirection: rtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+          decoration: InputDecoration(
+            // عنوان کوتاه بالای بریدگی
+            labelText: label,
+
+            // همیشه بالا باشد تا عنوان و راهنما هم‌زمان دیده شوند
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+
+            floatingLabelAlignment: rtl
+                ? FloatingLabelAlignment.end
+                : FloatingLabelAlignment.start,
+
+            labelStyle: const TextStyle(
+              color: Colors.grey,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              backgroundColor: Colors.white,
+            ),
+
+            floatingLabelStyle: const TextStyle(
+              color: Colors.grey,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              backgroundColor: Colors.white,
+            ),
+
+            contentPadding: const EdgeInsetsDirectional.fromSTEB(
+              16,
+              17,
+              16,
+              15,
+            ),
+
+            filled: true,
+            fillColor: Colors.white,
+
+            border: normalBorder,
+            enabledBorder: normalBorder,
+          ),
+          child: Row(
+            textDirection: rtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+            children: [
+              Expanded(
+                child: Text(
+                  hasValue ? value : hintText,
+                  textAlign: rtl ? TextAlign.right : TextAlign.left,
+                  style: TextStyle(
+                    color: hasValue
+                        ? AppColors.textPrimary
+                        : const Color(0xFF9CA3AF),
+                    fontSize: hasValue ? 15 : 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Color(0xFF9CA3AF),
+                size: 22,
+              ),
+            ],
           ),
         ),
       ),
@@ -1447,3 +1673,4 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 }
+  
