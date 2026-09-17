@@ -583,5 +583,7 @@
   "welcome_title": "خوش آمدید",
   "enter_phone_subtitle": "شماره موبایل خود را وارد کنید",
   "sub_account_info_title": "اطلاعات تکمیلی",
-  "confirm_btn": "تأیید"
+  "confirm_btn": "تأیید",
+  "gender_sheet_title": "انتخاب جنسیت"
+
 }
