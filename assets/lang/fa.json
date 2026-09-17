@@ -584,6 +584,19 @@
   "enter_phone_subtitle": "شماره موبایل خود را وارد کنید",
   "sub_account_info_title": "اطلاعات تکمیلی",
   "confirm_btn": "تأیید",
-  "gender_sheet_title": "انتخاب جنسیت"
+  "gender_sheet_title": "انتخاب جنسیت",
+  "month_hamal": "حمل",
+  "month_sawr": "ثور",
+  "month_jawza": "جوزا",
+  "month_saratan": "سرطان",
+  "month_asad": "اسد",
+  "month_sonbola": "سنبله",
+  "month_mizan": "میزان",
+  "month_aqrab": "عقرب",
+  "month_qaws": "قوس",
+  "month_jady": "جدی",
+  "month_dalwa": "دلو",
+  "month_hoot": "حوت"
+
 
 }
