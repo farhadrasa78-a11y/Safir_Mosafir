@@ -584,6 +584,19 @@
   "enter_phone_subtitle": "Enter your mobile number",
   "sub_account_info_title": "Additional Info",
   "confirm_btn": "Confirm",
-  "gender_sheet_title": "Select Gender"
+  "gender_sheet_title": "Select Gender",
+  "month_hamal": "Hamal",
+  "month_sawr": "Sawr",
+  "month_jawza": "Jawza",
+  "month_saratan": "Saratan",
+  "month_asad": "Asad",
+  "month_sonbola": "Sonbola",
+  "month_mizan": "Mizan",
+  "month_aqrab": "Aqrab",
+  "month_qaws": "Qaws",
+  "month_jady": "Jady",
+  "month_dalwa": "Dalwa",
+  "month_hoot": "Hoot"
+
 
 }
