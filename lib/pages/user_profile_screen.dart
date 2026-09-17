@@ -9,7 +9,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/authentication/register_screen.dart';
 
-// ثوابت رنگی مطابق با دیزاین جدید
 class AppColors {
   static const Color primaryBrand = Color(0xFF565DFF);
   static const Color primaryButton = Color(0xFF565DFF);
@@ -23,7 +22,6 @@ class AppColors {
   static const Color wheelGreen = Color(0xFF39B169);
 }
 
-// تابع کمکی برای تبدیل اعداد به انگلیسی
 String toEnglishDigits(String input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -594,7 +592,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isSaving = false;
   bool _isChanged = false;
 
-  // لیست ماه‌های هجری شمسی به زبان دری (افغانی)
   final List<String> _dariMonths = [
     'month_hamal'.tr().isEmpty ? 'حمل' : 'month_hamal'.tr(),
     'month_sawr'.tr().isEmpty ? 'ثور' : 'month_sawr'.tr(),
@@ -1192,7 +1189,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_forward, color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.maybePop(context),
         ),
         bottom: PreferredSize(
@@ -1276,7 +1273,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ? 'شمارهٔ موبایل'
                               : 'phone_number_label'.tr(),
                           readOnly: true,
-                          isLtr: true,
                         ),
                       ),
                     ),
@@ -1285,7 +1281,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       'email_label'.tr().isEmpty ? 'ایمیل' : 'email_label'.tr(),
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      isLtr: true,
                     ),
                   ],
                 ),
@@ -1393,78 +1388,52 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // فیلد ورودی کاملاً هوشمند و سفارشی برای تنظیم دقیق بریده‌گی و متن در فارسی/انگلیسی
+  // فیلد استاندارد مطابقت‌یافته با جهت کامل صفحه (LTR و RTL)
   Widget _buildInputField(
     TextEditingController controller,
     String label, {
     String? hintText,
     bool readOnly = false,
-    bool isLtr = false,
     TextInputType keyboardType = TextInputType.text,
     TextInputAction textInputAction = TextInputAction.next,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ValueListenableBuilder<TextEditingValue>(
-        valueListenable: controller,
-        builder: (context, value, child) {
-          // تشخیص خودکار جهت متن تایپ‌شده
-          bool isDynamicRtl = true;
-          if (isLtr) {
-            isDynamicRtl = false;
-          } else if (value.text.trim().isNotEmpty) {
-            final String firstChar = value.text.trim().substring(0, 1);
-            final RegExp rtlRegex = RegExp(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]');
-            isDynamicRtl = rtlRegex.hasMatch(firstChar);
-          }
-
-          final ui.TextDirection textDir =
-              isDynamicRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr;
-          final TextAlign textAlign =
-              isDynamicRtl ? TextAlign.right : TextAlign.left;
-
-          return Directionality(
-            textDirection: textDir,
-            child: TextField(
-              controller: controller,
-              readOnly: readOnly,
-              keyboardType: keyboardType,
-              textInputAction: textInputAction,
-              textAlign: textAlign,
-              textDirection: textDir,
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
-              decoration: InputDecoration(
-                labelText: label,
-                hintText: hintText,
-                alignLabelWithHint: true,
-                hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
-                labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-                floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
-                  final bool focused = states.contains(WidgetState.focused);
-                  return TextStyle(
-                    color: focused ? AppColors.primaryBrand : Colors.grey,
-                    fontSize: 13,
-                    fontWeight: focused ? FontWeight.w600 : FontWeight.normal,
-                  );
-                }),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.fieldBorder),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.fieldBorder),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: AppColors.primaryBrand, width: 1.4),
-                ),
-              ),
-            ),
-          );
-        },
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          alignLabelWithHint: true,
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+          labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+          floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+            final bool focused = states.contains(WidgetState.focused);
+            return TextStyle(
+              color: focused ? AppColors.primaryBrand : Colors.grey,
+              fontSize: 13,
+              fontWeight: focused ? FontWeight.w600 : FontWeight.normal,
+            );
+          }),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.fieldBorder),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.fieldBorder),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.primaryBrand, width: 1.4),
+          ),
+        ),
       ),
     );
   }
