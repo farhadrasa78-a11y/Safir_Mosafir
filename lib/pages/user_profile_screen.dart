@@ -10,8 +10,8 @@ import 'package:safir_passengers/global/global_var.dart';
 import 'package:safir_passengers/authentication/register_screen.dart';
 
 class AppColors {
-  static const Color primaryBrand = Color(0xFF565DFF);
-  static const Color primaryButton = Color(0xFF565DFF);
+  static const Color primaryBrand = Color(0xFF0066FF);
+  static const Color primaryButton = Color(0xFF0066FF);
   static const Color primaryButtonPressed = Color(0xFF4348D6);
   static const Color buttonText = Colors.white;
   static const Color textPrimary = Color(0xFF26293D);
