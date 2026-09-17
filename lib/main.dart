@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
         supportedLocales: context.supportedLocales,
         locale: context.locale,
 
-        // 🎨 تنظیمات متمرکز و یکدست‌سازی فونت در کل اپلیکیشن
+        // 🎨 تنظیمات متمرکز و یکدست‌سازی فونت در کل اپلیکیشن (مشابه اسنپ)
         theme: ThemeData(
           useMaterial3: true,
           fontFamily: defaultFont,
@@ -90,14 +90,14 @@ class MyApp extends StatelessWidget {
           inputDecorationTheme: InputDecorationTheme(
             labelStyle: const TextStyle(
               fontFamily: defaultFont,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              fontWeight: FontWeight.w400, // نازک و استاندارد
               color: Colors.grey,
             ),
             floatingLabelStyle: const TextStyle(
               fontFamily: defaultFont,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              fontWeight: FontWeight.w400, // نازک
               color: primaryColor,
             ),
             hintStyle: TextStyle(
@@ -122,31 +122,31 @@ class MyApp extends StatelessWidget {
 
           // 🔹 ۲. تنظیم وزن و ضخامت یکنواخت برای تمام متون و عناوین
           textTheme: const TextTheme(
-            // عناوین اصلی صفحات
+            // عناوین اصلی صفحات (مثل «اطلاعات کاربری»)
             titleLarge: TextStyle(
               fontFamily: defaultFont,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
               color: textColor,
             ),
-            // عناوین بخش‌ها (مانند «اطلاعات اصلی» / «اطلاعات تکمیلی»)
+            // عناوین بخش‌ها (مانند «اطلاعات اصلی» / «اطلاعات فرعی»)
             titleMedium: TextStyle(
               fontFamily: defaultFont,
               fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: textColor,
             ),
             // متن‌های داخل فیلدهای متنی (نام، ایمیل، آدرس)
             bodyLarge: TextStyle(
               fontFamily: defaultFont,
-              fontSize: 14.5,
-              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              fontWeight: FontWeight.w400, // نازک و استاندارد اسنپی
               color: textColor,
             ),
             // متن‌های بدنه و توضیحات عمومی
             bodyMedium: TextStyle(
               fontFamily: defaultFont,
-              fontSize: 13.5,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
               color: textColor,
             ),
@@ -161,7 +161,7 @@ class MyApp extends StatelessWidget {
             labelLarge: TextStyle(
               fontFamily: defaultFont,
               fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: Colors.white,
             ),
           ),
