@@ -584,6 +584,19 @@
   "enter_phone_subtitle": "خپله د مبایل شمېره دننه کړئ",
   "sub_account_info_title": "اضافي معلومات",
   "confirm_btn": "تایید",
-  "gender_sheet_title": "د جنسیت انتخاب"
+  "gender_sheet_title": "د جنسیت انتخاب",
+  "month_hamal": "ورى",
+  "month_sawr": "غويی",
+  "month_jawza": "غبرګولی",
+  "month_saratan": "چنګاښ",
+  "month_asad": "زمرى",
+  "month_sonbola": "وږی",
+  "month_mizan": "تله",
+  "month_aqrab": "لړم",
+  "month_qaws": "لېندۍ",
+  "month_jady": "مرغومی",
+  "month_dalwa": "سلواغه",
+  "month_hoot": "کب"
+
 
 }
