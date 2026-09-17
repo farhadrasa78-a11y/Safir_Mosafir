@@ -500,7 +500,6 @@
   "opt_extra_luggage": "بار یا بکس اضافی",
   "opt_extra_luggage_sub": "داشتن بکس یا وسایل بزرگ",
   "note_for_driver_hint": "توضیحات برای راننده (اختیاری)...",
-  "confirm_btn": "تأیید",
   "select_date_title": "انتخاب تاریخ",
   "select_time_title": "انتخاب زمان",
   "confirm_schedule_btn": "تأیید زمان‌بندی",
@@ -583,5 +582,6 @@
   "no_canceled_trips": "هیچ سفر لغوشده‌ای وجود ندارد",
   "welcome_title": "خوش آمدید",
   "enter_phone_subtitle": "شماره موبایل خود را وارد کنید",
-  "sub_account_info_title": "اطلاعات تکمیلی"
+  "sub_account_info_title": "اطلاعات تکمیلی",
+  "confirm_btn": "تأیید"
 }
