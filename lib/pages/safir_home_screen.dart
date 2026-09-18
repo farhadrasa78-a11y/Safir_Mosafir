@@ -23,7 +23,7 @@ class SafirHomeScreen extends StatefulWidget {
 
 class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProviderStateMixin {
   int _activeSelectedIndex = 0; 
-  final Color safirBrandColor = const Color(0xFF145A41); 
+  final Color safirBrandColor = const Color(0xFF1B7A57); 
   final Color activeBgColor = const Color(0xFFEAF6F1); 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
