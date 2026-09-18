@@ -174,6 +174,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   double actualFareAmount = 50.0;
   double? bidAmount;
   String selectedVehicle = "Car";
+  double _tripDistanceInKm = 0.0; // 👈 متغیر جدید برای ذخیره مسافت به کیلومتر
 
   final List<Map<String, dynamic>> _intercityCities = [
     {'name': 'هرات', 'province': 'هرات', 'lat': 34.3529, 'lng': 62.2040},
@@ -512,12 +513,25 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       customDestination: destLatLng,
       onRouteFetched: (points, fare, durationText, arrivalTime) async {
         if (mounted) {
+          // 📐 محاسبه دقیق مسافت کل به کیلومتر از روی نقاط مسیر OSRM
+          double totalMeters = 0.0;
+          for (int i = 0; i < points.length - 1; i++) {
+            totalMeters += Geolocator.distanceBetween(
+              points[i].latitude,
+              points[i].longitude,
+              points[i + 1].latitude,
+              points[i + 1].longitude,
+            );
+          }
+
           setState(() {
             _routePolylinePoints = points;
+            _tripDistanceInKm = totalMeters / 1000.0; // 👈 ذخیره کیلومتر
             actualFareAmount = fare;
             _tripDurationText = durationText;
             _estimatedArrivalTime = arrivalTime;
           });
+
 
           if (_routePolylinePoints.isNotEmpty) {
             await _mapController!.addLine(
@@ -1133,6 +1147,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 ? CargoSheets.buildCargoSummarySheet(
                     context: context,
                     fareAmount: actualFareAmount,
+                    distanceInKm: _tripDistanceInKm,
                     selectedVehicleType: _cargoSelectedVehicle,
                     onVehicleSelected: (vehicleId) {
                       setState(() => _cargoSelectedVehicle = vehicleId);
@@ -1147,6 +1162,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     ? IntercitySheets.buildStep2IntercitySheet(
                         context: context,
                         fareAmount: actualFareAmount,
+                        distanceInKm: _tripDistanceInKm,
                         travelDate: _intercityTravelDate,
                         passengerCount: _intercityPassengers,
                         onDateSelected: (date) => setState(() => _intercityTravelDate = date),
@@ -1157,6 +1173,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                         selectedCategory: _selectedCategory,
                         selectedVehicleType: _selectedVehicleType,
                         actualFareAmount: actualFareAmount,
+                        distanceInKm: _tripDistanceInKm,
                         safirColor: AppColors.primaryBrand,
                         hasActiveTripOptions: _hasActiveTripOptions,
                         isScheduled: _isScheduled,
