@@ -10,7 +10,7 @@ import 'package:safir_passengers/pages/user_profile_screen.dart';
 import 'package:safir_passengers/pages/sub_screens.dart';
 import 'package:safir_passengers/global/global_var.dart';
 
-const Color safirBrandColor = Color(0xFF145A41);
+const Color safirBrandColor = Color(0xFF1B7A57);
 
 Future<void> _makeSupportCall(BuildContext context) async {
   String phone = '+93700000000';
