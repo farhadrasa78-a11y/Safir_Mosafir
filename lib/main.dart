@@ -11,7 +11,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'global/global_var.dart';
 import 'authentication/register_screen.dart';
 import 'pages/blocked_screen.dart';
-import 'pages/safir_home_screen.dart'; 
+import 'pages/safir_home_screen.dart';
 
 // پرووایدرها
 import 'appInfo/app_info.dart';
@@ -29,10 +29,10 @@ Future<void> main() async {
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-    statusBarBrightness: Brightness.light,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
     systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarIconBrightness: Brightness.dark,
+    systemNavigationBarIconBrightness: Brightness.light,
   ));
 
   Stripe.publishableKey = stripePublishedKey;
@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppInfo()),
-        ChangeNotifierProvider(create: (_) => AuthenticationProvider())
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
       ],
       child: MaterialApp(
         title: 'Safir Passengers',
@@ -79,25 +79,23 @@ class MyApp extends StatelessWidget {
         supportedLocales: context.supportedLocales,
         locale: context.locale,
 
-        // 🎨 تنظیمات متمرکز و یکدست‌سازی فونت در کل اپلیکیشن (مشابه اسنپ)
         theme: ThemeData(
           useMaterial3: true,
           fontFamily: defaultFont,
           colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
           scaffoldBackgroundColor: Colors.white,
 
-          // 🔹 ۱. تنظیم یکدست تمامی فیلدهای ورودی (TextFieldها)
           inputDecorationTheme: InputDecorationTheme(
             labelStyle: const TextStyle(
               fontFamily: defaultFont,
               fontSize: 12,
-              fontWeight: FontWeight.w400, // نازک و استاندارد
+              fontWeight: FontWeight.w400,
               color: Colors.grey,
             ),
             floatingLabelStyle: const TextStyle(
               fontFamily: defaultFont,
               fontSize: 12,
-              fontWeight: FontWeight.w400, // نازک
+              fontWeight: FontWeight.w400,
               color: primaryColor,
             ),
             hintStyle: TextStyle(
@@ -120,44 +118,37 @@ class MyApp extends StatelessWidget {
             ),
           ),
 
-          // 🔹 ۲. تنظیم وزن و ضخامت یکنواخت برای تمام متون و عناوین
           textTheme: const TextTheme(
-            // عناوین اصلی صفحات (مثل «اطلاعات کاربری»)
             titleLarge: TextStyle(
               fontFamily: defaultFont,
               fontSize: 15,
               fontWeight: FontWeight.w500,
               color: textColor,
             ),
-            // عناوین بخش‌ها (مانند «اطلاعات اصلی» / «اطلاعات فرعی»)
             titleMedium: TextStyle(
               fontFamily: defaultFont,
               fontSize: 15,
               fontWeight: FontWeight.w500,
               color: textColor,
             ),
-            // متن‌های داخل فیلدهای متنی (نام، ایمیل، آدرس)
             bodyLarge: TextStyle(
               fontFamily: defaultFont,
               fontSize: 14,
-              fontWeight: FontWeight.w400, // نازک و استاندارد اسنپی
+              fontWeight: FontWeight.w400,
               color: textColor,
             ),
-            // متن‌های بدنه و توضیحات عمومی
             bodyMedium: TextStyle(
               fontFamily: defaultFont,
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: textColor,
             ),
-            // متن‌های کوچک زیرنویس
             bodySmall: TextStyle(
               fontFamily: defaultFont,
               fontSize: 12,
               fontWeight: FontWeight.w400,
               color: Colors.grey,
             ),
-            // متن دکمه‌ها
             labelLarge: TextStyle(
               fontFamily: defaultFont,
               fontSize: 15,
@@ -180,29 +171,78 @@ class AuthCheck extends StatefulWidget {
   State<AuthCheck> createState() => _AuthCheckState();
 }
 
-class _AuthCheckState extends State<AuthCheck> {
+class _AuthCheckState extends State<AuthCheck>
+    with SingleTickerProviderStateMixin {
   bool _isLoading = true;
   bool _hasError = false;
   Widget? _targetScreen;
 
-  static const Color safirGreen = Color(0xFF145A41);
+  static const Color safirGreen = Color(0xFF1B7A57);
+
+  late AnimationController _loadingController;
+  late Animation<double> _dot1;
+  late Animation<double> _dot2;
+  late Animation<double> _dot3;
+  late Animation<double> _dot4;
 
   @override
   void initState() {
     super.initState();
+
+    _loadingController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat();
+
+    _dot1 = _createDotAnimation(0.00);
+    _dot2 = _createDotAnimation(0.20);
+    _dot3 = _createDotAnimation(0.40);
+    _dot4 = _createDotAnimation(0.60);
+
     _checkAuthAndNavigation();
   }
 
+  Animation<double> _createDotAnimation(double begin) {
+    return TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 25,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 25,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween<double>(0.0),
+        weight: 50,
+      ),
+    ]).animate(
+      CurvedAnimation(
+        parent: _loadingController,
+        curve: Interval(
+          begin,
+          begin + 0.4 > 1.0 ? 1.0 : begin + 0.4,
+          curve: Curves.linear,
+        ),
+      ),
+    );
+  }
+
   Future<void> _checkAuthAndNavigation() async {
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    }
 
     try {
+      // مدت نمایش Splash
       await Future.delayed(const Duration(milliseconds: 1500));
 
-      User? user = FirebaseAuth.instance.currentUser;
+      final User? user = FirebaseAuth.instance.currentUser;
 
       if (!mounted) return;
 
@@ -227,6 +267,101 @@ class _AuthCheckState extends State<AuthCheck> {
   }
 
   @override
+  void dispose() {
+    _loadingController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildSafirLogo() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Image.asset(
+        'assets/images/safir_logo.png',
+        width: 220,
+        height: 90,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const Text(
+            'Safir',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 52,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -2,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDot(double animationValue) {
+    final double size = 7 + (animationValue * 7);
+
+    return AnimatedBuilder(
+      animation: _loadingController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: 0.82 + (animationValue * 0.35),
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(
+                0.45 + (animationValue * 0.55),
+              ),
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDotLoading() {
+    return SizedBox(
+      height: 22,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedBuilder(
+            animation: _dot1,
+            builder: (_, __) => _buildDot(_dot1.value),
+          ),
+          const SizedBox(width: 7),
+          AnimatedBuilder(
+            animation: _dot2,
+            builder: (_, __) => _buildDot(_dot2.value),
+          ),
+          const SizedBox(width: 7),
+          AnimatedBuilder(
+            animation: _dot3,
+            builder: (_, __) => _buildDot(_dot3.value),
+          ),
+          const SizedBox(width: 7),
+          AnimatedBuilder(
+            animation: _dot4,
+            builder: (_, __) => _buildDot(_dot4.value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSplashContent() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildSafirLogo(),
+          const SizedBox(height: 18),
+          _buildDotLoading(),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_hasError) {
       return Scaffold(
@@ -238,13 +373,7 @@ class _AuthCheckState extends State<AuthCheck> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/images/logo.png',
-                      width: 110,
-                      height: 110,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.local_taxi_rounded, size: 80, color: Colors.white),
-                    ),
+                    _buildSafirLogo(),
                     const SizedBox(height: 24),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 40.0),
@@ -298,38 +427,7 @@ class _AuthCheckState extends State<AuthCheck> {
     if (_isLoading || _targetScreen == null) {
       return Scaffold(
         backgroundColor: safirGreen,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/images/logo.png',
-                width: 120,
-                height: 120,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.local_taxi_rounded,
-                      size: 60,
-                      color: safirGreen,
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 32),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                strokeWidth: 3,
-              ),
-            ],
-          ),
-        ),
+        body: _buildSplashContent(),
       );
     }
 
