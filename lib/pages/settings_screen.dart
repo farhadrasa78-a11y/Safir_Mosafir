@@ -21,7 +21,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // primaryAccent برای کلیدها و سوییچ‌ها، darkTextColor برای عناوین
   final Color primaryAccent = const Color(0xFF0066FF);
   final Color darkTextColor = const Color(0xFF0F172A);
   final Color successColor = const Color(0xFF22C55E);
@@ -266,6 +265,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final currentLangCode = context.locale.languageCode;
+    final bool isRtl = currentLangCode != 'en';
+    final IconData chevronIcon = isRtl ? Icons.chevron_left_rounded : Icons.chevron_right_rounded;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -280,7 +281,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: darkTextColor, size: 20),
+          icon: Icon(
+            isRtl ? Icons.arrow_back_ios_new_rounded : Icons.arrow_back_ios_rounded,
+            color: darkTextColor,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         bottom: PreferredSize(
@@ -304,7 +309,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 "${'current_language_prefix'.tr().isEmpty ? 'زبان فعلی' : 'current_language_prefix'.tr()}: ${_getLanguageName(currentLangCode)}",
                 style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
               ),
-              trailing: const Icon(Icons.chevron_left_rounded, color: Color(0xFF94A3B8)),
+              trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
               onTap: _showLanguageDialog,
             ),
           ]),
@@ -360,7 +365,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 'clear_cache_subtitle'.tr().isEmpty ? 'آزادسازی فضای اشغال‌شده توسط عکس‌ها و نقشه‌ها' : 'clear_cache_subtitle'.tr(),
                 style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
               ),
-              trailing: const Icon(Icons.chevron_left_rounded, color: Color(0xFF94A3B8)),
+              trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
               onTap: _isLoadingCache ? null : _clearCacheDialog,
             ),
           ]),
@@ -376,7 +381,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 'terms_of_service'.tr().isEmpty ? 'شرایط و قوانین استفاده' : 'terms_of_service'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
               ),
-              trailing: const Icon(Icons.chevron_left_rounded, color: Color(0xFF94A3B8)),
+              trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
               onTap: _showTermsDialog,
             ),
             Divider(height: 1, indent: 56, color: borderLightColor),
@@ -409,10 +414,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // عنوان بخش‌ها با همان رنگ مشکی/تیره اصلی
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(right: 6, left: 6, bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       child: Text(
         title,
         style: TextStyle(
