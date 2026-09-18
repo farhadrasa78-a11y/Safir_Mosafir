@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:http/http.dart' as http;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:safir_passengers/theme/app_colors.dart';
 import 'package:safir_passengers/widgets/map_location_label.dart';
@@ -35,8 +38,73 @@ class _SafirMapPickerState extends State<SafirMapPicker> with TickerProviderStat
 
   static const Color destinationColor = Color(0xFF169365);
 
-  void _onMapCreated(MapLibreMapController controller) {
+  StreamSubscription<QuerySnapshot>? _driversSubscription;
+  final List<Symbol> _driverSymbols = [];
+
+  @override
+  void dispose() {
+    _driversSubscription?.cancel();
+    super.dispose();
+  }
+
+  // 🏎️ بارگذاری آیکون‌ها و اتصال لیسنر رانندگان آنلاین
+  void _onMapCreated(MapLibreMapController controller) async {
     _mapController = controller;
+
+    try {
+      final ByteData carBytes = await rootBundle.load('assets/icon/car_top.png');
+      final Uint8List carList = carBytes.buffer.asUint8List();
+      await _mapController?.addImage('car-icon', carList);
+
+      final ByteData bikeBytes = await rootBundle.load('assets/icon/bike_top.png');
+      final Uint8List bikeList = bikeBytes.buffer.asUint8List();
+      await _mapController?.addImage('bike-icon', bikeList);
+    } catch (e) {
+      debugPrint('Error loading map icons: $e');
+    }
+
+    _listenToNearbyDrivers();
+  }
+
+  // 📡 شنود موقعیت زنده رانندگان آنلاین از فایربیس و رسم روی نقشه
+  void _listenToNearbyDrivers() {
+    _driversSubscription = FirebaseFirestore.instance
+        .collection('drivers')
+        .where('isOnline', isEqualTo: true)
+        .snapshots()
+        .listen((snapshot) async {
+      if (_mapController == null) return;
+
+      for (var symbol in _driverSymbols) {
+        await _mapController?.removeSymbol(symbol);
+      }
+      _driverSymbols.clear();
+
+      for (var doc in snapshot.docs) {
+        var data = doc.data();
+        if (data['location'] != null) {
+          GeoPoint geoPoint = data['location'];
+          String vehicleType = (data['vehicle_type'] ?? 'car').toString().toLowerCase();
+
+          String iconName = vehicleType == 'bike' || vehicleType == 'zaranj'
+              ? 'bike-icon'
+              : 'car-icon';
+
+          Symbol? symbol = await _mapController?.addSymbol(
+            SymbolOptions(
+              geometry: LatLng(geoPoint.latitude, geoPoint.longitude),
+              iconImage: iconName,
+              iconSize: 0.8,
+              iconAnchor: 'center',
+            ),
+          );
+
+          if (symbol != null) {
+            _driverSymbols.add(symbol);
+          }
+        }
+      }
+    });
   }
 
   // 🛣️ متد هوشمند اسنپ: پیدا کردن خیابان و هدایت نرم نقشه روی آن
@@ -61,7 +129,6 @@ class _SafirMapPickerState extends State<SafirMapPicker> with TickerProviderStat
           final LatLng snappedPoint = LatLng(snappedLat, snappedLng);
           _lastSnappedPoint = snappedPoint;
 
-          // 🎬 انیمیشن سر خوردن نرم نقشه به سمت خیابان
           _animateMapToRoad(snappedPoint);
 
           if (mounted) {
@@ -90,7 +157,7 @@ class _SafirMapPickerState extends State<SafirMapPicker> with TickerProviderStat
     }
   }
 
-  // 🎬 متد ایجاد انیمیشن حرکت نرم به خیابان با استفاده از MapLibre CameraUpdate
+  // 🎬 انیمیشن حرکت نرم به خیابان با استفاده از MapLibre CameraUpdate
   void _animateMapToRoad(LatLng targetLatLng) {
     if (_mapController == null) return;
     double currentZoom = _mapController!.cameraPosition?.zoom ?? 16.0;
@@ -254,7 +321,6 @@ class _SafirMapPickerState extends State<SafirMapPicker> with TickerProviderStat
             onSearchOriginTap: (address) {},
             onSearchDestinationTap: () {},
             onGpsTap: () {
-              // هدایت به موقعیت فعلی پیش‌فرض
               _animateMapToRoad(_mapCenter);
             },
           ),
