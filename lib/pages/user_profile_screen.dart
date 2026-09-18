@@ -1525,11 +1525,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           // عنوان همیشه در بالای خط است
           floatingLabelBehavior: FloatingLabelBehavior.always,
 
-          // فارسی/پشتو: راست، انگلیسی: چپ
-          floatingLabelAlignment: rtl
-              ? FloatingLabelAlignment.end
-              : FloatingLabelAlignment.start,
-
           labelStyle: const TextStyle(
             color: Colors.grey,
             fontSize: 11,
@@ -1596,17 +1591,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: InputDecorator(
-          textDirection: rtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
           decoration: InputDecoration(
             // عنوان کوتاه بالای بریدگی
             labelText: label,
 
             // همیشه بالا باشد تا عنوان و راهنما هم‌زمان دیده شوند
             floatingLabelBehavior: FloatingLabelBehavior.always,
-
-            floatingLabelAlignment: rtl
-                ? FloatingLabelAlignment.end
-                : FloatingLabelAlignment.start,
 
             labelStyle: const TextStyle(
               color: Colors.grey,
