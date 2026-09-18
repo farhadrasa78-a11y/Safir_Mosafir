@@ -1494,7 +1494,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Focus(
+      child: FocusBuilder(
         builder: (context, hasFocus) {
           final Color currentLabelColor =
               hasFocus ? AppColors.primaryBrand : const Color(0xFF9CA3AF);
