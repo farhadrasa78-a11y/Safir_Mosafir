@@ -21,11 +21,12 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // پالت رنگی مرجع پروژه
-  final Color safirBrandColor = const Color(0xFF145A41);   // رنگ اصلی برند
-  final Color successColor = const Color(0xFF22C55E);       // رنگ موفقیت
+  // primaryAccent برای کلیدها و سوییچ‌ها، darkTextColor برای عناوین
+  final Color primaryAccent = const Color(0xFF0066FF);
+  final Color darkTextColor = const Color(0xFF0F172A);
+  final Color successColor = const Color(0xFF22C55E);
+  final Color borderLightColor = const Color(0xFFF1F5F9);
 
-  // وضعیت سوییچ‌های تنظیمات
   bool _enableNotifications = true;
   bool _enableSoundEffects = true;
   bool _isLoadingCache = false;
@@ -36,7 +37,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadSettings();
   }
 
-  // ۱. بارگذاری وضعیت تنظیمات از SharedPreferences
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -45,7 +45,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  // ۲. ذخیره وضعیت سوییچ‌ها
   Future<void> _toggleNotification(bool val) async {
     HapticFeedback.selectionClick();
     setState(() => _enableNotifications = val);
@@ -60,7 +59,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setBool('enable_sounds', val);
   }
 
-  // متد هوشمند تغییر زبان و اعمال روی easy_localization
   Future<void> _applyLanguageChange(String langCode) async {
     await context.setLocale(Locale(langCode));
 
@@ -69,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     if (mounted) {
-      setState(() {}); 
+      setState(() {});
     }
   }
 
@@ -89,8 +87,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showLanguageDialog() {
     final currentLang = context.locale.languageCode;
-    String selectedTempLang = (currentLang == 'pa' || currentLang == 'ps') 
-        ? 'ps' 
+    String selectedTempLang = (currentLang == 'pa' || currentLang == 'ps')
+        ? 'ps'
         : (currentLang == 'en' ? 'en' : 'fa');
 
     showDialog(
@@ -99,14 +97,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               title: Row(
                 children: [
-                  Icon(Icons.language, color: safirBrandColor),
-                  const SizedBox(width: 8),
+                  Icon(Icons.language_rounded, color: primaryAccent),
+                  const SizedBox(width: 10),
                   Text(
                     'select_language_title'.tr().isEmpty ? 'انتخاب زبان' : 'select_language_title'.tr(),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: darkTextColor),
                   ),
                 ],
               ),
@@ -117,27 +117,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Text('lang_dari'.tr().isEmpty ? 'فارسی / دری' : 'lang_dari'.tr()),
                     value: 'fa',
                     groupValue: selectedTempLang,
-                    activeColor: safirBrandColor,
+                    activeColor: primaryAccent,
                     onChanged: (value) {
                       if (value != null) setDialogState(() => selectedTempLang = value);
                     },
                   ),
-                  const Divider(height: 1),
+                  Divider(height: 1, color: borderLightColor),
                   RadioListTile<String>(
                     title: Text('lang_pashto'.tr().isEmpty ? 'پښتو' : 'lang_pashto'.tr()),
                     value: 'ps',
                     groupValue: selectedTempLang,
-                    activeColor: safirBrandColor,
+                    activeColor: primaryAccent,
                     onChanged: (value) {
                       if (value != null) setDialogState(() => selectedTempLang = value);
                     },
                   ),
-                  const Divider(height: 1),
+                  Divider(height: 1, color: borderLightColor),
                   RadioListTile<String>(
                     title: Text('lang_english'.tr().isEmpty ? 'English' : 'lang_english'.tr()),
                     value: 'en',
                     groupValue: selectedTempLang,
-                    activeColor: safirBrandColor,
+                    activeColor: primaryAccent,
                     onChanged: (value) {
                       if (value != null) setDialogState(() => selectedTempLang = value);
                     },
@@ -149,13 +149,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => Navigator.pop(dialogContext),
                   child: Text(
                     'cancel'.tr().isEmpty ? 'انصراف' : 'cancel'.tr(),
-                    style: TextStyle(color: Colors.grey.shade700),
+                    style: TextStyle(color: Colors.grey.shade600),
                   ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: safirBrandColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    backgroundColor: primaryAccent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: () {
                     Navigator.pop(dialogContext);
@@ -174,7 +175,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // ۳. عملیات واقعی پاکسازی حافظه کش اپلیکیشن
   Future<void> _performClearCache() async {
     setState(() => _isLoadingCache = true);
     try {
@@ -194,8 +194,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('clear_cache_title'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_title'.tr()),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'clear_cache_title'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_title'.tr(),
+          style: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold),
+        ),
         content: Text('clear_cache_desc'.tr().isEmpty ? 'آیا از پاکسازی فایل‌های موقت برنامه اطمینان دارید؟' : 'clear_cache_desc'.tr()),
         actions: [
           TextButton(
@@ -204,8 +209,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: safirBrandColor,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              backgroundColor: primaryAccent,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             onPressed: () async {
               Navigator.pop(context);
@@ -215,36 +221,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   SnackBar(
                     content: Text('cache_cleared_msg'.tr().isEmpty ? 'حافظه موقت با موفقیت پاکسازی شد' : 'cache_cleared_msg'.tr()),
                     backgroundColor: successColor,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 );
               }
             },
-            child: Text('confirm'.tr().isEmpty ? 'تایید' : 'confirm'.tr(), style: const TextStyle(color: Colors.white)),
+            child: Text('confirm'.tr().isEmpty ? 'تایید' : 'confirm'.tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
   }
 
-  // ۴. دیالوگ قوانین و شرایط استفاده
   void _showTermsDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('terms_of_service'.tr().isEmpty ? 'قوانین و مقررات' : 'terms_of_service'.tr()),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'terms_of_service'.tr().isEmpty ? 'قوانین و مقررات' : 'terms_of_service'.tr(),
+          style: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold),
+        ),
         content: SingleChildScrollView(
           child: Text(
             'terms_of_service_detail'.tr().isEmpty
                 ? 'استفاده از اپلیکیشن تاکسی آنلاین سفیر به منزله پذیرش تمامی قوانین مربوط به حریم خصوصی، امنیت سفر و پرداخت‌ها می‌باشد.'
                 : 'terms_of_service_detail'.tr(),
-            style: const TextStyle(fontSize: 13, height: 1.6),
+            style: const TextStyle(fontSize: 13, height: 1.6, color: Color(0xFF334155)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('close'.tr().isEmpty ? 'بستن' : 'close'.tr(), style: TextStyle(color: safirBrandColor, fontWeight: FontWeight.bold)),
+            child: Text('close'.tr().isEmpty ? 'بستن' : 'close'.tr(), style: TextStyle(color: primaryAccent, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -256,125 +268,137 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final currentLangCode = context.locale.languageCode;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        surfaceTintColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
           'settings_title'.tr().isEmpty ? 'تنظیمات' : 'settings_title'.tr(),
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: darkTextColor, size: 20),
           onPressed: () => Navigator.pop(context),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: borderLightColor, height: 1),
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         children: [
           // ۱. عمومی و زبان
           _buildSectionHeader('general_settings_header'.tr().isEmpty ? 'عمومی' : 'general_settings_header'.tr()),
           _buildCardGroup([
             UrbanListTile(
-              leading: Icon(Icons.language, color: safirBrandColor),
+              leading: Icon(Icons.language_rounded, color: primaryAccent),
               title: Text(
                 'app_language_label'.tr().isEmpty ? 'زبان برنامه' : 'app_language_label'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
               ),
               subtitle: Text(
                 "${'current_language_prefix'.tr().isEmpty ? 'زبان فعلی' : 'current_language_prefix'.tr()}: ${_getLanguageName(currentLangCode)}",
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
               ),
-              trailing: const Icon(Icons.chevron_left, color: Colors.grey),
+              trailing: const Icon(Icons.chevron_left_rounded, color: Color(0xFF94A3B8)),
               onTap: _showLanguageDialog,
             ),
           ]),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // ۲. اعلانات و صداها
           _buildSectionHeader('notifications_header'.tr().isEmpty ? 'اعلانات و صداها' : 'notifications_header'.tr()),
           _buildCardGroup([
             SwitchListTile(
-              activeColor: safirBrandColor,
-              secondary: Icon(Icons.notifications_active_outlined, color: safirBrandColor),
+              activeColor: Colors.white,
+              activeTrackColor: primaryAccent,
+              inactiveThumbColor: Colors.white,
+              inactiveTrackColor: const Color(0xFFE2E8F0),
+              secondary: Icon(Icons.notifications_active_outlined, color: primaryAccent),
               title: Text(
                 'enable_notifications_label'.tr().isEmpty ? 'دریافت اعلانات' : 'enable_notifications_label'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
               ),
               value: _enableNotifications,
               onChanged: _toggleNotification,
             ),
-            const Divider(height: 1, indent: 50),
+            Divider(height: 1, indent: 56, color: borderLightColor),
             SwitchListTile(
-              activeColor: safirBrandColor,
-              secondary: Icon(Icons.volume_up_outlined, color: safirBrandColor),
+              activeColor: Colors.white,
+              activeTrackColor: primaryAccent,
+              inactiveThumbColor: Colors.white,
+              inactiveTrackColor: const Color(0xFFE2E8F0),
+              secondary: Icon(Icons.volume_up_outlined, color: primaryAccent),
               title: Text(
                 'enable_sounds_label'.tr().isEmpty ? 'افکت‌های صوتی' : 'enable_sounds_label'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
               ),
               value: _enableSoundEffects,
               onChanged: _toggleSound,
             ),
           ]),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
-          // ۳. حافظه و امنیت
+          // ۳. حافظه و داده‌ها
           _buildSectionHeader('privacy_cache_header'.tr().isEmpty ? 'حافظه و داده‌ها' : 'privacy_cache_header'.tr()),
           _buildCardGroup([
             UrbanListTile(
               leading: _isLoadingCache 
-                  ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: safirBrandColor))
-                  : Icon(Icons.cleaning_services_outlined, color: safirBrandColor),
+                  ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: primaryAccent))
+                  : Icon(Icons.cleaning_services_outlined, color: primaryAccent),
               title: Text(
                 'clear_cache_btn'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_btn'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
               ),
               subtitle: Text(
                 'clear_cache_subtitle'.tr().isEmpty ? 'آزادسازی فضای اشغال‌شده توسط عکس‌ها و نقشه‌ها' : 'clear_cache_subtitle'.tr(),
-                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
               ),
-              trailing: const Icon(Icons.chevron_left, color: Colors.grey),
+              trailing: const Icon(Icons.chevron_left_rounded, color: Color(0xFF94A3B8)),
               onTap: _isLoadingCache ? null : _clearCacheDialog,
             ),
           ]),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
-          // ۴. درباره و پشتیبانی
+          // ۴. درباره سفیر
           _buildSectionHeader('about_app_header'.tr().isEmpty ? 'درباره سفیر' : 'about_app_header'.tr()),
           _buildCardGroup([
             UrbanListTile(
-              leading: Icon(Icons.description_outlined, color: safirBrandColor),
+              leading: Icon(Icons.description_outlined, color: primaryAccent),
               title: Text(
                 'terms_of_service'.tr().isEmpty ? 'شرایط و قوانین استفاده' : 'terms_of_service'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
               ),
-              trailing: const Icon(Icons.chevron_left, color: Colors.grey),
+              trailing: const Icon(Icons.chevron_left_rounded, color: Color(0xFF94A3B8)),
               onTap: _showTermsDialog,
             ),
-            const Divider(height: 1, indent: 50),
+            Divider(height: 1, indent: 56, color: borderLightColor),
             UrbanListTile(
-              leading: Icon(Icons.info_outline, color: safirBrandColor),
+              leading: Icon(Icons.info_outline_rounded, color: primaryAccent),
               title: Text(
                 'app_version_label'.tr().isEmpty ? 'نسخه برنامه' : 'app_version_label'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
               ),
               subtitle: const Text(
                 "v1.0.0 (Safir Passengers)",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
               ),
               trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: safirBrandColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  color: primaryAccent.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   'up_to_date'.tr().isEmpty ? 'به‌روز است' : 'up_to_date'.tr(),
-                  style: TextStyle(color: safirBrandColor, fontSize: 11, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: primaryAccent, fontSize: 11, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -385,29 +409,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // عنوان بخش‌ها با همان رنگ مشکی/تیره اصلی
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8, left: 8, bottom: 8),
+      padding: const EdgeInsets.only(right: 6, left: 6, bottom: 8),
       child: Text(
         title,
         style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.bold,
-          color: safirBrandColor,
+          color: darkTextColor,
+          letterSpacing: 0.2,
         ),
       ),
     );
   }
 
   Widget _buildCardGroup(List<Widget> children) {
-    return Card(
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.withOpacity(0.15)),
+        border: Border.all(color: borderLightColor, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Column(children: children),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(children: children),
+      ),
     );
   }
 }
