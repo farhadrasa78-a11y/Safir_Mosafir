@@ -79,11 +79,23 @@ class MyApp extends StatelessWidget {
         supportedLocales: context.supportedLocales,
         locale: context.locale,
 
-        theme: ThemeData(
+                theme: ThemeData(
           useMaterial3: true,
           fontFamily: defaultFont,
           colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
           scaffoldBackgroundColor: Colors.white,
+
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
+            titleTextStyle: TextStyle(
+              fontFamily: defaultFont,
+              fontSize: 16,
+              fontWeight: FontWeight.w600, // نیمه‌ضخیم و نازک‌تر
+              color: Color(0xFF212121), // مشکی نرم و مدرن
+            ),
+          ),
 
           inputDecorationTheme: InputDecorationTheme(
             labelStyle: const TextStyle(
@@ -95,12 +107,12 @@ class MyApp extends StatelessWidget {
             floatingLabelStyle: const TextStyle(
               fontFamily: defaultFont,
               fontSize: 12,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w500,
               color: primaryColor,
             ),
             hintStyle: TextStyle(
               fontFamily: defaultFont,
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
               color: Colors.grey.shade400,
             ),
@@ -119,17 +131,18 @@ class MyApp extends StatelessWidget {
           ),
 
           textTheme: const TextTheme(
+            // عناوین اصلی بخش‌ها (مانند "د حساب معلومات" یا "اطلاعات اصلی")
             titleLarge: TextStyle(
               fontFamily: defaultFont,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: textColor,
+              fontSize: 16,
+              fontWeight: FontWeight.w600, // نازک‌تر و شکیل‌تر
+              color: Color(0xFF212121),
             ),
             titleMedium: TextStyle(
               fontFamily: defaultFont,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: textColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF212121),
             ),
             bodyLarge: TextStyle(
               fontFamily: defaultFont,
@@ -157,6 +170,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+
         home: const AuthCheck(),
       ),
     );
