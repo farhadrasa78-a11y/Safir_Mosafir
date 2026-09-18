@@ -293,7 +293,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F7),
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -512,44 +512,55 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
   }
 
   Widget _buildMenuItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Material(
+  required IconData icon,
+  required String title,
+  required String subtitle,
+  required VoidCallback onTap,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Container(
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: borderLightColor,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
-          splashColor: safirBrandColor.withOpacity(0.08),
-          highlightColor: safirBrandColor.withOpacity(0.04),
-          child: Container(
+          borderRadius: BorderRadius.circular(16),
+          splashColor: Colors.black12,
+          highlightColor: Colors.black.withOpacity(0.04),
+          child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 14,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: const Color(0xFFE6ECE8),
-              ),
+              horizontal: 14,
+              vertical: 13,
             ),
             child: Row(
               children: [
+                // مربع پس‌زمینه و آیکون
                 Container(
-                  width: 45,
-                  height: 45,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
-                    color: safirBrandColor.withOpacity(0.09),
-                    borderRadius: BorderRadius.circular(14),
+                    color: const Color(0xFFF1F5F9), // پس‌زمینه خاکستری روشن ملایم
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     icon,
-                    color: safirBrandColor,
+                    color: darkTextColor, // یا Colors.black برای مشکی خالص
                     size: 22,
                   ),
                 ),
@@ -563,18 +574,18 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: Colors.black87,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          color: darkTextColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: Colors.black45,
+                          color: Color(0xFF64748B),
                           fontSize: 11.5,
                         ),
                       ),
@@ -583,8 +594,8 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                 ),
                 const Icon(
                   Icons.chevron_left_rounded,
-                  color: Colors.black38,
-                  size: 24,
+                  color: Color(0xFF94A3B8),
+                  size: 22,
                 ),
               ],
             ),
@@ -593,4 +604,3 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
       ),
     );
   }
-}
