@@ -218,6 +218,7 @@ class IntercitySheets {
     dynamic travelDate,
     int passengerCount = 1,
     double fareAmount = 0.0,
+    double distanceInKm = 0.0,
     bool isLoading = false,
     VoidCallback? onEditOrigin,
     VoidCallback? onEditDestination,
@@ -456,9 +457,19 @@ class IntercitySheets {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'intercity.fare_cost'.tr().isEmpty ? 'هزینه تخمینی' : 'intercity.fare_cost'.tr(),
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'intercity.fare_cost'.tr().isEmpty ? 'هزینه تخمینی' : 'intercity.fare_cost'.tr(),
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    ),
+                    if (distanceInKm > 0)
+                      Text(
+                        'مسافت: ${distanceInKm.toStringAsFixed(1)} کیلومتر',
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                  ],
                 ),
                 Text(
                   '${fareAmount.toStringAsFixed(0)} ${'intercity.currency'.tr().isEmpty ? 'افغانی' : 'intercity.currency'.tr()}',
@@ -466,6 +477,7 @@ class IntercitySheets {
                 ),
               ],
             ),
+
             const SizedBox(height: 14),
 
             // دکمه ثبت درخواست
