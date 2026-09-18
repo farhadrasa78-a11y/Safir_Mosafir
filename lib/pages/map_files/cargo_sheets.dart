@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../theme/app_colors.dart';
-import '../../global/global_var.dart'; // 👈 اضافه شده جهت دسترسی به اطلاعات کاربر جاری
+import '../../global/global_var.dart';
 
 class CargoSheets {
   /// 📦 ۱. شیت اطلاعات فرستنده (Sender Sheet)
@@ -32,196 +32,208 @@ class CargoSheets {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
-            left: 16,
-            right: 16,
-            top: 16,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+                left: 16,
+                right: 16,
+                top: 16,
+              ),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                      onPressed: () => Navigator.pop(ctx),
-                    ),
-                    Text(
-                      'cargo.sender_details_title'.tr(),
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                // 👤 دکمه یا کارت انتخاب مشخصات از پروفایل کاربری
-                InkWell(
-                  onTap: () {
-                    if (onUseMyInfoPressed != null) {
-                      onUseMyInfoPressed();
-                    } else {
-                      nameController.text = userName;
-                      phoneController.text = userPhone;
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryBrand.withOpacity(0.06),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primaryBrand.withOpacity(0.2),
-                      ),
-                    ),
-                    child: Row(
+                    const SizedBox(height: 12),
+                    Row(
                       children: [
-                        const Icon(Icons.account_circle, color: AppColors.primaryBrand, size: 22),
-                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                        Text(
+                          'cargo.sender_details_title'.tr(),
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // 👤 دکمه یا کارت انتخاب مشخصات از پروفایل کاربری
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          if (onUseMyInfoPressed != null) {
+                            onUseMyInfoPressed();
+                          } else {
+                            nameController.text = userName;
+                            phoneController.text = userPhone;
+                          }
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBrand.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.primaryBrand.withOpacity(0.2),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.account_circle, color: AppColors.primaryBrand, size: 22),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'cargo.use_my_info'.tr(),
+                                style: const TextStyle(
+                                  color: AppColors.primaryBrand,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.check_circle_outline, size: 18, color: AppColors.primaryBrand),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // فیلد نام فرستنده
+                    TextField(
+                      controller: nameController,
+                      textInputAction: TextInputAction.next,
+                      decoration: InputDecoration(
+                        labelText: 'cargo.sender_fullname'.tr(),
+                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // فیلد شماره تماس
+                    TextField(
+                      controller: phoneController,
+                      keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.next,
+                      decoration: InputDecoration(
+                        labelText: 'cargo.phone'.tr(),
+                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // فیلد آدرس
+                    TextField(
+                      controller: addressController,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'cargo.origin_address_label'.tr(),
+                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
                         Expanded(
-                          child: Text(
-                            'cargo.use_my_info'.tr(),
-                            style: const TextStyle(
-                              color: AppColors.primaryBrand,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                          child: TextField(
+                            controller: floorController,
+                            textInputAction: TextInputAction.next,
+                            decoration: InputDecoration(
+                              labelText: 'cargo.plaque'.tr(),
+                              labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                           ),
                         ),
-                        const Icon(Icons.check_circle_outline, size: 18, color: AppColors.primaryBrand),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: unitController,
+                            textInputAction: TextInputAction.next,
+                            decoration: InputDecoration(
+                              labelText: 'cargo.unit'.tr(),
+                              labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                // فیلد نام فرستنده
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'cargo.sender_fullname'.tr(),
-                    labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // فیلد شماره تماس
-                TextField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: 'cargo.phone'.tr(),
-                    labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // فیلد آدرس
-                TextField(
-                  controller: addressController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'cargo.origin_address_label'.tr(),
-                    labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: floorController,
-                        decoration: InputDecoration(
-                          labelText: 'cargo.plaque'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                    // توضیحات تکمیلی
+                    TextField(
+                      controller: noteController,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        labelText: 'cargo.description_optional'.tr(),
+                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: unitController,
-                        decoration: InputDecoration(
-                          labelText: 'cargo.unit'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    const SizedBox(height: 16),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryButton,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          elevation: 0,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          onConfirm();
+                        },
+                        child: Text(
+                          'cargo.confirm_continue'.tr(),
+                          style: const TextStyle(
+                            color: AppColors.buttonText,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-
-                // توضیحات تکمیلی
-                TextField(
-                  controller: noteController,
-                  decoration: InputDecoration(
-                    labelText: 'cargo.description_optional'.tr(),
-                    labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryButton,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      elevation: 0,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      onConfirm();
-                    },
-                    child: Text(
-                      'cargo.confirm_continue'.tr(),
-                      style: const TextStyle(
-                        color: AppColors.buttonText,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -260,6 +272,7 @@ class CargoSheets {
                 top: 16,
               ),
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,6 +308,7 @@ class CargoSheets {
 
                     TextField(
                       controller: nameController,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         labelText: 'cargo.receiver_fullname'.tr(),
                         labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -306,6 +320,7 @@ class CargoSheets {
                     TextField(
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         labelText: 'cargo.receiver_phone'.tr(),
                         labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -331,6 +346,7 @@ class CargoSheets {
                         Expanded(
                           child: TextField(
                             controller: floorController,
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               labelText: 'cargo.plaque'.tr(),
                               labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -342,6 +358,7 @@ class CargoSheets {
                         Expanded(
                           child: TextField(
                             controller: unitController,
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               labelText: 'cargo.unit'.tr(),
                               labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -355,6 +372,7 @@ class CargoSheets {
 
                     TextField(
                       controller: noteController,
+                      textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
                         labelText: 'cargo.delivery_note'.tr(),
                         labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -438,10 +456,38 @@ class CargoSheets {
     );
   }
 
+  /// 📐 تابع محاسبه قیمت اختصاصی هر خودرو بر اساس مسافت (کیلومتر)
+  static double calculateFareForVehicle(String vehicleId, double distanceInKm) {
+    double baseRate = 50.0; // ورودی پایه
+    double perKmRate = 20.0;
+
+    switch (vehicleId) {
+      case 'zaranj':
+        baseRate = 60.0;
+        perKmRate = 25.0;
+        break;
+      case 'suzuki':
+        baseRate = 120.0;
+        perKmRate = 45.0;
+        break;
+      case 'mazda':
+        baseRate = 250.0;
+        perKmRate = 80.0;
+        break;
+      default:
+        baseRate = 50.0;
+        perKmRate = 20.0;
+    }
+
+    double calculatedFare = baseRate + (distanceInKm * perKmRate);
+    return calculatedFare < baseRate ? baseRate : calculatedFare;
+  }
+
   /// 🚚 ۳. شیت مرحله نهایی انتخاب خودرو و تایید سفارش
   static Widget buildCargoSummarySheet({
     required BuildContext context,
     required double fareAmount,
+    required double distanceInKm, // 👈 اضافه شدن کیلومتر جهت محاسبه خودکار قیمت هر خودرو
     required String selectedVehicleType,
     required ValueChanged<String> onVehicleSelected,
     required String paymentPayer,
@@ -449,15 +495,20 @@ class CargoSheets {
     required VoidCallback onRequestTrip,
     bool isLoading = false,
   }) {
+    // 🚛 لیست خودروهای باربری (کاماز حذف شد و تنها زرنج، سوزوکی، مزدا موجود است)
     final List<Map<String, dynamic>> vehicles = [
       {'id': 'zaranj', 'title': 'cargo.vehicle_zaranj'.tr(), 'icon': Icons.electric_rickshaw},
       {'id': 'suzuki', 'title': 'cargo.vehicle_suzuki'.tr(), 'icon': Icons.local_shipping_outlined},
       {'id': 'mazda', 'title': 'cargo.vehicle_mazda'.tr(), 'icon': Icons.fire_truck_outlined},
-      {'id': 'kamaz', 'title': 'cargo.vehicle_kamaz'.tr(), 'icon': Icons.agriculture_outlined},
     ];
 
     final String senderText = 'cargo.sender'.tr();
     final String receiverText = 'cargo.receiver'.tr();
+
+    // محاسبه قیمت آنلاین براساس خودرو انتخابی یا استفاده از fareAmount اولیه
+    double currentFare = fareAmount > 0
+        ? fareAmount
+        : calculateFareForVehicle(selectedVehicleType, distanceInKm);
 
     return Positioned(
       bottom: 0,
@@ -501,7 +552,7 @@ class CargoSheets {
             ),
             const SizedBox(height: 12),
 
-            // انتخاب نوع خودرو (زرنج، سوزوکی، مزدا، کاماز)
+            // انتخاب نوع خودرو (زرنج، سوزوکی، مزدا)
             SizedBox(
               height: 88,
               child: ListView.builder(
@@ -512,10 +563,12 @@ class CargoSheets {
                   bool isSelected = selectedVehicleType == vehicle['id'];
 
                   return GestureDetector(
-                    onTap: () => onVehicleSelected(vehicle['id'] as String),
+                    onTap: () {
+                      onVehicleSelected(vehicle['id'] as String);
+                    },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      width: 95,
+                      width: 105,
                       margin: const EdgeInsets.only(left: 8),
                       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                       decoration: BoxDecoration(
@@ -594,7 +647,7 @@ class CargoSheets {
                       style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
                     Text(
-                      '${fareAmount.toStringAsFixed(0)} ${'currency.afghani'.tr()}',
+                      '${currentFare.toStringAsFixed(0)} ${'currency.afghani'.tr()}',
                       style: const TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.bold,
