@@ -1466,7 +1466,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildInputField({
+    Widget _buildInputField({
     required TextEditingController controller,
     required String label,
     required String hintText,
@@ -1494,52 +1494,59 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        textAlign: _isRtl ? TextAlign.right : TextAlign.left,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 15,
-          fontWeight: FontWeight.w400,
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hintText,
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
-          floatingLabelAlignment: FloatingLabelAlignment.start,
-          alignLabelWithHint: false,
-          labelStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-          ),
-          floatingLabelStyle: const TextStyle(
-            color: AppColors.primaryBrand,
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            backgroundColor: Colors.white,
-          ),
-          hintStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-          ),
-          contentPadding: const EdgeInsetsDirectional.fromSTEB(
-            16,
-            16,
-            16,
-            16,
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          border: normalBorder,
-          enabledBorder: normalBorder,
-          disabledBorder: normalBorder,
-          focusedBorder: focusedBorder,
-        ),
+      child: Focus(
+        builder: (context, hasFocus) {
+          final Color currentLabelColor =
+              hasFocus ? AppColors.primaryBrand : const Color(0xFF9CA3AF);
+
+          return TextField(
+            controller: controller,
+            readOnly: readOnly,
+            keyboardType: keyboardType,
+            textInputAction: textInputAction,
+            textAlign: _isRtl ? TextAlign.right : TextAlign.left,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
+            decoration: InputDecoration(
+              labelText: label,
+              hintText: hintText,
+              floatingLabelBehavior: FloatingLabelBehavior.auto,
+              floatingLabelAlignment: FloatingLabelAlignment.start,
+              alignLabelWithHint: false,
+              labelStyle: TextStyle(
+                color: currentLabelColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+              ),
+              floatingLabelStyle: TextStyle(
+                color: currentLabelColor,
+                fontSize: 11,
+                fontWeight: hasFocus ? FontWeight.w600 : FontWeight.w400,
+                backgroundColor: Colors.white,
+              ),
+              hintStyle: const TextStyle(
+                color: Color(0xFF9CA3AF),
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+              ),
+              contentPadding: const EdgeInsetsDirectional.fromSTEB(
+                16,
+                16,
+                16,
+                16,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: normalBorder,
+              enabledBorder: normalBorder,
+              disabledBorder: normalBorder,
+              focusedBorder: focusedBorder,
+            ),
+          );
+        },
       ),
     );
   }
@@ -1574,15 +1581,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 : FloatingLabelBehavior.never,
             floatingLabelAlignment: FloatingLabelAlignment.start,
             labelStyle: const TextStyle(
-              color: AppColors.primaryBrand,
+              color: Color(0xFF9CA3AF),
               fontSize: 11,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               backgroundColor: Colors.white,
             ),
             floatingLabelStyle: const TextStyle(
-              color: AppColors.primaryBrand,
+              color: Color(0xFF9CA3AF),
               fontSize: 11,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               backgroundColor: Colors.white,
             ),
             contentPadding: const EdgeInsetsDirectional.fromSTEB(
@@ -1623,6 +1630,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
     );
   }
+
 
   @override
   void dispose() {
