@@ -10,7 +10,9 @@ import 'package:safir_passengers/pages/user_profile_screen.dart';
 import 'package:safir_passengers/pages/sub_screens.dart';
 import 'package:safir_passengers/global/global_var.dart';
 
-const Color safirBrandColor = Color(0xFF1B7A57);
+const Color primaryAccent = Color(0xFF1B7A57);
+const Color darkTextColor = Color(0xFF0F172A);
+const Color borderLightColor = Color(0xFFF1F5F9);
 
 Future<void> _makeSupportCall(BuildContext context) async {
   String phone = '+93700000000';
@@ -89,7 +91,7 @@ void _showDiscountModal(BuildContext context) {
                   children: [
                     const Icon(
                       Icons.local_offer_rounded,
-                      color: safirBrandColor,
+                      color: primaryAccent,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -97,6 +99,7 @@ void _showDiscountModal(BuildContext context) {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: darkTextColor,
                       ),
                     ),
                   ],
@@ -107,8 +110,13 @@ void _showDiscountModal(BuildContext context) {
                   textDirection: TextDirection.rtl,
                   decoration: InputDecoration(
                     hintText: 'enter_discount_code'.tr(),
-                    border: OutlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: primaryAccent, width: 1.5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: borderLightColor, width: 1.5),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -122,7 +130,8 @@ void _showDiscountModal(BuildContext context) {
                   height: 48,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: safirBrandColor,
+                      backgroundColor: primaryAccent,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -158,7 +167,7 @@ void _showDiscountModal(BuildContext context) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('discount_applied_success'.tr()),
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: const Color(0xFF22C55E),
                                   ),
                                 );
                               } else {
@@ -217,6 +226,8 @@ void _showAboutAppDialog(BuildContext context) {
       return Directionality(
         textDirection: TextDirection.rtl,
         child: AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -224,7 +235,7 @@ void _showAboutAppDialog(BuildContext context) {
             children: [
               const Icon(
                 Icons.info_outline,
-                color: safirBrandColor,
+                color: primaryAccent,
               ),
               const SizedBox(width: 8),
               Text(
@@ -232,6 +243,7 @@ void _showAboutAppDialog(BuildContext context) {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: darkTextColor,
                 ),
               ),
             ],
@@ -241,6 +253,7 @@ void _showAboutAppDialog(BuildContext context) {
             style: const TextStyle(
               fontSize: 13,
               height: 1.6,
+              color: Color(0xFF334155),
             ),
           ),
           actions: [
@@ -249,7 +262,7 @@ void _showAboutAppDialog(BuildContext context) {
               child: Text(
                 'close'.tr(),
                 style: const TextStyle(
-                  color: safirBrandColor,
+                  color: primaryAccent,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -293,19 +306,25 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         leading: IconButton(
           tooltip: 'back'.tr(),
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Colors.black87,
+            color: darkTextColor,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: borderLightColor, height: 1),
         ),
       ),
       body: SafeArea(
@@ -395,8 +414,8 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF145A41),
-            Color(0xFF21825D),
+            Color(0xFF0066FF),
+            Color(0xFF2563EB),
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
@@ -404,7 +423,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: safirBrandColor.withOpacity(0.22),
+            color: primaryAccent.withOpacity(0.22),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -429,7 +448,6 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
             child: Row(
               children: [
-                // دایره سفید تفکیک‌کننده دور آیکون
                 Container(
                   width: 60,
                   height: 60,
@@ -503,7 +521,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
       child: Text(
         title,
         style: const TextStyle(
-          color: Colors.black54,
+          color: darkTextColor,
           fontSize: 13,
           fontWeight: FontWeight.bold,
         ),
@@ -512,99 +530,96 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
   }
 
   Widget _buildMenuItem({
-  required IconData icon,
-  required String title,
-  required String subtitle,
-  required VoidCallback onTap,
-}) {
-  const Color darkTextColor = Color(0xFF0F172A);
-  const Color borderLightColor = Color(0xFFF1F5F9);
-
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: borderLightColor,
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          onTap: onTap,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          splashColor: Colors.black12,
-          highlightColor: Colors.black.withOpacity(0.04),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 13,
+          border: Border.all(
+            color: borderLightColor,
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: Row(
-              children: [
-                // مربع پس‌زمینه و آیکون
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9), // پس‌زمینه خاکستری روشن
-                    borderRadius: BorderRadius.circular(12),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            splashColor: Colors.black12,
+            highlightColor: Colors.black.withOpacity(0.04),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 13,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: darkTextColor,
+                      size: 22,
+                    ),
                   ),
-                  child: Icon(
-                    icon,
-                    color: darkTextColor, // آیکون مشکی/تیره
+                  const SizedBox(width: 13),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: darkTextColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_left_rounded,
+                    color: Color(0xFF94A3B8),
                     size: 22,
                   ),
-                ),
-                const SizedBox(width: 13),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: darkTextColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Color(0xFF64748B),
-                          fontSize: 11.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.chevron_left_rounded,
-                  color: Color(0xFF94A3B8),
-                  size: 22,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ), // پرانتز پایانی Padding اضافه شد
-  );
+    );
+  }
 }
