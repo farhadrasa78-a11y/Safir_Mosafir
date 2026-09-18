@@ -271,7 +271,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           "user_account_title".tr().isEmpty ? "حساب کاربری" : "user_account_title".tr(),
-          style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -340,13 +340,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             children: [
                               Text(
                                 "main_account_info_title".tr().isEmpty ? "اطلاعات کاربری" : "main_account_info_title".tr(),
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                               ),
                               GestureDetector(
                                 onTap: _openEditProfileDrawer,
                                 child: Text(
                                   "edit".tr().isEmpty ? "ویرایش" : "edit".tr(),
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF5E60CE)),
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF5E60CE)),
                                 ),
                               ),
                             ],
@@ -379,7 +379,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         "badges_section_title".tr().isEmpty ? "مدال‌های افتخار" : "badges_section_title".tr(),
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                       ),
                     ),
                   ),
@@ -419,7 +419,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                                     child: Text(
                                       "badge_polite_label".tr().isEmpty ? "خوش‌رفتار" : "badge_polite_label".tr(),
-                                      style: const TextStyle(color: Color(0xFF15A968), fontWeight: FontWeight.bold, fontSize: 11),
+                                      style: const TextStyle(color: Color(0xFF15A968), fontWeight: FontWeight.w600, fontSize: 11),
                                     ),
                                   ),
                                 ],
@@ -476,7 +476,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         "accessibility_section_title".tr().isEmpty ? "دسترس‌پذیری" : "accessibility_section_title".tr(),
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                       ),
                     ),
                   ),
