@@ -517,6 +517,9 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
   required String subtitle,
   required VoidCallback onTap,
 }) {
+  const Color darkTextColor = Color(0xFF0F172A);
+  const Color borderLightColor = Color(0xFFF1F5F9);
+
   return Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: Container(
@@ -555,12 +558,12 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9), // پس‌زمینه خاکستری روشن ملایم
+                    color: const Color(0xFFF1F5F9), // پس‌زمینه خاکستری روشن
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     icon,
-                    color: darkTextColor, // یا Colors.black برای مشکی خالص
+                    color: darkTextColor, // آیکون مشکی/تیره
                     size: 22,
                   ),
                 ),
@@ -602,5 +605,6 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
           ),
         ),
       ),
-    );
-  }
+    ), // پرانتز پایانی Padding اضافه شد
+  );
+}
