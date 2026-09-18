@@ -1420,7 +1420,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _isChanged
-                                    ? AppColors.primaryButton,
+                                    ? AppColors.primaryButton
+                                    : Colors.grey,
+
                                 elevation: _isChanged ? 2 : 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
