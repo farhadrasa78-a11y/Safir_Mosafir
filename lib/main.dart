@@ -191,7 +191,7 @@ class _AuthCheckState extends State<AuthCheck>
   Widget? _targetScreen;
 
   // رنگ دقیق برند لوگوی سفیر
-  static const Color safirGreen = Color(0xFF117656);
+  static const Color safirGreen = Color(0xFF127C59);
 
   late AnimationController _loadingController;
   late Animation<double> _dot1;
