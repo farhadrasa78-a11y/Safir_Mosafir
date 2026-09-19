@@ -409,30 +409,28 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
     );
   }
 
-  Widget _buildProfileHeader() {
+    Widget _buildProfileHeader() {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF0066FF),
-            Color(0xFF2563EB),
-          ],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: borderLightColor,
+          width: 1.5,
         ),
-        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: primaryAccent.withOpacity(0.22),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
         child: InkWell(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
           onTap: () async {
             await Navigator.push(
               context,
@@ -455,11 +453,15 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: borderLightColor,
+                      width: 1.5,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withOpacity(0.05),
                         blurRadius: 6,
-                        offset: const Offset(0, 3),
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
@@ -481,7 +483,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: darkTextColor,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -491,7 +493,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                         _displayPhone(),
                         textDirection: TextDirection.ltr,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Color(0xFF64748B),
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
                         ),
@@ -501,7 +503,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                 ),
                 const Icon(
                   Icons.chevron_left_rounded,
-                  color: Colors.white,
+                  color: Color(0xFF94A3B8),
                   size: 24,
                 ),
               ],
@@ -511,6 +513,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
       ),
     );
   }
+
 
   Widget _buildSectionTitle(String title) {
     return Padding(
