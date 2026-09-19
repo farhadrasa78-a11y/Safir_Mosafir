@@ -339,7 +339,7 @@ class _AuthCheckState extends State<AuthCheck>
       height: 24,
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           AnimatedBuilder(
             animation: _dot1,
