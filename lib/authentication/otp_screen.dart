@@ -25,131 +25,226 @@ class _OTPScreenState extends State<OTPScreen> {
   @override
   Widget build(BuildContext context) {
     final authRepo = Provider.of<AuthenticationProvider>(context, listen: true);
-    
+    final currentLangCode = context.locale.languageCode;
+    final bool isRtl = currentLangCode != 'en';
+
     final defaultPinTheme = PinTheme(
-      width: 54,
-      height: 54,
+      width: 48,
+      height: 52,
       textStyle: const TextStyle(
         fontSize: 20,
-        fontWeight: FontWeight.w600, // 👈 ضخامت متناسب و استاندارد
+        fontWeight: FontWeight.bold,
         color: AppColors.textPrimary,
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey[50],
-        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        border: Border.all(color: AppColors.borderLight, width: 1.5),
       ),
     );
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(
+            isRtl ? Icons.arrow_back_ios_new_rounded : Icons.arrow_back_ios_rounded,
+            color: AppColors.textPrimary,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.borderLight, height: 1),
         ),
       ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 28),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 12),
+
+              // 🛡️ آیکون دایره‌ای بالای صفحه با رنگ مشکی متون
+              Center(
+                child: Container(
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBrand.withOpacity(0.1),
+                    color: AppColors.primaryBrand.withOpacity(0.08),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.shield_outlined, color: AppColors.primaryBrand, size: 40),
-                ),
-                const SizedBox(height: 24),
-
-                // 👈 جایگزینی otp.title با otp_title
-                Text(
-                  'otp_title'.tr(),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600, // 👈 اصلاح به w600 به جای bold
+                  child: const Icon(
+                    Icons.shield_outlined,
                     color: AppColors.textPrimary,
+                    size: 28,
                   ),
                 ),
-                const SizedBox(height: 10),
-                
-                // 👈 جایگزینی otp.subtitle با otp_subtitle
-                Text(
-                  'otp_subtitle'.tr(),
+              ),
+              const SizedBox(height: 16),
+
+              // عناوین تأیید کد
+              Center(
+                child: Text(
+                  'otp_title'.tr(),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
-                    height: 1.5,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                    height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 32),
+              ),
+              const SizedBox(height: 6),
 
-                Pinput(
-                  length: 6,
-                  showCursor: true,
-                  defaultPinTheme: defaultPinTheme,
-                  focusedPinTheme: defaultPinTheme.copyWith(
-                    decoration: defaultPinTheme.decoration!.copyWith(
-                      border: Border.all(color: AppColors.primaryBrand, width: 1.5),
-                      color: Colors.white,
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'otp_subtitle'.tr(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.normal,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
                     ),
                   ),
-                  submittedPinTheme: defaultPinTheme.copyWith(
-                    decoration: defaultPinTheme.decoration!.copyWith(
-                      border: Border.all(color: AppColors.primaryBrand),
-                      color: AppColors.primaryBrand.withOpacity(0.05),
-                    ),
-                  ),
-                  onCompleted: (value) {
-                    setState(() => smsCode = value);
-                    verifyOTP(smsCode: smsCode!);
-                  },
                 ),
-                const SizedBox(height: 32),
+              ),
 
-                if (authRepo.isLoading)
-                  const CircularProgressIndicator(color: AppColors.primaryBrand)
-                else if (authRepo.isSuccessful)
-                  Container(
-                    height: 44,
-                    width: 44,
-                    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.green),
-                    child: const Icon(Icons.done, color: Colors.white, size: 26),
+              const SizedBox(height: 28),
+
+              // 🏷️ هدر بخش ورودی Pinput
+              _buildSectionHeader(
+                currentLangCode == 'en' ? 'Verification Code' : 'کد تأیید',
+              ),
+
+              // 📱 فیلد Pinput داخل کارت سفید اختصاصی UI جدید
+              _buildCardGroup([
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  child: Center(
+                    child: Pinput(
+                      length: 6,
+                      showCursor: true,
+                      defaultPinTheme: defaultPinTheme,
+                      focusedPinTheme: defaultPinTheme.copyWith(
+                        decoration: defaultPinTheme.decoration!.copyWith(
+                          border: Border.all(color: AppColors.primaryBrand, width: 2),
+                        ),
+                      ),
+                      submittedPinTheme: defaultPinTheme.copyWith(
+                        decoration: defaultPinTheme.decoration!.copyWith(
+                          border: Border.all(color: AppColors.primaryBrand, width: 1.5),
+                          color: AppColors.primaryBrand.withOpacity(0.05),
+                        ),
+                      ),
+                      onCompleted: (value) {
+                        setState(() => smsCode = value);
+                        verifyOTP(smsCode: smsCode!);
+                      },
+                    ),
                   ),
-                const SizedBox(height: 32),
+                ),
+              ]),
 
-                TextButton.icon(
+              const SizedBox(height: 24),
+
+              // نمایش حالت Loading یا Success
+              if (authRepo.isLoading)
+                const Center(
+                  child: CircularProgressIndicator(color: AppColors.primaryBrand),
+                )
+              else if (authRepo.isSuccessful)
+                Center(
+                  child: Container(
+                    height: 48,
+                    width: 48,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.success,
+                    ),
+                    child: const Icon(Icons.done_rounded, color: Colors.white, size: 28),
+                  ),
+                ),
+
+              const SizedBox(height: 16),
+
+              // دکمه ارسال مجدد کد
+              Center(
+                child: TextButton.icon(
                   onPressed: () {},
-                  icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.primaryBrand),
-                  // 👈 جایگزینی otp.resend_btn با otp_resend_btn
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    size: 18,
+                    color: AppColors.primaryBrand,
+                  ),
                   label: Text(
                     'otp_resend_btn'.tr(),
                     style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600, // 👈 اصلاح به w600
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.primaryBrand,
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
+  // 🛠️ متدهای ساخت کارت و هدر هماهنگ با UI بخش ورود و تنظیمات
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimary,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardGroup(List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderLight, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(children: children),
+      ),
+    );
+  }
+
   void verifyOTP({required String smsCode}) {
     final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
-    
+
     authProvider.verifyOTP(
       context: context,
       verificationId: widget.verificationId,
@@ -162,13 +257,13 @@ class _OTPScreenState extends State<OTPScreen> {
           );
 
           if (!mounted) return;
-          
+
           if (userExits) {
             bool isBlocked = false;
             try {
               isBlocked = await authProvider.checkIfUserIsBlocked();
             } catch (e) {
-              isBlocked = false; 
+              isBlocked = false;
             }
 
             if (isBlocked) {
@@ -187,7 +282,7 @@ class _OTPScreenState extends State<OTPScreen> {
             try {
               isUserComplete = await authProvider.checkUserFieldsFilled();
             } catch (e) {
-              isUserComplete = false; 
+              isUserComplete = false;
             }
 
             if (isUserComplete) {
