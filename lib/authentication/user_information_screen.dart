@@ -21,7 +21,7 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
   CommonMethods commonMethods = CommonMethods();
   
   // پالت رنگی استاندارد برند سفیر
-  final Color safirBrandColor = const Color(0xFF145A41);
+  final Color safirBrandColor = const Color(0xFF1B7A57);
 
   @override
   void dispose() {
