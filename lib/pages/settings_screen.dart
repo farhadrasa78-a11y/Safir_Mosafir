@@ -101,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               title: Row(
                 children: [
-                  Icon(Icons.language_rounded, color: primaryAccent),
+                  Icon(Icons.language_rounded, color: darkTextColor),
                   const SizedBox(width: 10),
                   Text(
                     'select_language_title'.tr().isEmpty ? 'انتخاب زبان' : 'select_language_title'.tr(),
@@ -300,7 +300,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader('general_settings_header'.tr().isEmpty ? 'عمومی' : 'general_settings_header'.tr()),
           _buildCardGroup([
             UrbanListTile(
-              leading: Icon(Icons.language_rounded, color: primaryAccent),
+              leading: Icon(Icons.language_rounded, color: darkTextColor),
               title: Text(
                 'app_language_label'.tr().isEmpty ? 'زبان برنامه' : 'app_language_label'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
@@ -324,7 +324,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               activeTrackColor: primaryAccent,
               inactiveThumbColor: Colors.white,
               inactiveTrackColor: const Color(0xFFE2E8F0),
-              secondary: Icon(Icons.notifications_active_outlined, color: primaryAccent),
+              secondary: Icon(Icons.notifications_active_outlined, color: darkTextColor),
               title: Text(
                 'enable_notifications_label'.tr().isEmpty ? 'دریافت اعلانات' : 'enable_notifications_label'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
@@ -338,7 +338,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               activeTrackColor: primaryAccent,
               inactiveThumbColor: Colors.white,
               inactiveTrackColor: const Color(0xFFE2E8F0),
-              secondary: Icon(Icons.volume_up_outlined, color: primaryAccent),
+              secondary: Icon(Icons.volume_up_outlined, color: darkTextColor),
               title: Text(
                 'enable_sounds_label'.tr().isEmpty ? 'افکت‌های صوتی' : 'enable_sounds_label'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
@@ -356,7 +356,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             UrbanListTile(
               leading: _isLoadingCache 
                   ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: primaryAccent))
-                  : Icon(Icons.cleaning_services_outlined, color: primaryAccent),
+                  : Icon(Icons.cleaning_services_outlined, color: darkTextColor),
               title: Text(
                 'clear_cache_btn'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_btn'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
@@ -376,7 +376,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader('about_app_header'.tr().isEmpty ? 'درباره سفیر' : 'about_app_header'.tr()),
           _buildCardGroup([
             UrbanListTile(
-              leading: Icon(Icons.description_outlined, color: primaryAccent),
+              leading: Icon(Icons.description_outlined, color: darkTextColor),
               title: Text(
                 'terms_of_service'.tr().isEmpty ? 'شرایط و قوانین استفاده' : 'terms_of_service'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
@@ -386,7 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             Divider(height: 1, indent: 56, color: borderLightColor),
             UrbanListTile(
-              leading: Icon(Icons.info_outline_rounded, color: primaryAccent),
+              leading: Icon(Icons.info_outline_rounded, color: darkTextColor),
               title: Text(
                 'app_version_label'.tr().isEmpty ? 'نسخه برنامه' : 'app_version_label'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
