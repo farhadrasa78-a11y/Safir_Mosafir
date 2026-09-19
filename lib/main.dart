@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const String defaultFont = 'IranYekan';
-    const Color primaryColor = Color(0xFF145A41);
+    const Color primaryColor = Color(0xFF1B7A57);
     const Color textColor = Color(0xFF2D3142);
 
     return MultiProvider(
