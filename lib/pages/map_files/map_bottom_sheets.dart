@@ -71,6 +71,7 @@ class MapBottomSheets {
     bool hasActiveTripOptions = false,
     bool isScheduled = false,
     bool hasPromoCode = false,
+    double? distanceInKm,
   }) {
     return Positioned.fill(
       child: LayoutBuilder(
