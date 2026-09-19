@@ -16,16 +16,12 @@ class CargoScreen extends StatefulWidget {
 }
 
 class _CargoScreenState extends State<CargoScreen> {
-  // مراحل سفارش:
-  // 0: انتخاب مبدأ/مقصد و نوع وسیله
-  // 1: فرم فرستنده
-  // 2: فرم گیرنده
-  // 3: بررسی نهایی و ثبت در فایربیس
   int _currentStep = 0;
   bool _isLoading = false;
 
   String _originAddress = '';
   String _destinationAddress = '';
+  double _distanceInKm = 5.0; // مسافت پیش‌فرض (در صورت دریافت از نقشه مقدار واقعی ست می‌شود)
 
   @override
   void didChangeDependencies() {
@@ -52,7 +48,7 @@ class _CargoScreenState extends State<CargoScreen> {
 
   String _selectedCargoType = 'cargo.type_other'.tr();
   String _insuranceAmount = 'cargo.insurance_50k'.tr();
-  String _paymentPayer = 'cargo.sender'.tr(); // فرستنده | گیرنده
+  String _paymentPayer = 'cargo.sender'.tr();
 
   // نوع وسیله نقلیه و کرایه
   String _selectedVehicle = 'suzuki';
@@ -73,7 +69,7 @@ class _CargoScreenState extends State<CargoScreen> {
     super.dispose();
   }
 
-  // 🚀 باز کردن نقشه یکتا برای انتخاب مبدأ و مقصد
+  // 🚀 انتخاب مبدأ و مقصد از نقشه
   Future<void> _openMapPicker() async {
     final result = await Navigator.push(
       context,
@@ -93,42 +89,33 @@ class _CargoScreenState extends State<CargoScreen> {
         if (result['destination'] != null) {
           _destinationAddress = result['destination'].placeName ?? _destinationAddress;
         }
+        if (result['distance'] != null) {
+          _distanceInKm = (result['distance'] as num).toDouble();
+        }
+        // محاسبه مجدد کرایه پس از تغییر مسافت
+        _updateFare(_selectedVehicle);
       });
     }
   }
 
-  // انتخاب وسیله نقلیه و محاسبه کرایه به افغانی
-  void _selectVehicle(String type) {
+  // 📐 محاسبه و به‌روزرسانی قیمت بر اساس نوع خودرو
+  void _updateFare(String vehicleType) {
     setState(() {
-      _selectedVehicle = type;
-      switch (type) {
-        case 'zaranj':
-          _calculatedFare = 450.0;
-          break;
-        case 'suzuki':
-          _calculatedFare = 850.0;
-          break;
-        case 'mazda':
-          _calculatedFare = 2500.0;
-          break;
-        case 'kamaz':
-          _calculatedFare = 8500.0;
-          break;
-      }
+      _selectedVehicle = vehicleType;
+      _calculatedFare = CargoSheets.calculateFareForVehicle(vehicleType, _distanceInKm);
     });
   }
 
-  // 🔥 متد اصلی ثبت سفارش در فایربیس (Firestore)
+  // 🔥 متد ثبت سفارش در فایربیس
   Future<void> _submitOrderToFirebase() async {
     setState(() => _isLoading = true);
 
     try {
       final User? user = FirebaseAuth.instance.currentUser;
 
-      // ساخت سند سفارش باربری
       await FirebaseFirestore.instance.collection('cargo_orders').add({
         'userId': user?.uid ?? 'anonymous',
-        'status': 'pending', // حالت اولیه: منتظر پذیرش راننده
+        'status': 'pending',
         'createdAt': FieldValue.serverTimestamp(),
         'originAddress': _originAddress,
         'destinationAddress': _destinationAddress,
@@ -162,7 +149,6 @@ class _CargoScreenState extends State<CargoScreen> {
         ),
       );
 
-      // بازگشت به صفحه اصلی یا ریست کردن فرم
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
@@ -175,6 +161,46 @@ class _CargoScreenState extends State<CargoScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  // نمایش BottomSheetها بر اساس مرحله
+  void _openSenderBottomSheet() {
+    CargoSheets.showSenderDialog(
+      context: context,
+      nameController: _senderNameController,
+      phoneController: _senderPhoneController,
+      addressController: TextEditingController(text: _originAddress),
+      unitController: _senderUnitController,
+      floorController: _senderPlaqueController,
+      noteController: _senderDescController,
+      onConfirm: () {
+        setState(() => _currentStep = 2);
+        _openReceiverBottomSheet();
+      },
+    );
+  }
+
+  void _openReceiverBottomSheet() {
+    CargoSheets.showReceiverDialog(
+      context: context,
+      nameController: _receiverNameController,
+      phoneController: _receiverPhoneController,
+      addressController: TextEditingController(text: _destinationAddress),
+      unitController: _receiverUnitController,
+      floorController: _receiverPlaqueController,
+      noteController: _receiverDescController,
+      selectedPackageType: _selectedCargoType,
+      onPackageTypeChanged: (val) {
+        if (val != null) setState(() => _selectedCargoType = val);
+      },
+      selectedInsurance: _insuranceAmount,
+      onInsuranceChanged: (val) {
+        if (val != null) setState(() => _insuranceAmount = val);
+      },
+      onConfirm: () {
+        setState(() => _currentStep = 3);
+      },
+    );
   }
 
   @override
@@ -211,87 +237,65 @@ class _CargoScreenState extends State<CargoScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBrand))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  // کارت آدرس‌ها
-                  _buildAddressCard(),
-                  const SizedBox(height: 16),
+      body: Stack(
+        children: [
+          _isLoading
+              ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBrand))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildAddressCard(),
+                      const SizedBox(height: 16),
 
-                  // مدیریت مراحل بر اساس _currentStep با استفاده از CargoSheets
-                  if (_currentStep == 0) ...[
-                    // مرحله انتخاب ماشین
-                    _buildVehicleSelectionCard(),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryButton,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      if (_currentStep == 0) ...[
+                        _buildVehicleSelectionCard(),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryButton,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            onPressed: () {
+                              setState(() => _currentStep = 1);
+                              _openSenderBottomSheet();
+                            },
+                            child: Text(
+                              'cargo.continue_details'.tr(),
+                              style: const TextStyle(color: AppColors.buttonText, fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ),
-                        onPressed: () => setState(() => _currentStep = 1),
-                        child: Text(
-                          'cargo.continue_details'.tr(),
-                          style: const TextStyle(color: AppColors.buttonText, fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ] else if (_currentStep == 1) ...[
-                    // مرحله فرم فرستنده از کلاس CargoSheets
-                    CargoSheets.buildSenderFormSheet(
-                      context: context,
-                      nameController: _senderNameController,
-                      phoneController: _senderPhoneController,
-                      plaqueController: _senderPlaqueController,
-                      unitController: _senderUnitController,
-                      descController: _senderDescController,
-                      originAddress: _originAddress,
-                      onConfirm: () => setState(() => _currentStep = 2),
-                      onAutoFill: () {
-                        setState(() {
-                          _senderNameController.text = "فرهاد نوری";
-                          _senderPhoneController.text = "0790123456";
-                        });
-                      },
-                    ),
-                  ] else if (_currentStep == 2) ...[
-                    // مرحله فرم گیرنده از کلاس CargoSheets
-                    CargoSheets.buildReceiverFormSheet(
-                      context: context,
-                      nameController: _receiverNameController,
-                      phoneController: _receiverPhoneController,
-                      plaqueController: _receiverPlaqueController,
-                      unitController: _receiverUnitController,
-                      descController: _receiverDescController,
-                      destinationAddress: _destinationAddress,
-                      selectedCargoType: _selectedCargoType,
-                      insuranceAmount: _insuranceAmount,
-                      onCargoTypeChanged: (val) => setState(() => _selectedCargoType = val),
-                      onInsuranceChanged: (val) => setState(() => _insuranceAmount = val),
-                      onConfirm: () => setState(() => _currentStep = 3),
-                    ),
-                  ] else if (_currentStep == 3) ...[
-                    // مرحله بررسی نهایی و ثبت در فایربیس از کلاس CargoSheets
-                    CargoSheets.buildCargoSummarySheet(
-                      context: context,
-                      calculatedFare: _calculatedFare,
-                      paymentPayer: _paymentPayer,
-                      onPayerChanged: (val) => setState(() => _paymentPayer = val),
-                      onRequestTrip: _submitOrderToFirebase,
-                    ),
-                  ],
-                ],
-              ),
+                      ],
+                    ],
+                  ),
+                ),
+
+          // شیت خلاصه سفارش در مرحله نهایی
+          if (_currentStep == 3)
+            CargoSheets.buildCargoSummarySheet(
+              context: context,
+              fareAmount: _calculatedFare,
+              distanceInKm: _distanceInKm,
+              selectedVehicleType: _selectedVehicle,
+              onVehicleSelected: (vehicleId) {
+                _updateFare(vehicleId);
+              },
+              paymentPayer: _paymentPayer,
+              onPayerChanged: (val) {
+                setState(() => _paymentPayer = val);
+              },
+              onRequestTrip: _submitOrderToFirebase,
+              isLoading: _isLoading,
             ),
+        ],
+      ),
     );
   }
 
-  // کارت نمایش مبدأ و مقصد
   Widget _buildAddressCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -324,7 +328,6 @@ class _CargoScreenState extends State<CargoScreen> {
     );
   }
 
-  // انتخاب وسیله نقلیه
   Widget _buildVehicleSelectionCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -346,7 +349,6 @@ class _CargoScreenState extends State<CargoScreen> {
                 _buildVehicleTypeCard('zaranj', 'cargo.vehicle_zaranj'.tr(), Icons.electric_rickshaw),
                 _buildVehicleTypeCard('suzuki', 'cargo.vehicle_suzuki'.tr(), Icons.local_shipping_outlined),
                 _buildVehicleTypeCard('mazda', 'cargo.vehicle_mazda'.tr(), Icons.fire_truck_outlined),
-                _buildVehicleTypeCard('kamaz', 'cargo.vehicle_kamaz'.tr(), Icons.agriculture_outlined),
               ],
             ),
           ),
@@ -358,13 +360,14 @@ class _CargoScreenState extends State<CargoScreen> {
   Widget _buildVehicleTypeCard(String type, String title, IconData icon) {
     bool isSelected = _selectedVehicle == type;
     return GestureDetector(
-      onTap: () => _selectVehicle(type),
-      child: Container(
+      onTap: () => _updateFare(type),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         width: 100,
         margin: const EdgeInsets.only(left: 8),
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.cardBackground : Colors.grey[100],
+          color: isSelected ? AppColors.primaryBrand.withOpacity(0.08) : Colors.grey[100],
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? AppColors.primaryBrand : Colors.transparent,
