@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:ui';
+import 'dart:ui' as ui; // 🟢 ۱. اضافه کردن alias برای جلوگیری از تداخل
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -60,7 +60,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _applyLanguageChange(String langCode) async {
-    // تغییر locale در easy_localization
     await context.setLocale(Locale(langCode));
 
     if (widget.onLanguageChanged != null) {
@@ -271,7 +270,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final IconData chevronIcon = isRtl ? Icons.chevron_left_rounded : Icons.chevron_right_rounded;
 
     return Directionality(
-      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      // 🟢 ۲. استفاده از ui.TextDirection جهت صراحت کامپایلر
+      textDirection: isRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
