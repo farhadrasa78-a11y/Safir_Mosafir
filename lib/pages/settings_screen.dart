@@ -59,6 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _applyLanguageChange(String langCode) async {
+    // تغییر locale در easy_localization
     await context.setLocale(Locale(langCode));
 
     if (widget.onLanguageChanged != null) {
@@ -268,148 +269,151 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final bool isRtl = currentLangCode != 'en';
     final IconData chevronIcon = isRtl ? Icons.chevron_left_rounded : Icons.chevron_right_rounded;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return Directionality(
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          'settings_title'.tr().isEmpty ? 'تنظیمات' : 'settings_title'.tr(),
-          style: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            isRtl ? Icons.arrow_back_ios_new_rounded : Icons.arrow_back_ios_rounded,
-            color: darkTextColor,
-            size: 20,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Text(
+            'settings_title'.tr().isEmpty ? 'تنظیمات' : 'settings_title'.tr(),
+            style: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold, fontSize: 18),
           ),
-          onPressed: () => Navigator.pop(context),
+          centerTitle: true,
+          leading: IconButton(
+            icon: Icon(
+              isRtl ? Icons.arrow_back_ios_new_rounded : Icons.arrow_back_ios_rounded,
+              color: darkTextColor,
+              size: 20,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Container(color: borderLightColor, height: 1),
+          ),
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: borderLightColor, height: 1),
+        body: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          children: [
+            // ۱. عمومی و زبان
+            _buildSectionHeader('general_settings_header'.tr().isEmpty ? 'عمومی' : 'general_settings_header'.tr()),
+            _buildCardGroup([
+              UrbanListTile(
+                leading: Icon(Icons.language_rounded, color: darkTextColor),
+                title: Text(
+                  'app_language_label'.tr().isEmpty ? 'زبان برنامه' : 'app_language_label'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                ),
+                subtitle: Text(
+                  "${'current_language_prefix'.tr().isEmpty ? 'زبان فعلی' : 'current_language_prefix'.tr()}: ${_getLanguageName(currentLangCode)}",
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                ),
+                trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
+                onTap: _showLanguageDialog,
+              ),
+            ]),
+
+            const SizedBox(height: 24),
+
+            // ۲. اعلانات و صداها
+            _buildSectionHeader('notifications_header'.tr().isEmpty ? 'اعلانات و صداها' : 'notifications_header'.tr()),
+            _buildCardGroup([
+              SwitchListTile(
+                activeColor: Colors.white,
+                activeTrackColor: primaryAccent,
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xFFE2E8F0),
+                secondary: Icon(Icons.notifications_active_outlined, color: darkTextColor),
+                title: Text(
+                  'enable_notifications_label'.tr().isEmpty ? 'دریافت اعلانات' : 'enable_notifications_label'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                ),
+                value: _enableNotifications,
+                onChanged: _toggleNotification,
+              ),
+              Divider(height: 1, indent: 56, color: borderLightColor),
+              SwitchListTile(
+                activeColor: Colors.white,
+                activeTrackColor: primaryAccent,
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xFFE2E8F0),
+                secondary: Icon(Icons.volume_up_outlined, color: darkTextColor),
+                title: Text(
+                  'enable_sounds_label'.tr().isEmpty ? 'افکت‌های صوتی' : 'enable_sounds_label'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                ),
+                value: _enableSoundEffects,
+                onChanged: _toggleSound,
+              ),
+            ]),
+
+            const SizedBox(height: 24),
+
+            // ۳. حافظه و داده‌ها
+            _buildSectionHeader('privacy_cache_header'.tr().isEmpty ? 'حافظه و داده‌ها' : 'privacy_cache_header'.tr()),
+            _buildCardGroup([
+              UrbanListTile(
+                leading: _isLoadingCache 
+                    ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: primaryAccent))
+                    : Icon(Icons.cleaning_services_outlined, color: darkTextColor),
+                title: Text(
+                  'clear_cache_btn'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_btn'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                ),
+                subtitle: Text(
+                  'clear_cache_subtitle'.tr().isEmpty ? 'آزادسازی فضای اشغال‌شده توسط عکس‌ها و نقشه‌ها' : 'clear_cache_subtitle'.tr(),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                ),
+                trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
+                onTap: _isLoadingCache ? null : _clearCacheDialog,
+              ),
+            ]),
+
+            const SizedBox(height: 24),
+
+            // ۴. درباره سفیر
+            _buildSectionHeader('about_app_header'.tr().isEmpty ? 'درباره سفیر' : 'about_app_header'.tr()),
+            _buildCardGroup([
+              UrbanListTile(
+                leading: Icon(Icons.description_outlined, color: darkTextColor),
+                title: Text(
+                  'terms_of_service'.tr().isEmpty ? 'شرایط و قوانین استفاده' : 'terms_of_service'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                ),
+                trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
+                onTap: _showTermsDialog,
+              ),
+              Divider(height: 1, indent: 56, color: borderLightColor),
+              UrbanListTile(
+                leading: Icon(Icons.info_outline_rounded, color: darkTextColor),
+                title: Text(
+                  'app_version_label'.tr().isEmpty ? 'نسخه برنامه' : 'app_version_label'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                ),
+                subtitle: const Text(
+                  "v1.0.0 (Safir Passengers)",
+                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                ),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: primaryAccent.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'up_to_date'.tr().isEmpty ? 'به‌روز است' : 'up_to_date'.tr(),
+                    style: TextStyle(color: primaryAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 20),
+          ],
         ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        children: [
-          // ۱. عمومی و زبان
-          _buildSectionHeader('general_settings_header'.tr().isEmpty ? 'عمومی' : 'general_settings_header'.tr()),
-          _buildCardGroup([
-            UrbanListTile(
-              leading: Icon(Icons.language_rounded, color: darkTextColor),
-              title: Text(
-                'app_language_label'.tr().isEmpty ? 'زبان برنامه' : 'app_language_label'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
-              ),
-              subtitle: Text(
-                "${'current_language_prefix'.tr().isEmpty ? 'زبان فعلی' : 'current_language_prefix'.tr()}: ${_getLanguageName(currentLangCode)}",
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-              ),
-              trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
-              onTap: _showLanguageDialog,
-            ),
-          ]),
-
-          const SizedBox(height: 24),
-
-          // ۲. اعلانات و صداها
-          _buildSectionHeader('notifications_header'.tr().isEmpty ? 'اعلانات و صداها' : 'notifications_header'.tr()),
-          _buildCardGroup([
-            SwitchListTile(
-              activeColor: Colors.white,
-              activeTrackColor: primaryAccent,
-              inactiveThumbColor: Colors.white,
-              inactiveTrackColor: const Color(0xFFE2E8F0),
-              secondary: Icon(Icons.notifications_active_outlined, color: darkTextColor),
-              title: Text(
-                'enable_notifications_label'.tr().isEmpty ? 'دریافت اعلانات' : 'enable_notifications_label'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
-              ),
-              value: _enableNotifications,
-              onChanged: _toggleNotification,
-            ),
-            Divider(height: 1, indent: 56, color: borderLightColor),
-            SwitchListTile(
-              activeColor: Colors.white,
-              activeTrackColor: primaryAccent,
-              inactiveThumbColor: Colors.white,
-              inactiveTrackColor: const Color(0xFFE2E8F0),
-              secondary: Icon(Icons.volume_up_outlined, color: darkTextColor),
-              title: Text(
-                'enable_sounds_label'.tr().isEmpty ? 'افکت‌های صوتی' : 'enable_sounds_label'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
-              ),
-              value: _enableSoundEffects,
-              onChanged: _toggleSound,
-            ),
-          ]),
-
-          const SizedBox(height: 24),
-
-          // ۳. حافظه و داده‌ها
-          _buildSectionHeader('privacy_cache_header'.tr().isEmpty ? 'حافظه و داده‌ها' : 'privacy_cache_header'.tr()),
-          _buildCardGroup([
-            UrbanListTile(
-              leading: _isLoadingCache 
-                  ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: primaryAccent))
-                  : Icon(Icons.cleaning_services_outlined, color: darkTextColor),
-              title: Text(
-                'clear_cache_btn'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_btn'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
-              ),
-              subtitle: Text(
-                'clear_cache_subtitle'.tr().isEmpty ? 'آزادسازی فضای اشغال‌شده توسط عکس‌ها و نقشه‌ها' : 'clear_cache_subtitle'.tr(),
-                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-              ),
-              trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
-              onTap: _isLoadingCache ? null : _clearCacheDialog,
-            ),
-          ]),
-
-          const SizedBox(height: 24),
-
-          // ۴. درباره سفیر
-          _buildSectionHeader('about_app_header'.tr().isEmpty ? 'درباره سفیر' : 'about_app_header'.tr()),
-          _buildCardGroup([
-            UrbanListTile(
-              leading: Icon(Icons.description_outlined, color: darkTextColor),
-              title: Text(
-                'terms_of_service'.tr().isEmpty ? 'شرایط و قوانین استفاده' : 'terms_of_service'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
-              ),
-              trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
-              onTap: _showTermsDialog,
-            ),
-            Divider(height: 1, indent: 56, color: borderLightColor),
-            UrbanListTile(
-              leading: Icon(Icons.info_outline_rounded, color: darkTextColor),
-              title: Text(
-                'app_version_label'.tr().isEmpty ? 'نسخه برنامه' : 'app_version_label'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
-              ),
-              subtitle: const Text(
-                "v1.0.0 (Safir Passengers)",
-                style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-              ),
-              trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: primaryAccent.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  'up_to_date'.tr().isEmpty ? 'به‌روز است' : 'up_to_date'.tr(),
-                  style: TextStyle(color: primaryAccent, fontSize: 11, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ]),
-          const SizedBox(height: 20),
-        ],
       ),
     );
   }
