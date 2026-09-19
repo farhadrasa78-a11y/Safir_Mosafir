@@ -1529,77 +1529,80 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // اصلاح کامل ناتچ فیلد و استایل شناور برای جلوگیری از شکستگی و بریدگی Focus
   Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String hintText,
-    bool readOnly = false,
-    TextInputType keyboardType = TextInputType.text,
-    TextInputAction textInputAction = TextInputAction.next,
-  }) {
-    final OutlineInputBorder normalBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(
-        color: AppColors.fieldBorder,
-        width: 1,
-      ),
-      gapPadding: 4,
-    );
+  required TextEditingController controller,
+  required String label,
+  required String hintText,
+  bool readOnly = false,
+  TextInputType keyboardType = TextInputType.text,
+  TextInputAction textInputAction = TextInputAction.next,
+}) {
+  final OutlineInputBorder normalBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: const BorderSide(
+      color: AppColors.fieldBorder,
+      width: 1,
+    ),
+  );
 
-    final OutlineInputBorder focusedBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(
-        color: AppColors.primaryBrand,
-        width: 1.5,
-      ),
-      gapPadding: 4,
-    );
+  final OutlineInputBorder focusedBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: const BorderSide(
+      color: AppColors.primaryBrand,
+      width: 1.5,
+    ),
+  );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        textAlign: _isRtl ? TextAlign.right : TextAlign.left,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 13.5,
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 7),
+    child: TextField(
+      controller: controller,
+      readOnly: readOnly,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textAlign: _isRtl ? TextAlign.right : TextAlign.left,
+      style: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 13.5,
+        fontWeight: FontWeight.w400,
+      ),
+      decoration: InputDecoration(
+        isDense: false,
+        labelText: label,
+        hintText: hintText,
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        floatingLabelAlignment: FloatingLabelAlignment.start,
+        alignLabelWithHint: false,
+        labelStyle: const TextStyle(
+          color: Color(0xFF9CA3AF),
+          fontSize: 12.5,
           fontWeight: FontWeight.w400,
         ),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hintText,
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
-          labelStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-          ),
-          floatingLabelStyle: const TextStyle(
-            color: AppColors.primaryBrand,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-          hintStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 12.5,
-            fontWeight: FontWeight.w400,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          border: normalBorder,
-          enabledBorder: normalBorder,
-          disabledBorder: normalBorder,
-          focusedBorder: focusedBorder,
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.primaryBrand,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w500,
+          backgroundColor: Colors.white,
         ),
+        hintStyle: const TextStyle(
+          color: Color(0xFF9CA3AF),
+          fontSize: 12.5,
+          fontWeight: FontWeight.w400,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        border: normalBorder,
+        enabledBorder: normalBorder,
+        disabledBorder: normalBorder,
+        focusedBorder: focusedBorder,
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildSelectionField({
     required String label,
