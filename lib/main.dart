@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const String defaultFont = 'IranYekan';
-    const Color primaryColor = Color(0xFF1B7A57);
+    const Color primaryColor = Color(0xFF117656);
     const Color textColor = Color(0xFF2D3142);
 
     return MultiProvider(
@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
         supportedLocales: context.supportedLocales,
         locale: context.locale,
 
-                theme: ThemeData(
+        theme: ThemeData(
           useMaterial3: true,
           fontFamily: defaultFont,
           colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
@@ -92,8 +92,8 @@ class MyApp extends StatelessWidget {
             titleTextStyle: TextStyle(
               fontFamily: defaultFont,
               fontSize: 16,
-              fontWeight: FontWeight.w600, // نیمه‌ضخیم و نازک‌تر
-              color: Color(0xFF212121), // مشکی نرم و مدرن
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF212121),
             ),
           ),
 
@@ -131,11 +131,10 @@ class MyApp extends StatelessWidget {
           ),
 
           textTheme: const TextTheme(
-            // عناوین اصلی بخش‌ها (مانند "د حساب معلومات" یا "اطلاعات اصلی")
             titleLarge: TextStyle(
               fontFamily: defaultFont,
               fontSize: 16,
-              fontWeight: FontWeight.w600, // نازک‌تر و شکیل‌تر
+              fontWeight: FontWeight.w600,
               color: Color(0xFF212121),
             ),
             titleMedium: TextStyle(
@@ -191,7 +190,8 @@ class _AuthCheckState extends State<AuthCheck>
   bool _hasError = false;
   Widget? _targetScreen;
 
-  static const Color safirGreen = Color(0xFF1B7A57);
+  // رنگ دقیق برند لوگوی سفیر
+  static const Color safirGreen = Color(0xFF117656);
 
   late AnimationController _loadingController;
   late Animation<double> _dot1;
@@ -205,39 +205,40 @@ class _AuthCheckState extends State<AuthCheck>
 
     _loadingController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1200),
     )..repeat();
 
     _dot1 = _createDotAnimation(0.00);
-    _dot2 = _createDotAnimation(0.20);
-    _dot3 = _createDotAnimation(0.40);
-    _dot4 = _createDotAnimation(0.60);
+    _dot2 = _createDotAnimation(0.18);
+    _dot3 = _createDotAnimation(0.36);
+    _dot4 = _createDotAnimation(0.54);
 
     _checkAuthAndNavigation();
   }
 
+  /// انیمیشن نقطه‌ها از حالت بزرگ (1.0) به کوچک (0.0) و برگشت به حالت اولیه
   Animation<double> _createDotAnimation(double begin) {
     return TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 25,
-      ),
-      TweenSequenceItem(
         tween: Tween<double>(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 25,
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 35,
       ),
       TweenSequenceItem(
-        tween: ConstantTween<double>(0.0),
-        weight: 50,
+        tween: Tween<double>(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 35,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween<double>(1.0),
+        weight: 30,
       ),
     ]).animate(
       CurvedAnimation(
         parent: _loadingController,
         curve: Interval(
           begin,
-          begin + 0.4 > 1.0 ? 1.0 : begin + 0.4,
+          (begin + 0.45).clamp(0.0, 1.0),
           curve: Curves.linear,
         ),
       ),
@@ -253,8 +254,8 @@ class _AuthCheckState extends State<AuthCheck>
     }
 
     try {
-      // مدت نمایش Splash
-      await Future.delayed(const Duration(milliseconds: 1500));
+      // افزایش زمان نمایش Splash به ۳ ثانیه
+      await Future.delayed(const Duration(milliseconds: 3000));
 
       final User? user = FirebaseAuth.instance.currentUser;
 
@@ -310,19 +311,20 @@ class _AuthCheckState extends State<AuthCheck>
   }
 
   Widget _buildDot(double animationValue) {
+    // تغییر سایز دینامیک بر اساس مقدار انیمیشن (از ۷ تا ۱۴)
     final double size = 7 + (animationValue * 7);
 
     return AnimatedBuilder(
       animation: _loadingController,
       builder: (context, child) {
         return Transform.scale(
-          scale: 0.82 + (animationValue * 0.35),
+          scale: 0.8 + (animationValue * 0.4),
           child: Container(
             width: size,
             height: size,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(
-                0.45 + (animationValue * 0.55),
+                0.35 + (animationValue * 0.65),
               ),
               shape: BoxShape.circle,
             ),
@@ -334,25 +336,26 @@ class _AuthCheckState extends State<AuthCheck>
 
   Widget _buildDotLoading() {
     return SizedBox(
-      height: 22,
+      height: 24,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAlignment.center,
         children: [
           AnimatedBuilder(
             animation: _dot1,
             builder: (_, __) => _buildDot(_dot1.value),
           ),
-          const SizedBox(width: 7),
+          const SizedBox(width: 8),
           AnimatedBuilder(
             animation: _dot2,
             builder: (_, __) => _buildDot(_dot2.value),
           ),
-          const SizedBox(width: 7),
+          const SizedBox(width: 8),
           AnimatedBuilder(
             animation: _dot3,
             builder: (_, __) => _buildDot(_dot3.value),
           ),
-          const SizedBox(width: 7),
+          const SizedBox(width: 8),
           AnimatedBuilder(
             animation: _dot4,
             builder: (_, __) => _buildDot(_dot4.value),
