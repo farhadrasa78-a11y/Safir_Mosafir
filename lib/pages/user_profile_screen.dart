@@ -18,8 +18,9 @@ class AppColors {
   static const Color textSecondary = Color(0xFF9AA0A6);
   static const Color appBarDivider = Color(0xFFD6DADF);
   static const Color sectionDivider = Color(0xFFF1F5F9);
-  static const Color fieldBorder = Color(0xFFD8DBE0);
+  static const Color fieldBorder = Color(0xFFE2E8F0);
   static const Color wheelGreen = Color(0xFF39B169);
+  static const Color cardBorder = Color(0xFFE8ECEF);
 }
 
 String toEnglishDigits(String input) {
@@ -271,7 +272,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           "user_account_title".tr().isEmpty ? "حساب کاربری" : "user_account_title".tr(),
-          style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16),
+          style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -283,9 +284,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBrand))
           : SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Column(
                 children: [
+                  // بخش پروفایل و امتیاز
                   Center(
                     child: Column(
                       children: [
@@ -297,41 +299,53 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: const Color(0xFFE5E5E5),
-                              width: 0.8,
+                              width: 1,
                             ),
                           ),
                           child: ClipOval(
                             child: Image.asset(
                               'assets/images/default_profile.png',
                               fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: const Color(0xFFF3F4F6),
+                                child: Icon(Icons.person, size: 56, color: Colors.grey.shade400),
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.star, color: Colors.amber, size: 18),
+                            const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
                             const SizedBox(width: 4),
                             Text(
                               formatNumberByLocale(context, _userRating),
-                              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[800], fontSize: 15),
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 15),
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
+                  // کارت ۱: اطلاعات کاربری با دیزاین دقیق صفحه تنظیمات
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.015),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
                       ),
                       child: Column(
                         children: [
@@ -339,14 +353,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "main_account_info_title".tr().isEmpty ? "اطلاعات کاربری" : "main_account_info_title".tr(),
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                "main_account_info_title".tr().isEmpty ? "اطلاعات حساب" : "main_account_info_title".tr(),
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                               ),
                               GestureDetector(
                                 onTap: _openEditProfileDrawer,
                                 child: Text(
                                   "edit".tr().isEmpty ? "ویرایش" : "edit".tr(),
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF5E60CE)),
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primaryBrand),
                                 ),
                               ),
                             ],
@@ -363,7 +377,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               ),
                               Text(
                                 formatNumberByLocale(context, _userPhone),
-                                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, fontWeight: FontWeight.w400),
                               ),
                             ],
                           ),
@@ -372,14 +386,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 24),
+
+                  // کارت ۲: مدال‌های افتخار
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Align(
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         "badges_section_title".tr().isEmpty ? "مدال‌های افتخار" : "badges_section_title".tr(),
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                     ),
                   ),
@@ -393,11 +409,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           child: InkWell(
                             onTap: () => _showBadgeDetails(
                               "badge_polite_title".tr().isEmpty ? "مسافر بااخلاق" : "badge_polite_title".tr(),
-                              "badge_polite_desc".tr().isEmpty ? "رانندگان سفیر رفتار محترمانه و صمیمانه شما در طول سفر را تحسین کرده‌اند. از همراهی باارزش شما سپاسگزاریم!" : "badge_polite_desc".tr(),
+                              "badge_polite_desc".tr().isEmpty ? "رانندگان سفیر رفتار محترمانه و صمیمانه شما در طول سفر را تحسین کرده‌اند." : "badge_polite_desc".tr(),
                               Icons.stars,
                               const Color(0xFF15A968),
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(18),
                             child: Container(
                               height: 120,
                               margin: const EdgeInsetsDirectional.only(end: 6),
@@ -407,19 +423,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                 ),
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(18),
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.stars, size: 40, color: Colors.amber),
+                                  const Icon(Icons.stars, size: 38, color: Colors.amber),
                                   const SizedBox(height: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                                     child: Text(
                                       "badge_polite_label".tr().isEmpty ? "خوش‌رفتار" : "badge_polite_label".tr(),
-                                      style: const TextStyle(color: Color(0xFF15A968), fontWeight: FontWeight.w600, fontSize: 11),
+                                      style: const TextStyle(color: Color(0xFF15A968), fontWeight: FontWeight.bold, fontSize: 12),
                                     ),
                                   ),
                                 ],
@@ -431,11 +447,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           child: InkWell(
                             onTap: () => _showBadgeDetails(
                               "badge_punctual_title".tr().isEmpty ? "مسافر وقت‌شناس" : "badge_punctual_title".tr(),
-                              "badge_punctual_desc".tr().isEmpty ? "حضور به موقع شما در مبدأ باعث سفری سریع‌تر و روان‌تر برای شما و راننده می‌شود. شما الگوی وقت‌شناسی هستید!" : "badge_punctual_desc".tr(),
+                              "badge_punctual_desc".tr().isEmpty ? "حضور به موقع شما در مبدأ باعث سفری سریع‌تر و روان‌تر می‌شود." : "badge_punctual_desc".tr(),
                               Icons.access_time_filled,
                               const Color(0xFF7B1FA2),
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(18),
                             child: Container(
                               height: 120,
                               margin: const EdgeInsetsDirectional.only(start: 6),
@@ -445,19 +461,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                 ),
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(18),
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.access_time_filled, size: 40, color: Colors.amber),
+                                  const Icon(Icons.access_time_filled, size: 38, color: Colors.amber),
                                   const SizedBox(height: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                                     child: Text(
                                       "badge_punctual_label".tr().isEmpty ? "وقت‌شناس" : "badge_punctual_label".tr(),
-                                      style: const TextStyle(color: Color(0xFF7B1FA2), fontWeight: FontWeight.bold, fontSize: 11),
+                                      style: const TextStyle(color: Color(0xFF7B1FA2), fontWeight: FontWeight.bold, fontSize: 12),
                                     ),
                                   ),
                                 ],
@@ -469,14 +485,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 24),
+
+                  // کارت ۳: بخش دسترس‌پذیری
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Align(
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         "accessibility_section_title".tr().isEmpty ? "دسترس‌پذیری" : "accessibility_section_title".tr(),
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                     ),
                   ),
@@ -486,8 +504,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     child: Align(
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
-                        "accessibility_subtitle".tr().isEmpty ? "با فعال کردن گزینه متناسب با شرایطتان می‌توانیم تجربه بهتری از سفر برایتان ایجاد کنیم." : "accessibility_subtitle".tr(),
-                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        "accessibility_subtitle".tr().isEmpty ? "با فعال کردن گزینه متناسب، راننده را برای داشتن تجربه بهتری از سفر برای‌تان ایجاد کنیم." : "accessibility_subtitle".tr(),
+                        style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary, height: 1.4),
                       ),
                     ),
                   ),
@@ -498,15 +516,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.015),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             "wheelchair_option_label".tr().isEmpty ? "از ویلچر استفاده می‌کنم" : "wheelchair_option_label".tr(),
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                           ),
                           Switch(
                             value: _useWheelchair,
@@ -517,29 +542,41 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 25),
+
+                  const SizedBox(height: 24),
+
+                  // کارت ۴: گزینه‌های خروج و تغییر حساب
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.015),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
                       ),
                       child: Column(
                         children: [
                           ListTile(
-                            leading: const Icon(Icons.switch_account_outlined, color: AppColors.primaryBrand),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                            leading: const Icon(Icons.switch_account_outlined, color: AppColors.primaryBrand, size: 22),
                             title: Text(
                               "switch_account_title".tr().isEmpty ? "تغییر حساب کاربری" : "switch_account_title".tr(),
                               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                             ),
-                            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textSecondary),
                             onTap: () => _handleLogout(isSwitchAccount: true),
                           ),
-                          const Divider(height: 1, indent: 16, endIndent: 16),
+                          const Divider(height: 1, color: AppColors.cardBorder, indent: 16, endIndent: 16),
                           ListTile(
-                            leading: const Icon(Icons.logout, color: Colors.redAccent),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                            leading: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 22),
                             title: Text(
                               "exit".tr().isEmpty ? "خروج" : "exit".tr(),
                               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent),
@@ -551,7 +588,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -1466,7 +1503,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-    Widget _buildInputField({
+  // متد اصلاح شده با کنترل دقیق فوکوس و کادر مستطیلی آبی در حالت انتخاب
+  Widget _buildInputField({
     required TextEditingController controller,
     required String label,
     required String hintText,
@@ -1487,68 +1525,71 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(
         color: AppColors.primaryBrand,
-        width: 1.4,
+        width: 1.8,
       ),
       gapPadding: 8,
     );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: AnimatedBuilder(
-        animation: FocusManager.instance,
-        builder: (context, _) {
-          final bool hasFocus = FocusManager.instance.primaryFocus?.hasFocus ?? false;
-          final Color currentLabelColor =
-              hasFocus ? AppColors.primaryBrand : const Color(0xFF9CA3AF);
+      child: FocusScope(
+        child: Focus(
+          child: Builder(
+            builder: (context) {
+              final bool hasFocus = Focus.of(context).hasFocus;
+              final Color currentLabelColor =
+                  hasFocus ? AppColors.primaryBrand : const Color(0xFF9CA3AF);
 
-          return TextField(
-            controller: controller,
-            readOnly: readOnly,
-            keyboardType: keyboardType,
-            textInputAction: textInputAction,
-            textAlign: _isRtl ? TextAlign.right : TextAlign.left,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-            ),
-            decoration: InputDecoration(
-              labelText: label,
-              hintText: hintText,
-              floatingLabelBehavior: FloatingLabelBehavior.auto,
-              floatingLabelAlignment: FloatingLabelAlignment.start,
-              alignLabelWithHint: false,
-              labelStyle: TextStyle(
-                color: currentLabelColor,
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-              ),
-              floatingLabelStyle: TextStyle(
-                color: currentLabelColor,
-                fontSize: 11,
-                fontWeight: hasFocus ? FontWeight.w600 : FontWeight.w400,
-                backgroundColor: Colors.white,
-              ),
-              hintStyle: const TextStyle(
-                color: Color(0xFF9CA3AF),
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-              ),
-              contentPadding: const EdgeInsetsDirectional.fromSTEB(
-                16,
-                16,
-                16,
-                16,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              border: normalBorder,
-              enabledBorder: normalBorder,
-              disabledBorder: normalBorder,
-              focusedBorder: focusedBorder,
-            ),
-          );
-        },
+              return TextField(
+                controller: controller,
+                readOnly: readOnly,
+                keyboardType: keyboardType,
+                textInputAction: textInputAction,
+                textAlign: _isRtl ? TextAlign.right : TextAlign.left,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
+                decoration: InputDecoration(
+                  labelText: label,
+                  hintText: hintText,
+                  floatingLabelBehavior: FloatingLabelBehavior.auto,
+                  floatingLabelAlignment: FloatingLabelAlignment.start,
+                  alignLabelWithHint: false,
+                  labelStyle: TextStyle(
+                    color: currentLabelColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: currentLabelColor,
+                    fontSize: 12,
+                    fontWeight: hasFocus ? FontWeight.bold : FontWeight.w400,
+                    backgroundColor: Colors.white,
+                  ),
+                  hintStyle: const TextStyle(
+                    color: Color(0xFF9CA3AF),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  contentPadding: const EdgeInsetsDirectional.fromSTEB(
+                    16,
+                    16,
+                    16,
+                    16,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: normalBorder,
+                  enabledBorder: normalBorder,
+                  disabledBorder: normalBorder,
+                  focusedBorder: focusedBorder,
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -1632,7 +1673,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
     );
   }
-
 
   @override
   void dispose() {
