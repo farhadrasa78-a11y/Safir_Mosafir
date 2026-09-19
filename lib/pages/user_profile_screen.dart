@@ -1495,7 +1495,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: AnimatedBuilder(
-        animation: (context, hasFocus) {
+        animation: FocusManager.instance,
+        builder: (context, _) {
+          final bool hasFocus = FocusManager.instance.primaryFocus?.hasFocus ?? false;
           final Color currentLabelColor =
               hasFocus ? AppColors.primaryBrand : const Color(0xFF9CA3AF);
 
