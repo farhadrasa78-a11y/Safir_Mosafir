@@ -26,7 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    // 🇦ف قفل کردن زبان پیش‌فرض برنامه روی فارسی (دری) در بدو ورود
+    // قفل کردن زبان پیش‌فرض برنامه روی فارسی (دری) در بدو ورود
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.locale.languageCode == 'en') {
         context.setLocale(const Locale('fa'));
@@ -53,9 +53,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // 🌐 نمایش منوی مدرن و مینیمال انتخاب زبان
+  // 🌐 نمایش منوی مدرن انتخاب زبان
   void showLanguageBottomSheet(BuildContext context) {
-    // تعیین عنوان تک‌زبانه بر اساس زبان فعلی
     String bottomSheetTitle;
     if (context.locale.languageCode == 'ps') {
       bottomSheetTitle = 'ژبه غوره کړئ';
@@ -191,21 +190,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🌐 هدر بالای صفحه (دکمه انتخاب زبان سه لایه مدرن)
+                // 🌐 هدر بالای صفحه (دکمه انتخاب زبان)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const SizedBox(),
-                    // 🟢 دکمه انتخاب زبان
                     GestureDetector(
                       onTap: () => showLanguageBottomSheet(context),
                       child: Container(
-                        width: 48,
-                        height: 48,
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: const Color(0xFF2C2C2E).withOpacity(0.12),
@@ -225,7 +223,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _getLanguageCodeText(context),
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 13,
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
                               ),
@@ -237,83 +235,115 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
 
+                const SizedBox(height: 12),
+
+                // ✏️ آیکون دایره‌ای بالای صفحه بر اساس UI جدید
+                Center(
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBrand.withOpacity(0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.phone_android_rounded,
+                      color: AppColors.textPrimary,
+                      size: 28,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // عناوین خوش‌آمدگویی
+                Center(
+                  child: Text(
+                    'welcome_title'.tr(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                      height: 1.2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Center(
+                  child: Text(
+                    'enter_phone_subtitle'.tr(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.normal,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 28),
 
-                // ✏️ عناوین خوش‌آمدگویی متصل به فایل‌های ترجمه (tr)
-                Text(
-                  'welcome_title'.tr(),
-                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                    height: 1.2,
-                  ),
+                // 🏷️ هدر کارت ورودی
+                _buildSectionHeader(
+                  context.locale.languageCode == 'en' ? 'Phone Number' : 'شماره همراه',
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'enter_phone_subtitle'.tr(),
-                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 32),
 
-                // 📱 فیلد ورود شماره
-                TextFormField(
-                  controller: phoneController,
-                  maxLength: 10,
-                  textInputAction: TextInputAction.done,
-                  keyboardType: TextInputType.phone,
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
-                    color: AppColors.textPrimary,
-                  ),
-                  onChanged: (value) => setState(() {}),
-                  decoration: InputDecoration(
-                    counterText: '',
-                    hintText: '0781234567',
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade400,
-                      fontSize: 16,
-                      letterSpacing: 1.5,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.backgroundLight,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.8),
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.phone_android_rounded,
-                      color: AppColors.textSecondary,
-                      size: 22,
-                    ),
-                    suffixIcon: isValidPhone
-                        ? const Icon(
+                // 📱 فیلد ورودی درون کارت سفید با هدر
+                _buildCardGroup([
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.phone_android_rounded,
+                          color: AppColors.textPrimary,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: phoneController,
+                            maxLength: 10,
+                            textInputAction: TextInputAction.done,
+                            keyboardType: TextInputType.phone,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                              color: AppColors.textPrimary,
+                            ),
+                            onChanged: (value) => setState(() {}),
+                            decoration: InputDecoration(
+                              counterText: '',
+                              hintText: '0781234567',
+                              hintStyle: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontSize: 15,
+                                letterSpacing: 1.5,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                        if (isValidPhone)
+                          const Icon(
                             Icons.check_circle_rounded,
                             color: AppColors.success,
                             size: 22,
-                          )
-                        : null,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
+                ]),
+
                 const SizedBox(height: 20),
 
-                // 🔘 دکمه ارسال پیامک (تغییر حالت بر اساس صحت و پر شدن شماره)
+                // 🔘 دکمه ارسال پیامک
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -327,7 +357,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       disabledForegroundColor: Colors.grey.shade400,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: authProvider.isLoading
@@ -349,7 +379,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                   ),
                 ),
-                const SizedBox(height: 28),
+
+                const SizedBox(height: 24),
 
                 // جداکننده
                 Row(
@@ -359,13 +390,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 14.0),
                       child: Text(
                         getTranslation(context, "or_continue_with"),
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5, fontWeight: FontWeight.w500),
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                     ),
                     const Expanded(child: Divider(color: AppColors.borderLight, thickness: 1)),
                   ],
                 ),
-                const SizedBox(height: 24),
+
+                const SizedBox(height: 20),
 
                 // 🔴 دکمه ورود با گوگل
                 SizedBox(
@@ -405,10 +437,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             );
                           },
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: AppColors.backgroundLight,
-                      side: const BorderSide(color: AppColors.borderLight, width: 1),
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: AppColors.borderLight, width: 1.5),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: authProvider.isGoogleSigInLoading
@@ -422,7 +454,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             children: [
                               Image.network(
                                 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
-                                height: 22,
+                                height: 20,
                                 errorBuilder: (context, error, stackTrace) =>
                                     const Icon(Icons.g_mobiledata_rounded, color: Colors.redAccent, size: 28),
                               ),
@@ -439,7 +471,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                   ),
                 ),
-                const SizedBox(height: 32),
+
+                const SizedBox(height: 28),
 
                 // متن قوانین و حریم خصوصی
                 Center(
@@ -457,6 +490,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // 🛠️ متدهای کمکی جهت ساخت استایل کارت‌محور UI جدید
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimary,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardGroup(List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderLight, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(children: children),
       ),
     );
   }
