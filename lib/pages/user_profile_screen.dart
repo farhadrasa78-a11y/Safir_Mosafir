@@ -1204,7 +1204,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
           ),
           child: Column(
-            mainAxisSize: FullAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
