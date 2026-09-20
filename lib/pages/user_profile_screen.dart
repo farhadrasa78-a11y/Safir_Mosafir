@@ -1546,154 +1546,163 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String hintText,
-    bool readOnly = false,
-    TextInputType keyboardType = TextInputType.text,
-    TextInputAction textInputAction = TextInputAction.next,
-  }) {
-    final OutlineInputBorder normalBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(
-        color: AppColors.fieldBorder,
-        width: 1,
-      ),
-    );
+  required TextEditingController controller,
+  required String label,
+  required String hintText,
+  bool readOnly = false,
+  TextInputType keyboardType = TextInputType.text,
+  TextInputAction textInputAction = TextInputAction.next,
+}) {
+  final OutlineInputBorder normalBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10),
+    borderSide: const BorderSide(
+      color: Color(0xFF9E9E9E),
+      width: 1.0,
+    ),
+  );
 
-    final OutlineInputBorder focusedBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(
-        color: AppColors.primaryBrand,
-        width: 1.5,
-      ),
-    );
+  final OutlineInputBorder focusedBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10),
+    borderSide: const BorderSide(
+      color: AppColors.primaryBrand,
+      width: 1.5,
+    ),
+  );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        textAlign: _isRtl ? TextAlign.right : TextAlign.left,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 13.5,
+  return Padding(
+    key: ValueKey('input_field_$label'), // 👈 جلوگیری از rebuild کامل ویجت
+    padding: const EdgeInsets.symmetric(vertical: 7),
+    child: TextField(
+      controller: controller,
+      readOnly: readOnly,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textAlign: _isRtl ? TextAlign.right : TextAlign.left,
+      // 👇 فاصلهٔ کافی بالای کیبورد هنگام اسکرول خودکار، برای جلوگیری از پرش/گیر کردن
+      scrollPadding: const EdgeInsets.only(bottom: 140),
+      style: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+      decoration: InputDecoration(
+        isDense: false,
+        labelText: label,
+        hintText: hintText,
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        floatingLabelAlignment: FloatingLabelAlignment.start,
+        alignLabelWithHint: false,
+        labelStyle: const TextStyle(
+          color: Color(0xFF9E9E9E),
+          fontSize: 12.5,
           fontWeight: FontWeight.w400,
         ),
+        floatingLabelStyle: const TextStyle(
+          color: Color(0xFF757575),
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          backgroundColor: Colors.white,
+        ),
+        hintStyle: const TextStyle(
+          color: Color(0xFFBDBDBD),
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        border: normalBorder,
+        enabledBorder: normalBorder,
+        disabledBorder: normalBorder,
+        focusedBorder: focusedBorder,
+      ),
+    ),
+  );
+}
+
+Widget _buildSelectionField({
+  required String label,
+  required String hintText,
+  required String value,
+  required VoidCallback onTap,
+}) {
+  final bool hasValue = value.trim().isNotEmpty;
+
+  final OutlineInputBorder normalBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10),
+    borderSide: const BorderSide(
+      color: Color(0xFF9E9E9E),
+      width: 1.0,
+    ),
+    gapPadding: 4,
+  );
+
+  return Padding(
+    key: ValueKey('selection_field_$label'), // 👈 جلوگیری از rebuild کامل ویجت
+    padding: const EdgeInsets.symmetric(vertical: 7),
+    child: InkWell(
+      onTap: () {
+        // 👇 اول کیبورد/فوکوس فیلد فعلی رو نرم می‌بنده تا با باز شدن پیکر تداخل و پرش نداشته باشه
+        FocusScope.of(context).unfocus();
+        onTap();
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: InputDecorator(
         decoration: InputDecoration(
-          isDense: false,
           labelText: label,
-          hintText: hintText,
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
-          floatingLabelAlignment: FloatingLabelAlignment.start,
-          alignLabelWithHint: false,
+          floatingLabelBehavior: hasValue
+              ? FloatingLabelBehavior.always
+              : FloatingLabelBehavior.never,
           labelStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 12.5,
-            fontWeight: FontWeight.w600,
-          ),
-          floatingLabelStyle: const TextStyle(
-            color: AppColors.primaryBrand,
-            fontSize: 11.5,
-            fontWeight: FontWeight.w600,
-            backgroundColor: Colors.white,
-          ),
-          hintStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
+            color: Color(0xFF9E9E9E),
             fontSize: 12.5,
             fontWeight: FontWeight.w400,
           ),
+          floatingLabelStyle: const TextStyle(
+            color: Color(0xFF757575),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            backgroundColor: Colors.white,
+          ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 14,
+            vertical: 16,
           ),
           filled: true,
-          fillColor: const Color(0xFFF8FAFC),
+          fillColor: Colors.white,
           border: normalBorder,
           enabledBorder: normalBorder,
-          disabledBorder: normalBorder,
-          focusedBorder: focusedBorder,
         ),
-      ),
-    );
-  }
-
-  Widget _buildSelectionField({
-    required String label,
-    required String hintText,
-    required String value,
-    required VoidCallback onTap,
-  }) {
-    final bool hasValue = value.trim().isNotEmpty;
-
-    final OutlineInputBorder normalBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(
-        color: AppColors.fieldBorder,
-        width: 1,
-      ),
-      gapPadding: 4,
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: label,
-            floatingLabelBehavior: hasValue
-                ? FloatingLabelBehavior.always
-                : FloatingLabelBehavior.never,
-            labelStyle: const TextStyle(
-              color: Color(0xFF9CA3AF),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-            floatingLabelStyle: const TextStyle(
-              color: Color(0xFF9CA3AF),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            border: normalBorder,
-            enabledBorder: normalBorder,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  hasValue ? value : hintText,
-                  textAlign: _isRtl ? TextAlign.right : TextAlign.left,
-                  style: TextStyle(
-                    color: hasValue
-                        ? AppColors.textPrimary
-                        : const Color(0xFF9CA3AF),
-                    fontSize: hasValue ? 13.5 : 12.5,
-                    fontWeight: FontWeight.w400,
-                  ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                hasValue ? value : hintText,
+                textAlign: _isRtl ? TextAlign.right : TextAlign.left,
+                style: TextStyle(
+                  color: hasValue
+                      ? AppColors.textPrimary
+                      : const Color(0xFFBDBDBD),
+                  fontSize: hasValue ? 13.5 : 12.5,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Color(0xFF9CA3AF),
-                size: 20,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Color(0xFF9E9E9E),
+              size: 20,
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   void dispose() {
