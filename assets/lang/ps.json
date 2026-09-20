@@ -66,9 +66,11 @@
   "address_label": "آدرس",
   "address_hint": "خپل ادرس ولیکئ.",
   "gender_label": "جنسیت",
+  "gener_hint": "جنسیت"
   "gender_male": "سړی",
   "gender_female": "ښځه",
   "dob_label": "د زېږېدو نېټه",
+  "dob_hint": "د زېږېدو نېټه",
   "user_account": "کارن حساب",
   "user_account_title": "کارن حساب",
   "user_info_section_title": "د کاروونکي معلومات",
