@@ -42,7 +42,10 @@ Future<void> _makeSupportCall(BuildContext context) async {
   } else if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('can_not_make_call'.tr(args: [phone])),
+        content: Text(
+          'can_not_make_call'.tr(args: [phone]),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+        ),
       ),
     );
   }
@@ -97,8 +100,8 @@ void _showDiscountModal(BuildContext context) {
                     Text(
                       'discount_code'.tr(),
                       style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         color: darkTextColor,
                       ),
                     ),
@@ -108,8 +111,18 @@ void _showDiscountModal(BuildContext context) {
                 TextField(
                   controller: discountController,
                   textDirection: TextDirection.rtl,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: darkTextColor,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'enter_discount_code'.tr(),
+                    hintStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF9CA3AF),
+                    ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: primaryAccent, width: 1.5),
@@ -166,14 +179,20 @@ void _showDiscountModal(BuildContext context) {
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('discount_applied_success'.tr()),
+                                    content: Text(
+                                      'discount_applied_success'.tr(),
+                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                    ),
                                     backgroundColor: const Color(0xFF22C55E),
                                   ),
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('discount_invalid'.tr()),
+                                    content: Text(
+                                      'discount_invalid'.tr(),
+                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                    ),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -187,7 +206,10 @@ void _showDiscountModal(BuildContext context) {
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('error_occurred'.tr(args: [e.toString()])),
+                                  content: Text(
+                                    'error_occurred'.tr(args: [e.toString()]),
+                                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                  ),
                                 ),
                               );
                             }
@@ -205,7 +227,8 @@ void _showDiscountModal(BuildContext context) {
                             'apply_code'.tr(),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                   ),
@@ -241,8 +264,8 @@ void _showAboutAppDialog(BuildContext context) {
               Text(
                 'about_app'.tr(),
                 style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   color: darkTextColor,
                 ),
               ),
@@ -251,9 +274,10 @@ void _showAboutAppDialog(BuildContext context) {
           content: Text(
             'about_app_desc'.tr(),
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               height: 1.6,
               color: Color(0xFF334155),
+              fontWeight: FontWeight.w400,
             ),
           ),
           actions: [
@@ -263,7 +287,8 @@ void _showAboutAppDialog(BuildContext context) {
                 'close'.tr(),
                 style: const TextStyle(
                   color: primaryAccent,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -409,7 +434,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
     );
   }
 
-    Widget _buildProfileHeader() {
+  Widget _buildProfileHeader() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -484,8 +509,8 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: darkTextColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -494,8 +519,8 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                         textDirection: TextDirection.ltr,
                         style: const TextStyle(
                           color: Color(0xFF64748B),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -514,7 +539,6 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
     );
   }
 
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(
@@ -525,8 +549,8 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
         title,
         style: const TextStyle(
           color: darkTextColor,
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -596,7 +620,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                           style: const TextStyle(
                             color: darkTextColor,
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 3),
@@ -606,7 +630,8 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Color(0xFF64748B),
-                            fontSize: 11.5,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ],
