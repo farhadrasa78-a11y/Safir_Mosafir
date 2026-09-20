@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:ui' as ui; // 🟢 ۱. اضافه کردن alias برای جلوگیری از تداخل
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,6 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final Color darkTextColor = const Color(0xFF0F172A);
   final Color successColor = const Color(0xFF22C55E);
   final Color borderLightColor = const Color(0xFFF1F5F9);
+  final Color appBarBorderColor = const Color(0xFFCBD5E1); // 🟢 خط پررنگ‌تر برای تفکیک AppBar
 
   bool _enableNotifications = true;
   bool _enableSoundEffects = true;
@@ -106,7 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(width: 10),
                   Text(
                     'select_language_title'.tr().isEmpty ? 'انتخاب زبان' : 'select_language_title'.tr(),
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: darkTextColor),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: darkTextColor),
                   ),
                 ],
               ),
@@ -116,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   RadioListTile<String>(
                     title: Text(
                       'lang_dari'.tr().isEmpty ? 'فارسی / دری' : 'lang_dari'.tr(),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                     value: 'fa',
                     groupValue: selectedTempLang,
@@ -129,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   RadioListTile<String>(
                     title: Text(
                       'lang_pashto'.tr().isEmpty ? 'پښتو' : 'lang_pashto'.tr(),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                     value: 'ps',
                     groupValue: selectedTempLang,
@@ -142,7 +143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   RadioListTile<String>(
                     title: Text(
                       'lang_english'.tr().isEmpty ? 'English' : 'lang_english'.tr(),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                     value: 'en',
                     groupValue: selectedTempLang,
@@ -158,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => Navigator.pop(dialogContext),
                   child: Text(
                     'cancel'.tr().isEmpty ? 'انصراف' : 'cancel'.tr(),
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w500),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
                 ElevatedButton(
@@ -173,7 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                   child: Text(
                     'confirm'.tr().isEmpty ? 'تایید' : 'confirm'.tr(),
-                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -208,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'clear_cache_title'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_title'.tr(),
-          style: TextStyle(color: darkTextColor, fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyle(color: darkTextColor, fontSize: 14, fontWeight: FontWeight.w600),
         ),
         content: Text(
           'clear_cache_desc'.tr().isEmpty ? 'آیا از پاکسازی فایل‌های موقت برنامه اطمینان دارید؟' : 'clear_cache_desc'.tr(),
@@ -219,7 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'cancel'.tr().isEmpty ? 'انصراف' : 'cancel'.tr(),
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w500),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),
           ElevatedButton(
@@ -247,7 +248,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             child: Text(
               'confirm'.tr().isEmpty ? 'تایید' : 'confirm'.tr(),
-              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -264,7 +265,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'terms_of_service'.tr().isEmpty ? 'قوانین و مقررات' : 'terms_of_service'.tr(),
-          style: TextStyle(color: darkTextColor, fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyle(color: darkTextColor, fontSize: 14, fontWeight: FontWeight.w600),
         ),
         content: SingleChildScrollView(
           child: Text(
@@ -279,7 +280,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'close'.tr().isEmpty ? 'بستن' : 'close'.tr(),
-              style: TextStyle(color: primaryAccent, fontSize: 14, fontWeight: FontWeight.w500),
+              style: TextStyle(color: primaryAccent, fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -294,7 +295,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final IconData chevronIcon = isRtl ? Icons.chevron_left_rounded : Icons.chevron_right_rounded;
 
     return Directionality(
-      // 🟢 ۲. استفاده از ui.TextDirection جهت صراحت کامپایلر
       textDirection: isRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -305,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           scrolledUnderElevation: 0,
           title: Text(
             'settings_title'.tr().isEmpty ? 'تنظیمات' : 'settings_title'.tr(),
-            style: TextStyle(color: darkTextColor, fontWeight: FontWeight.w500, fontSize: 14),
+            style: TextStyle(color: darkTextColor, fontWeight: FontWeight.w600, fontSize: 14),
           ),
           centerTitle: true,
           leading: IconButton(
@@ -318,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(1),
-            child: Container(color: borderLightColor, height: 1),
+            child: Container(color: appBarBorderColor, height: 1), // 🟢 خط جداکننده پررنگ‌تر
           ),
         ),
         body: ListView(
@@ -331,7 +331,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: Icon(Icons.language_rounded, color: darkTextColor),
                 title: Text(
                   'app_language_label'.tr().isEmpty ? 'زبان برنامه' : 'app_language_label'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
                 ),
                 subtitle: Text(
                   "${'current_language_prefix'.tr().isEmpty ? 'زبان فعلی' : 'current_language_prefix'.tr()}: ${_getLanguageName(currentLangCode)}",
@@ -355,7 +355,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 secondary: Icon(Icons.notifications_active_outlined, color: darkTextColor),
                 title: Text(
                   'enable_notifications_label'.tr().isEmpty ? 'دریافت اعلانات' : 'enable_notifications_label'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
                 ),
                 value: _enableNotifications,
                 onChanged: _toggleNotification,
@@ -369,7 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 secondary: Icon(Icons.volume_up_outlined, color: darkTextColor),
                 title: Text(
                   'enable_sounds_label'.tr().isEmpty ? 'افکت‌های صوتی' : 'enable_sounds_label'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
                 ),
                 value: _enableSoundEffects,
                 onChanged: _toggleSound,
@@ -387,7 +387,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     : Icon(Icons.cleaning_services_outlined, color: darkTextColor),
                 title: Text(
                   'clear_cache_btn'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_btn'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
                 ),
                 subtitle: Text(
                   'clear_cache_subtitle'.tr().isEmpty ? 'آزادسازی فضای اشغال‌شده توسط عکس‌ها و نقشه‌ها' : 'clear_cache_subtitle'.tr(),
@@ -407,7 +407,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: Icon(Icons.description_outlined, color: darkTextColor),
                 title: Text(
                   'terms_of_service'.tr().isEmpty ? 'شرایط و قوانین استفاده' : 'terms_of_service'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
                 ),
                 trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
                 onTap: _showTermsDialog,
@@ -417,7 +417,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: Icon(Icons.info_outline_rounded, color: darkTextColor),
                 title: Text(
                   'app_version_label'.tr().isEmpty ? 'نسخه برنامه' : 'app_version_label'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
                 ),
                 subtitle: const Text(
                   "v1.0.0 (Safir Passengers)",
@@ -431,7 +431,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: Text(
                     'up_to_date'.tr().isEmpty ? 'به‌روز است' : 'up_to_date'.tr(),
-                    style: TextStyle(color: primaryAccent, fontSize: 14, fontWeight: FontWeight.w500),
+                    style: TextStyle(color: primaryAccent, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -450,7 +450,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title,
         style: TextStyle(
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600, // 🟢 تغییر وزن هدر بخش‌ها
           color: darkTextColor,
           letterSpacing: 0.2,
         ),
