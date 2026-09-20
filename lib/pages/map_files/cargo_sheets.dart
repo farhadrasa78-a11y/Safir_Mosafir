@@ -470,70 +470,146 @@ class CargoSheets {
     );
   }
 
-  /// متد اختصاصی ساخت اینپوت بهینه‌شده جهت جلوگیری از پرش و تغییر رنگ خطوط
-  static Widget _buildField({
-    required TextEditingController controller,
-    required String label,
-    bool readOnly = false,
-    TextInputType keyboardType = TextInputType.text,
-    TextInputAction textInputAction = TextInputAction.next,
-    Widget? suffixIcon,
-  }) {
-    const normalBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
-      borderSide: BorderSide(
-        color: Color(0xFFE5E7EB), // خط خاکستری روشن و خنثی در حالت عادی
-        width: 1,
-      ),
-    );
+  /// متد ساخت اینپوت تکس‌فیلد با استایل حاشیه نازک و لیبل روی خط
+static Widget _buildField({
+  required TextEditingController controller,
+  required String label,
+  bool readOnly = false,
+  TextInputType keyboardType = TextInputType.text,
+  TextInputAction textInputAction = TextInputAction.next,
+  Widget? suffixIcon,
+}) {
+  const normalBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12)),
+    borderSide: BorderSide(
+      color: Color(0xFFD6D6D6),
+      width: 1.0,
+    ),
+  );
 
-    const focusedBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
-      borderSide: BorderSide(
-        color: AppColors.primaryBrand, // تغییر خط به آبی فقط هنگام فوکوس
-        width: 1.5,
-      ),
-    );
+  const focusedBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12)),
+    borderSide: BorderSide(
+      color: AppColors.primaryBrand,
+      width: 1.5,
+    ),
+  );
 
-    return TextField(
-      controller: controller,
-      readOnly: readOnly,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      style: const TextStyle(
-        color: AppColors.textPrimary,
-        fontSize: 14,
+  return TextField(
+    key: ValueKey('field_$label'), // 👈 جلوگیری از rebuild کامل ویجت هنگام باز شدن کیبورد
+    controller: controller,
+    readOnly: readOnly,
+    keyboardType: keyboardType,
+    textInputAction: textInputAction,
+    // 👇 فاصلهٔ کافی بالای کیبورد هنگام اسکرول خودکار، برای جلوگیری از پرش/گیر کردن
+    scrollPadding: const EdgeInsets.only(bottom: 140),
+    style: const TextStyle(
+      color: AppColors.textPrimary,
+      fontSize: 13.5,
+      fontWeight: FontWeight.w400,
+    ),
+    decoration: InputDecoration(
+      isDense: false,
+      labelText: label,
+      suffixIcon: suffixIcon,
+      floatingLabelBehavior: FloatingLabelBehavior.auto,
+      floatingLabelAlignment: FloatingLabelAlignment.start,
+      labelStyle: const TextStyle(
+        color: Color(0xFF9E9E9E),
+        fontSize: 12.5,
+        fontWeight: FontWeight.w400,
+      ),
+      floatingLabelStyle: const TextStyle(
+        color: AppColors.primaryBrand,
+        fontSize: 11.5,
         fontWeight: FontWeight.w500,
+        backgroundColor: Colors.white,
       ),
-      decoration: InputDecoration(
-        isDense: false,
-        labelText: label,
-        suffixIcon: suffixIcon,
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        labelStyle: const TextStyle(
-          color: Color(0xFF9CA3AF), // لیبل خاکستری روشن w600
-          fontSize: 12.5,
-          fontWeight: FontWeight.w600,
-        ),
-        floatingLabelStyle: const TextStyle(
-          color: AppColors.primaryBrand,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC),
-        border: normalBorder,
-        enabledBorder: normalBorder,
-        disabledBorder: normalBorder,
-        focusedBorder: focusedBorder,
+      hintStyle: const TextStyle(
+        color: Color(0xFF9E9E9E),
+        fontSize: 12.5,
       ),
-    );
-  }
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      border: normalBorder,
+      enabledBorder: normalBorder,
+      disabledBorder: normalBorder,
+      focusedBorder: focusedBorder,
+    ),
+  );
+}
+  /// متد ساخت دراپ‌داون با استایل هماهنگ فیلدها
+static Widget _buildDropdownField({
+  required String label,
+  required String value,
+  required List<String> items,
+  required ValueChanged<String?> onChanged,
+}) {
+  const normalBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12)),
+    borderSide: BorderSide(
+      color: Color(0xFFD6D6D6),
+      width: 1.0,
+    ),
+  );
+
+  const focusedBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12)),
+    borderSide: BorderSide(
+      color: AppColors.primaryBrand,
+      width: 1.5,
+    ),
+  );
+
+  return DropdownButtonFormField<String>(
+    key: ValueKey('dropdown_$label'), // 👈 جلوگیری از rebuild کامل ویجت
+    value: value,
+    style: const TextStyle(
+      color: AppColors.textPrimary,
+      fontSize: 13.5,
+      fontWeight: FontWeight.w400,
+    ),
+    icon: const Icon(
+      Icons.arrow_drop_down,
+      color: Color(0xFF757575),
+    ),
+    decoration: InputDecoration(
+      labelText: label,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      labelStyle: const TextStyle(
+        color: Color(0xFF9E9E9E),
+        fontSize: 12.5,
+        fontWeight: FontWeight.w400,
+      ),
+      floatingLabelStyle: const TextStyle(
+        color: AppColors.primaryBrand,
+        fontSize: 11.5,
+        fontWeight: FontWeight.w500,
+        backgroundColor: Colors.white,
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
+      border: normalBorder,
+      enabledBorder: normalBorder,
+      focusedBorder: focusedBorder,
+    ),
+    items: items
+        .map((e) => DropdownMenuItem(
+              value: e,
+              child: Text(e),
+            ))
+        .toList(),
+    onChanged: onChanged,
+  );
+}
 
   /// 📐 تابع محاسبه قیمت اختصاصی هر خودرو بر اساس مسافت (کیلومتر)
   static double calculateFareForVehicle(String vehicleId, double distanceInKm) {
