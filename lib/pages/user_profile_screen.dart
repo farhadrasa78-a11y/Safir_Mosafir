@@ -1389,172 +1389,172 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
 
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primaryBrand,
+    ? const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primaryBrand,
+        ),
+      )
+    : SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24, // 👈 تنظیم برای نبود فضای خالی زیاد در پایین
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 30), // 👈 کم کردن فاصله بالایی عکس جهت بالانس صفحه
+            Center(
+              child: Container(
+                width: 96,
+                height: 96,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFE5E5E5),
+                    width: 0.8,
+                  ),
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/default_profile.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: const Color(0xFFF3F4F6),
+                        child: Icon(
+                          Icons.person,
+                          size: 52,
+                          color: Colors.grey.shade400,
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-            )
-          : SingleChildScrollView(
-              keyboardDismissBehavior:
-                  ScrollViewKeyboardDismissBehavior.onDrag,
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
+            ),
+            const SizedBox(height: 25),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 60),
-                  Center(
-                    child: Container(
-                      width: 96,
-                      height: 96,
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: const Color(0xFFE5E5E5),
-                          width: 0.8,
+                  Text(
+                    _tr('main_account_info_title', 'اطلاعات اصلی'),
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  _buildInputField(
+                    controller: _nameController,
+                    label: _tr(
+                      'full_name_label',
+                      'نام و نام خانوادگی',
+                    ),
+                    hintText: _tr(
+                      'full_name_hint',
+                      'نام و نام خانوادگی را بنویسید',
+                    ),
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 20), // 👈 اضافه شد (فاصله مستطیل ۱ و ۲)
+                  GestureDetector(
+                    onTap: _showChangePhoneBottomSheet,
+                    child: AbsorbPointer(
+                      child: _buildInputField(
+                        controller: _phoneController,
+                        label: _tr(
+                          'phone_number_label',
+                          'شمارهٔ موبایل',
                         ),
+                        hintText: _tr(
+                          'phone_hint',
+                          'شمارهٔ موبایل را وارد کنید',
+                        ),
+                        readOnly: true,
+                        keyboardType: TextInputType.phone,
                       ),
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/images/default_profile.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: const Color(0xFFF3F4F6),
-                              child: Icon(
-                                Icons.person,
-                                size: 52,
-                                color: Colors.grey.shade400,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
                     ),
                   ),
-                  const SizedBox(height: 25),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _tr('main_account_info_title', 'اطلاعات اصلی'),
-                          style: const TextStyle(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        _buildInputField(
-                          controller: _nameController,
-                          label: _tr(
-                            'full_name_label',
-                            'نام و نام خانوادگی',
-                          ),
-                          hintText: _tr(
-                            'full_name_hint',
-                            'نام و نام خانوادگی را بنویسید',
-                          ),
-                          textInputAction: TextInputAction.next,
-                        ),
-                        GestureDetector(
-                          onTap: _showChangePhoneBottomSheet,
-                          child: AbsorbPointer(
-                            child: _buildInputField(
-                              controller: _phoneController,
-                              label: _tr(
-                                'phone_number_label',
-                                'شمارهٔ موبایل',
-                              ),
-                              hintText: _tr(
-                                'phone_hint',
-                                'شمارهٔ موبایل را وارد کنید',
-                              ),
-                              readOnly: true,
-                              keyboardType: TextInputType.phone,
-                            ),
-                          ),
-                        ),
-                        _buildInputField(
-                          controller: _emailController,
-                          label: _tr('email_label', 'ایمیل'),
-                          hintText: _tr(
-                            'email_hint',
-                            'ایمیل آدرس',
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                        ),
-                      ],
+                  const SizedBox(height: 20), // 👈 اضافه شد (فاصله مستطیل ۲ و ۳)
+                  _buildInputField(
+                    controller: _emailController,
+                    label: _tr('email_label', 'ایمیل'),
+                    hintText: _tr(
+                      'email_hint',
+                      'ایمیل آدرس',
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 8,
-                    width: double.infinity,
-                    color: AppColors.sectionDivider,
-                  ),
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _tr(
-                            'sub_account_info_title',
-                            'اطلاعات فرعی',
-                          ),
-                          style: const TextStyle(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        _buildInputField(
-                          controller: _addressController,
-                          label: _tr('address_label', 'آدرس'),
-                          hintText: _tr(
-                            'address_hint',
-                            'اول آدرس تان را بنویسید',
-                          ),
-                          textInputAction: TextInputAction.next,
-                        ),
-                        _buildSelectionField(
-                          label: _tr('gender_label', 'جنسیت'),
-                          hintText: _tr(
-                            'gender_hint',
-                            'جنسیت خود را انتخاب کنید',
-                          ),
-                          value: _selectedGender,
-                          onTap: _showGenderPicker,
-                        ),
-                        _buildSelectionField(
-                          label: _tr('dob_label', 'تاریخ تولد'),
-                          hintText: _tr(
-                            'dob_hint',
-                            'تاریخ تولد را انتخاب کنید',
-                          ),
-                          value: _selectedDob,
-                          onTap: _showDatePicker,
-                        ),
-                        const SizedBox(height: 25),
-                      
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
                   ),
                 ],
               ),
             ),
-    );
-  }
+            const SizedBox(height: 20),
+            Container(
+              height: 8,
+              width: double.infinity,
+              color: AppColors.sectionDivider,
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _tr(
+                      'sub_account_info_title',
+                      'اطلاعات فرعی',
+                    ),
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  _buildInputField(
+                    controller: _addressController,
+                    label: _tr('address_label', 'آدرس'),
+                    hintText: _tr(
+                      'address_hint',
+                      'اول آدرس تان را بنویسید',
+                    ),
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 20), // 👈 اضافه شد (فاصله آدرس و جنسیت)
+                  _buildSelectionField(
+                    label: _tr('gender_label', 'جنسیت'),
+                    hintText: _tr(
+                      'gender_hint',
+                      'جنسیت خود را انتخاب کنید',
+                    ),
+                    value: _selectedGender,
+                    onTap: _showGenderPicker,
+                  ),
+                  const SizedBox(height: 20), // 👈 اضافه شد (فاصله جنسیت و تاریخ تولد)
+                  _buildSelectionField(
+                    label: _tr('dob_label', 'تاریخ تولد'),
+                    hintText: _tr(
+                      'dob_hint',
+                      'تاریخ تولد را انتخاب کنید',
+                    ),
+                    value: _selectedDob,
+                    onTap: _showDatePicker,
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
 
   Widget _buildInputField({
   required TextEditingController controller,
