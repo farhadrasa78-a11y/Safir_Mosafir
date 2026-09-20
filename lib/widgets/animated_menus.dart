@@ -13,6 +13,7 @@ import 'package:safir_passengers/global/global_var.dart';
 const Color primaryAccent = Color(0xFF1B7A57);
 const Color darkTextColor = Color(0xFF0F172A);
 const Color borderLightColor = Color(0xFFF1F5F9);
+const Color appBarBorderColor = Color(0xFFCBD5E1); // 🟢 خط جداکننده پررنگ‌تر برای AppBar
 
 Future<void> _makeSupportCall(BuildContext context) async {
   String phone = '+93700000000';
@@ -101,7 +102,7 @@ void _showDiscountModal(BuildContext context) {
                       'discount_code'.tr(),
                       style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600, // 🟢 تغییر به w600
                         color: darkTextColor,
                       ),
                     ),
@@ -228,7 +229,7 @@ void _showDiscountModal(BuildContext context) {
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600, // 🟢 تغییر به w600
                             ),
                           ),
                   ),
@@ -265,7 +266,7 @@ void _showAboutAppDialog(BuildContext context) {
                 'about_app'.tr(),
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600, // 🟢 تغییر به w600
                   color: darkTextColor,
                 ),
               ),
@@ -288,7 +289,7 @@ void _showAboutAppDialog(BuildContext context) {
                 style: const TextStyle(
                   color: primaryAccent,
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600, // 🟢 تغییر به w600
                 ),
               ),
             ),
@@ -349,7 +350,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: borderLightColor, height: 1),
+          child: Container(color: appBarBorderColor, height: 1), // 🟢 خط جداکننده پررنگ‌تر
         ),
       ),
       body: SafeArea(
@@ -510,7 +511,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                         style: const TextStyle(
                           color: darkTextColor,
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600, // 🟢 تغییر به w600
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -550,7 +551,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
         style: const TextStyle(
           color: darkTextColor,
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600, // 🟢 تغییر به w600
         ),
       ),
     );
@@ -620,7 +621,7 @@ class _ProfileAnimatedMenuState extends State<ProfileAnimatedMenu> {
                           style: const TextStyle(
                             color: darkTextColor,
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600, // 🟢 تغییر به w600
                           ),
                         ),
                         const SizedBox(height: 3),
