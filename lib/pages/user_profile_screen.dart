@@ -1387,286 +1387,218 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   ),
 ),
 
-
-      body: _isLoading
-    ? const Center(
-        child: CircularProgressIndicator(
-          color: AppColors.primaryBrand,
-        ),
-      )
-    : SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24, // 👈 تنظیم برای نبود فضای خالی زیاد در پایین
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 30), // 👈 کم کردن فاصله بالایی عکس جهت بالانس صفحه
-            Center(
-              child: Container(
-                width: 96,
-                height: 96,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFFE5E5E5),
-                    width: 0.8,
-                  ),
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/images/default_profile.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: const Color(0xFFF3F4F6),
-                        child: Icon(
-                          Icons.person,
-                          size: 52,
-                          color: Colors.grey.shade400,
-                        ),
-                      );
-                    },
-                  ),
-                ),
+            body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primaryBrand,
               ),
-            ),
-            const SizedBox(height: 25),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+            )
+          : SingleChildScrollView(
+              keyboardDismissBehavior:
+                  ScrollViewKeyboardDismissBehavior.onDrag,
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    _tr('main_account_info_title', 'اطلاعات اصلی'),
-                    style: const TextStyle(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildInputField(
-                    controller: _nameController,
-                    label: _tr(
-                      'full_name_label',
-                      'نام و نام خانوادگی',
-                    ),
-                    hintText: _tr(
-                      'full_name_hint',
-                      'نام و نام خانوادگی را بنویسید',
-                    ),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 20), // 👈 اضافه شد (فاصله مستطیل ۱ و ۲)
-                  GestureDetector(
-                    onTap: _showChangePhoneBottomSheet,
-                    child: AbsorbPointer(
-                      child: _buildInputField(
-                        controller: _phoneController,
-                        label: _tr(
-                          'phone_number_label',
-                          'شمارهٔ موبایل',
+                  const SizedBox(height: 30),
+                  Center(
+                    child: Container(
+                      width: 96,
+                      height: 96,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFFE5E5E5),
+                          width: 0.8,
                         ),
-                        hintText: _tr(
-                          'phone_hint',
-                          'شمارهٔ موبایل را وارد کنید',
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/default_profile.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: const Color(0xFFF3F4F6),
+                              child: Icon(
+                                Icons.person,
+                                size: 52,
+                                color: Colors.grey.shade400,
+                              ),
+                            );
+                          },
                         ),
-                        readOnly: true,
-                        keyboardType: TextInputType.phone,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20), // 👈 اضافه شد (فاصله مستطیل ۲ و ۳)
-                  _buildInputField(
-                    controller: _emailController,
-                    label: _tr('email_label', 'ایمیل'),
-                    hintText: _tr(
-                      'email_hint',
-                      'ایمیل آدرس',
+                  const SizedBox(height: 25),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _tr('main_account_info_title', 'اطلاعات اصلی'),
+                          style: const TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        _buildInputField(
+                          controller: _nameController,
+                          label: _tr(
+                            'full_name_label',
+                            'نام و نام خانوادگی',
+                          ),
+                          hintText: _tr(
+                            'full_name_hint',
+                            'نام و نام خانوادگی را بنویسید',
+                          ),
+                          textInputAction: TextInputAction.next,
+                        ),
+                        GestureDetector(
+                          onTap: _showChangePhoneBottomSheet,
+                          child: AbsorbPointer(
+                            child: _buildInputField(
+                              controller: _phoneController,
+                              label: _tr(
+                                'phone_number_label',
+                                'شمارهٔ موبایل',
+                              ),
+                              hintText: _tr(
+                                'phone_hint',
+                                'شمارهٔ موبایل را وارد کنید',
+                              ),
+                              readOnly: true,
+                              keyboardType: TextInputType.phone,
+                            ),
+                          ),
+                        ),
+                        _buildInputField(
+                          controller: _emailController,
+                          label: _tr('email_label', 'ایمیل'),
+                          hintText: _tr(
+                            'email_hint',
+                            'ایمیل آدرس',
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                        ),
+                      ],
                     ),
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    height: 8,
+                    width: double.infinity,
+                    color: AppColors.sectionDivider,
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _tr(
+                            'sub_account_info_title',
+                            'اطلاعات فرعی',
+                          ),
+                          style: const TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        _buildInputField(
+                          controller: _addressController,
+                          label: _tr('address_label', 'آدرس'),
+                          hintText: _tr(
+                            'address_hint',
+                            'اول آدرس تان را بنویسید',
+                          ),
+                          textInputAction: TextInputAction.next,
+                        ),
+                        _buildSelectionField(
+                          label: _tr('gender_label', 'جنسیت'),
+                          hintText: _tr(
+                            'gender_hint',
+                            'جنسیت خود را انتخاب کنید',
+                          ),
+                          value: _selectedGender,
+                          onTap: _showGenderPicker,
+                        ),
+                        _buildSelectionField(
+                          label: _tr('dob_label', 'تاریخ تولد'),
+                          hintText: _tr(
+                            'dob_hint',
+                            'تاریخ تولد را انتخاب کنید',
+                          ),
+                          value: _selectedDob,
+                          onTap: _showDatePicker,
+                        ),
+                        const SizedBox(height: 25),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-              height: 8,
-              width: double.infinity,
-              color: AppColors.sectionDivider,
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _tr(
-                      'sub_account_info_title',
-                      'اطلاعات فرعی',
-                    ),
-                    style: const TextStyle(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildInputField(
-                    controller: _addressController,
-                    label: _tr('address_label', 'آدرس'),
-                    hintText: _tr(
-                      'address_hint',
-                      'اول آدرس تان را بنویسید',
-                    ),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 20), // 👈 اضافه شد (فاصله آدرس و جنسیت)
-                  _buildSelectionField(
-                    label: _tr('gender_label', 'جنسیت'),
-                    hintText: _tr(
-                      'gender_hint',
-                      'جنسیت خود را انتخاب کنید',
-                    ),
-                    value: _selectedGender,
-                    onTap: _showGenderPicker,
-                  ),
-                  const SizedBox(height: 20), // 👈 اضافه شد (فاصله جنسیت و تاریخ تولد)
-                  _buildSelectionField(
-                    label: _tr('dob_label', 'تاریخ تولد'),
-                    hintText: _tr(
-                      'dob_hint',
-                      'تاریخ تولد را انتخاب کنید',
-                    ),
-                    value: _selectedDob,
-                    onTap: _showDatePicker,
-                  ),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-
+    ); // 👈 بسته شدن Scaffold
+  } // 👈 بسته شدن متد build
 
   Widget _buildInputField({
-  required TextEditingController controller,
-  required String label,
-  required String hintText,
-  bool readOnly = false,
-  TextInputType keyboardType = TextInputType.text,
-  TextInputAction textInputAction = TextInputAction.next,
-}) {
-  final OutlineInputBorder normalBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    borderSide: const BorderSide(
-      color: Color(0xFF9E9E9E),
-      width: 1.0,
-    ),
-  );
-
-  final OutlineInputBorder focusedBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    borderSide: const BorderSide(
-      color: AppColors.primaryBrand,
-      width: 1.5,
-    ),
-  );
-
-  return Padding(
-    key: ValueKey('input_field_$label'), // 👈 جلوگیری از rebuild کامل ویجت
-    padding: const EdgeInsets.symmetric(vertical: 7),
-    child: TextField(
-      controller: controller,
-      readOnly: readOnly,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      textAlign: _isRtl ? TextAlign.right : TextAlign.left,
-      // 👇 فاصلهٔ کافی بالای کیبورد هنگام اسکرول خودکار، برای جلوگیری از پرش/گیر کردن
-      scrollPadding: const EdgeInsets.only(bottom: 220),
-      style: const TextStyle(
-        color: AppColors.textPrimary,
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-      ),
-      decoration: InputDecoration(
-        isDense: false,
-        labelText: label,
-        hintText: hintText,
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        alignLabelWithHint: false,
-        labelStyle: const TextStyle(
-          color: Color(0xFF9E9E9E),
-          fontSize: 12.5,
-          fontWeight: FontWeight.w400,
-        ),
-        floatingLabelStyle: const TextStyle(
-          color: Color(0xFF757575),
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          backgroundColor: Colors.white,
-        ),
-        hintStyle: const TextStyle(
-          color: Color(0xFFBDBDBD),
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 22,
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        border: normalBorder,
-        enabledBorder: normalBorder,
-        disabledBorder: normalBorder,
-        focusedBorder: focusedBorder,
-      ),
-    ),
-  );
-}
-
-Widget _buildSelectionField({
-  required String label,
-  required String hintText,
-  required String value,
-  required VoidCallback onTap,
-}) {
-  final bool hasValue = value.trim().isNotEmpty;
-
-  final OutlineInputBorder normalBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    borderSide: const BorderSide(
-      color: Color(0xFF9E9E9E),
-      width: 1.0,
-    ),
-    gapPadding: 4,
-  );
-
-  return Padding(
-    key: ValueKey('selection_field_$label'), // 👈 جلوگیری از rebuild کامل ویجت
-    padding: const EdgeInsets.symmetric(vertical: 7),
-    child: InkWell(
-      onTap: () {
-        // 👇 اول کیبورد/فوکوس فیلد فعلی رو نرم می‌بنده تا با باز شدن پیکر تداخل و پرش نداشته باشه
-        FocusScope.of(context).unfocus();
-        onTap();
-      },
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    bool readOnly = false,
+    TextInputType keyboardType = TextInputType.text,
+    TextInputAction textInputAction = TextInputAction.next,
+  }) {
+    final OutlineInputBorder normalBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      child: InputDecorator(
+      borderSide: const BorderSide(
+        color: Color(0xFF9E9E9E),
+        width: 1.0,
+      ),
+    );
+
+    final OutlineInputBorder focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(
+        color: AppColors.primaryBrand,
+        width: 1.5,
+      ),
+    );
+
+    return Padding(
+      key: ValueKey('input_field_$label'),
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        textAlign: _isRtl ? TextAlign.right : TextAlign.left,
+        scrollPadding: const EdgeInsets.only(bottom: 220),
+        style: const TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        ),
         decoration: InputDecoration(
+          isDense: false,
           labelText: label,
-          floatingLabelBehavior: hasValue
-              ? FloatingLabelBehavior.always
-              : FloatingLabelBehavior.never,
+          hintText: hintText,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          floatingLabelAlignment: FloatingLabelAlignment.start,
+          alignLabelWithHint: false,
           labelStyle: const TextStyle(
             color: Color(0xFF9E9E9E),
             fontSize: 12.5,
@@ -1678,6 +1610,11 @@ Widget _buildSelectionField({
             fontWeight: FontWeight.w500,
             backgroundColor: Colors.white,
           ),
+          hintStyle: const TextStyle(
+            color: Color(0xFFBDBDBD),
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+          ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 22,
@@ -1686,34 +1623,92 @@ Widget _buildSelectionField({
           fillColor: Colors.white,
           border: normalBorder,
           enabledBorder: normalBorder,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                hasValue ? value : hintText,
-                textAlign: _isRtl ? TextAlign.right : TextAlign.left,
-                style: TextStyle(
-                  color: hasValue
-                      ? AppColors.textPrimary
-                      : const Color(0xFFBDBDBD),
-                  fontSize: hasValue ? 13.5 : 12.5,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF9E9E9E),
-              size: 20,
-            ),
-          ],
+          disabledBorder: normalBorder,
+          focusedBorder: focusedBorder,
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  Widget _buildSelectionField({
+    required String label,
+    required String hintText,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    final bool hasValue = value.trim().isNotEmpty;
+
+    final OutlineInputBorder normalBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(
+        color: Color(0xFF9E9E9E),
+        width: 1.0,
+      ),
+      gapPadding: 4,
+    );
+
+    return Padding(
+      key: ValueKey('selection_field_$label'),
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: InkWell(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+          onTap();
+        },
+        borderRadius: BorderRadius.circular(10),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            floatingLabelBehavior: hasValue
+                ? FloatingLabelBehavior.always
+                : FloatingLabelBehavior.never,
+            labelStyle: const TextStyle(
+              color: Color(0xFF9E9E9E),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w400,
+            ),
+            floatingLabelStyle: const TextStyle(
+              color: Color(0xFF757575),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              backgroundColor: Colors.white,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 22,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            border: normalBorder,
+            enabledBorder: normalBorder,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  hasValue ? value : hintText,
+                  textAlign: _isRtl ? TextAlign.right : TextAlign.left,
+                  style: TextStyle(
+                    color: hasValue
+                        ? AppColors.textPrimary
+                        : const Color(0xFFBDBDBD),
+                    fontSize: hasValue ? 13.5 : 12.5,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Color(0xFF9E9E9E),
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -1724,3 +1719,4 @@ Widget _buildSelectionField({
     super.dispose();
   }
 }
+ 
