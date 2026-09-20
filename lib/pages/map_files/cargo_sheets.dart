@@ -20,6 +20,7 @@ class CargoSheets {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
+      elevation: 8, // 👈 سایه ملایم برای حس مدرن‌تر شیت
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -28,8 +29,9 @@ class CargoSheets {
           builder: (context, setModalState) {
             final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
             return AnimatedPadding(
-              duration: const Duration(milliseconds: 100),
-              curve: Curves.decelerate,
+              // 👇 هماهنگ با تایمینگ واقعی انیمیشن کیبورد، برای جلوگیری از پرش/گیر کردن
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
               padding: EdgeInsets.only(bottom: bottomInset),
               child: SafeArea(
                 child: Container(
@@ -232,6 +234,7 @@ class CargoSheets {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
+      elevation: 8, // 👈 سایه ملایم هماهنگ با شیت فرستنده
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -243,8 +246,9 @@ class CargoSheets {
           builder: (context, setModalState) {
             final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
             return AnimatedPadding(
-              duration: const Duration(milliseconds: 100),
-              curve: Curves.decelerate,
+              // 👇 هماهنگ با تایمینگ واقعی انیمیشن کیبورد، برای جلوگیری از پرش/گیر کردن
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
               padding: EdgeInsets.only(bottom: bottomInset),
               child: SafeArea(
                 child: Container(
@@ -331,47 +335,17 @@ class CargoSheets {
                         ),
                         const SizedBox(height: 12),
 
-                        DropdownButtonFormField<String>(
+                        // 👇 قبلاً اینجا کد تکراری و بدون Key بود؛ حالا از همون متد
+                        // یکپارچهٔ _buildDropdownField استفاده می‌شه (هم‌استایل با بقیهٔ فیلدها)
+                        _buildDropdownField(
+                          label: 'cargo.cargo_type'.tr(),
                           value: currentPackage,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'cargo.cargo_type'.tr(),
-                            labelStyle: const TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            floatingLabelStyle: const TextStyle(
-                              color: AppColors.primaryBrand,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            filled: true,
-                            fillColor: const Color(0xFFF8FAFC),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
-                            ),
-                          ),
                           items: [
                             'cargo.type_other'.tr(),
                             'cargo.type_home_furniture'.tr(),
                             'cargo.type_office_furniture'.tr(),
                             'cargo.type_goods_food'.tr(),
-                          ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                          ],
                           onChanged: (val) {
                             if (val != null) {
                               setModalState(() {
@@ -383,47 +357,15 @@ class CargoSheets {
                         ),
                         const SizedBox(height: 12),
 
-                        DropdownButtonFormField<String>(
+                        _buildDropdownField(
+                          label: 'cargo.insurance_amount'.tr(),
                           value: currentInsurance,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'cargo.insurance_amount'.tr(),
-                            labelStyle: const TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            floatingLabelStyle: const TextStyle(
-                              color: AppColors.primaryBrand,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            filled: true,
-                            fillColor: const Color(0xFFF8FAFC),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
-                            ),
-                          ),
                           items: [
                             'cargo.insurance_50k'.tr(),
                             'cargo.insurance_100k'.tr(),
                             'cargo.insurance_500k'.tr(),
                             'cargo.no_insurance'.tr(),
-                          ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                          ],
                           onChanged: (val) {
                             if (val != null) {
                               setModalState(() {
@@ -471,145 +413,146 @@ class CargoSheets {
   }
 
   /// متد ساخت اینپوت تکس‌فیلد با استایل حاشیه نازک و لیبل روی خط
-static Widget _buildField({
-  required TextEditingController controller,
-  required String label,
-  bool readOnly = false,
-  TextInputType keyboardType = TextInputType.text,
-  TextInputAction textInputAction = TextInputAction.next,
-  Widget? suffixIcon,
-}) {
-  const normalBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12)),
-    borderSide: BorderSide(
-      color: Color(0xFFD6D6D6),
-      width: 1.0,
-    ),
-  );
+  static Widget _buildField({
+    required TextEditingController controller,
+    required String label,
+    bool readOnly = false,
+    TextInputType keyboardType = TextInputType.text,
+    TextInputAction textInputAction = TextInputAction.next,
+    Widget? suffixIcon,
+  }) {
+    const normalBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+      borderSide: BorderSide(
+        color: Color(0xFFD6D6D6),
+        width: 1.0,
+      ),
+    );
 
-  const focusedBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12)),
-    borderSide: BorderSide(
-      color: AppColors.primaryBrand,
-      width: 1.5,
-    ),
-  );
+    const focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+      borderSide: BorderSide(
+        color: AppColors.primaryBrand,
+        width: 1.5,
+      ),
+    );
 
-  return TextField(
-    key: ValueKey('field_$label'), // 👈 جلوگیری از rebuild کامل ویجت هنگام باز شدن کیبورد
-    controller: controller,
-    readOnly: readOnly,
-    keyboardType: keyboardType,
-    textInputAction: textInputAction,
-    // 👇 فاصلهٔ کافی بالای کیبورد هنگام اسکرول خودکار، برای جلوگیری از پرش/گیر کردن
-    scrollPadding: const EdgeInsets.only(bottom: 140),
-    style: const TextStyle(
-      color: AppColors.textPrimary,
-      fontSize: 13.5,
-      fontWeight: FontWeight.w400,
-    ),
-    decoration: InputDecoration(
-      isDense: false,
-      labelText: label,
-      suffixIcon: suffixIcon,
-      floatingLabelBehavior: FloatingLabelBehavior.auto,
-      floatingLabelAlignment: FloatingLabelAlignment.start,
-      labelStyle: const TextStyle(
-        color: Color(0xFF9E9E9E),
-        fontSize: 12.5,
+    return TextField(
+      key: ValueKey('field_$label'), // 👈 جلوگیری از rebuild کامل ویجت هنگام باز شدن کیبورد
+      controller: controller,
+      readOnly: readOnly,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      // 👇 فاصلهٔ کافی بالای کیبورد هنگام اسکرول خودکار، برای جلوگیری از پرش/گیر کردن
+      scrollPadding: const EdgeInsets.only(bottom: 140),
+      style: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 13.5,
         fontWeight: FontWeight.w400,
       ),
-      floatingLabelStyle: const TextStyle(
-        color: AppColors.primaryBrand,
-        fontSize: 11.5,
-        fontWeight: FontWeight.w500,
-        backgroundColor: Colors.white,
+      decoration: InputDecoration(
+        isDense: false,
+        labelText: label,
+        suffixIcon: suffixIcon,
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        floatingLabelAlignment: FloatingLabelAlignment.start,
+        labelStyle: const TextStyle(
+          color: Color(0xFF9E9E9E),
+          fontSize: 12.5,
+          fontWeight: FontWeight.w400,
+        ),
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.primaryBrand,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w500,
+          backgroundColor: Colors.white,
+        ),
+        hintStyle: const TextStyle(
+          color: Color(0xFF9E9E9E),
+          fontSize: 12.5,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        border: normalBorder,
+        enabledBorder: normalBorder,
+        disabledBorder: normalBorder,
+        focusedBorder: focusedBorder,
       ),
-      hintStyle: const TextStyle(
-        color: Color(0xFF9E9E9E),
-        fontSize: 12.5,
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
-      ),
-      filled: true,
-      fillColor: Colors.white,
-      border: normalBorder,
-      enabledBorder: normalBorder,
-      disabledBorder: normalBorder,
-      focusedBorder: focusedBorder,
-    ),
-  );
-}
+    );
+  }
+
   /// متد ساخت دراپ‌داون با استایل هماهنگ فیلدها
-static Widget _buildDropdownField({
-  required String label,
-  required String value,
-  required List<String> items,
-  required ValueChanged<String?> onChanged,
-}) {
-  const normalBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12)),
-    borderSide: BorderSide(
-      color: Color(0xFFD6D6D6),
-      width: 1.0,
-    ),
-  );
+  static Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    const normalBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+      borderSide: BorderSide(
+        color: Color(0xFFD6D6D6),
+        width: 1.0,
+      ),
+    );
 
-  const focusedBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12)),
-    borderSide: BorderSide(
-      color: AppColors.primaryBrand,
-      width: 1.5,
-    ),
-  );
+    const focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+      borderSide: BorderSide(
+        color: AppColors.primaryBrand,
+        width: 1.5,
+      ),
+    );
 
-  return DropdownButtonFormField<String>(
-    key: ValueKey('dropdown_$label'), // 👈 جلوگیری از rebuild کامل ویجت
-    value: value,
-    style: const TextStyle(
-      color: AppColors.textPrimary,
-      fontSize: 13.5,
-      fontWeight: FontWeight.w400,
-    ),
-    icon: const Icon(
-      Icons.arrow_drop_down,
-      color: Color(0xFF757575),
-    ),
-    decoration: InputDecoration(
-      labelText: label,
-      floatingLabelBehavior: FloatingLabelBehavior.always,
-      labelStyle: const TextStyle(
-        color: Color(0xFF9E9E9E),
-        fontSize: 12.5,
+    return DropdownButtonFormField<String>(
+      key: ValueKey('dropdown_$label'), // 👈 جلوگیری از rebuild کامل ویجت
+      value: value,
+      style: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 13.5,
         fontWeight: FontWeight.w400,
       ),
-      floatingLabelStyle: const TextStyle(
-        color: AppColors.primaryBrand,
-        fontSize: 11.5,
-        fontWeight: FontWeight.w500,
-        backgroundColor: Colors.white,
+      icon: const Icon(
+        Icons.arrow_drop_down,
+        color: Color(0xFF757575),
       ),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
+      decoration: InputDecoration(
+        labelText: label,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        labelStyle: const TextStyle(
+          color: Color(0xFF9E9E9E),
+          fontSize: 12.5,
+          fontWeight: FontWeight.w400,
+        ),
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.primaryBrand,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w500,
+          backgroundColor: Colors.white,
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
+        border: normalBorder,
+        enabledBorder: normalBorder,
+        focusedBorder: focusedBorder,
       ),
-      border: normalBorder,
-      enabledBorder: normalBorder,
-      focusedBorder: focusedBorder,
-    ),
-    items: items
-        .map((e) => DropdownMenuItem(
-              value: e,
-              child: Text(e),
-            ))
-        .toList(),
-    onChanged: onChanged,
-  );
-}
+      items: items
+          .map((e) => DropdownMenuItem(
+                value: e,
+                child: Text(e),
+              ))
+          .toList(),
+      onChanged: onChanged,
+    );
+  }
 
   /// 📐 تابع محاسبه قیمت اختصاصی هر خودرو بر اساس مسافت (کیلومتر)
   static double calculateFareForVehicle(String vehicleId, double distanceInKm) {
