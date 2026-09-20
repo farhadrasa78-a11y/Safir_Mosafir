@@ -27,199 +27,205 @@ class CargoSheets {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
-            left: 16,
-            right: 16,
-            top: 16,
-          ),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
+        final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
+        
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.85,
+            ),
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                      onPressed: () => Navigator.pop(ctx),
-                    ),
-                    Text(
-                      'cargo.sender_details_title'.tr(),
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                        onPressed: () => Navigator.pop(ctx),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+                      Text(
+                        'cargo.sender_details_title'.tr(),
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
 
-                InkWell(
-                  onTap: () {
-                    if (onUseMyInfoPressed != null) {
-                      onUseMyInfoPressed();
-                    } else {
-                      nameController.text = userName;
-                      phoneController.text = userPhone;
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryBrand.withOpacity(0.06),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primaryBrand.withOpacity(0.2),
+                  InkWell(
+                    onTap: () {
+                      if (onUseMyInfoPressed != null) {
+                        onUseMyInfoPressed();
+                      } else {
+                        nameController.text = userName;
+                        phoneController.text = userPhone;
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryBrand.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.primaryBrand.withOpacity(0.2),
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.account_circle, color: AppColors.primaryBrand, size: 22),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'cargo.use_my_info'.tr(),
-                            style: const TextStyle(
-                              color: AppColors.primaryBrand,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.account_circle, color: AppColors.primaryBrand, size: 22),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'cargo.use_my_info'.tr(),
+                              style: const TextStyle(
+                                color: AppColors.primaryBrand,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
-                        ),
-                        const Icon(Icons.check_circle_outline, size: 18, color: AppColors.primaryBrand),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                TextField(
-                  controller: nameController,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: 'cargo.sender_fullname'.tr(),
-                    labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                TextField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: 'cargo.phone'.tr(),
-                    labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                TextField(
-                  controller: addressController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'cargo.origin_address_label'.tr(),
-                    labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: floorController,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'cargo.plaque'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: unitController,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'cargo.unit'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                TextField(
-                  controller: noteController,
-                  textInputAction: TextInputAction.done,
-                  decoration: InputDecoration(
-                    labelText: 'cargo.description_optional'.tr(),
-                    labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryButton,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      elevation: 0,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      onConfirm();
-                    },
-                    child: Text(
-                      'cargo.confirm_continue'.tr(),
-                      style: const TextStyle(
-                        color: AppColors.buttonText,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+                          const Icon(Icons.check_circle_outline, size: 18, color: AppColors.primaryBrand),
+                        ],
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+
+                  TextField(
+                    controller: nameController,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      labelText: 'cargo.sender_fullname'.tr(),
+                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      labelText: 'cargo.phone'.tr(),
+                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextField(
+                    controller: addressController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'cargo.origin_address_label'.tr(),
+                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: floorController,
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            labelText: 'cargo.plaque'.tr(),
+                            labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: unitController,
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            labelText: 'cargo.unit'.tr(),
+                            labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextField(
+                    controller: noteController,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                      labelText: 'cargo.description_optional'.tr(),
+                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryButton,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        onConfirm();
+                      },
+                      child: Text(
+                        'cargo.confirm_continue'.tr(),
+                        style: const TextStyle(
+                          color: AppColors.buttonText,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -246,6 +252,7 @@ class CargoSheets {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -255,195 +262,200 @@ class CargoSheets {
 
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
-                left: 16,
-                right: 16,
-                top: 16,
-              ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 36,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                          onPressed: () => Navigator.pop(ctx),
-                        ),
-                        Text(
-                          'cargo.receiver_details_title'.tr(),
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+            final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
+
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 150),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(ctx).size.height * 0.85,
+                ),
+                padding: const EdgeInsets.all(16),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    TextField(
-                      controller: nameController,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        labelText: 'cargo.receiver_fullname'.tr(),
-                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    TextField(
-                      controller: phoneController,
-                      keyboardType: TextInputType.phone,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        labelText: 'cargo.receiver_phone'.tr(),
-                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    TextField(
-                      controller: addressController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'cargo.destination_address_label'.tr(),
-                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: floorController,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'cargo.plaque'.tr(),
-                              labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                            onPressed: () => Navigator.pop(ctx),
+                          ),
+                          Text(
+                            'cargo.receiver_details_title'.tr(),
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
                             ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: nameController,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          labelText: 'cargo.receiver_fullname'.tr(),
+                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: unitController,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'cargo.unit'.tr(),
-                              labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: phoneController,
+                        keyboardType: TextInputType.phone,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          labelText: 'cargo.receiver_phone'.tr(),
+                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: addressController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'cargo.destination_address_label'.tr(),
+                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: floorController,
+                              textInputAction: TextInputAction.next,
+                              decoration: InputDecoration(
+                                labelText: 'cargo.plaque'.tr(),
+                                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: unitController,
+                              textInputAction: TextInputAction.next,
+                              decoration: InputDecoration(
+                                labelText: 'cargo.unit'.tr(),
+                                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: noteController,
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(
+                          labelText: 'cargo.delivery_note'.tr(),
+                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    TextField(
-                      controller: noteController,
-                      textInputAction: TextInputAction.done,
-                      decoration: InputDecoration(
-                        labelText: 'cargo.delivery_note'.tr(),
-                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                    DropdownButtonFormField<String>(
-                      value: currentPackage,
-                      decoration: InputDecoration(
-                        labelText: 'cargo.cargo_type'.tr(),
-                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      items: [
-                        'cargo.type_other'.tr(),
-                        'cargo.type_home_furniture'.tr(),
-                        'cargo.type_office_furniture'.tr(),
-                        'cargo.type_goods_food'.tr(),
-                      ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setModalState(() {
-                            currentPackage = val;
-                          });
-                          onPackageTypeChanged(val);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 12),
-
-                    DropdownButtonFormField<String>(
-                      value: currentInsurance,
-                      decoration: InputDecoration(
-                        labelText: 'cargo.insurance_amount'.tr(),
-                        labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      items: [
-                        'cargo.insurance_50k'.tr(),
-                        'cargo.insurance_100k'.tr(),
-                        'cargo.insurance_500k'.tr(),
-                        'cargo.no_insurance'.tr(),
-                      ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setModalState(() {
-                            currentInsurance = val;
-                          });
-                          onInsuranceChanged(val);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryButton,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          elevation: 0,
+                      DropdownButtonFormField<String>(
+                        value: currentPackage,
+                        decoration: InputDecoration(
+                          labelText: 'cargo.cargo_type'.tr(),
+                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          onConfirm();
+                        items: [
+                          'cargo.type_other'.tr(),
+                          'cargo.type_home_furniture'.tr(),
+                          'cargo.type_office_furniture'.tr(),
+                          'cargo.type_goods_food'.tr(),
+                        ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setModalState(() {
+                              currentPackage = val;
+                            });
+                            onPackageTypeChanged(val);
+                          }
                         },
-                        child: Text(
-                          'cargo.confirm_continue'.tr(),
-                          style: const TextStyle(
-                            color: AppColors.buttonText,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                      ),
+                      const SizedBox(height: 12),
+
+                      DropdownButtonFormField<String>(
+                        value: currentInsurance,
+                        decoration: InputDecoration(
+                          labelText: 'cargo.insurance_amount'.tr(),
+                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        items: [
+                          'cargo.insurance_50k'.tr(),
+                          'cargo.insurance_100k'.tr(),
+                          'cargo.insurance_500k'.tr(),
+                          'cargo.no_insurance'.tr(),
+                        ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setModalState(() {
+                              currentInsurance = val;
+                            });
+                            onInsuranceChanged(val);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryButton,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            elevation: 0,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            onConfirm();
+                          },
+                          child: Text(
+                            'cargo.confirm_continue'.tr(),
+                            style: const TextStyle(
+                              color: AppColors.buttonText,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
