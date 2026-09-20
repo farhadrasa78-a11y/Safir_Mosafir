@@ -1338,6 +1338,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: Container(
+  padding: EdgeInsets.only(
+    left: 24,
+    right: 24,
+    top: 12,
+    bottom: MediaQuery.of(context).viewInsets.bottom > 0
+        ? 12
+        : MediaQuery.of(context).padding.bottom + 12,
+  ),
+  decoration: const BoxDecoration(
+    color: Colors.white,
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black12,
+        blurRadius: 4,
+        offset: Offset(0, -2),
+      ),
+    ],
+  ),
+  child: SizedBox(
+    width: double.infinity,
+    height: 48,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _isChanged
+            ? AppColors.primaryButton
+            : Colors.grey.shade300,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      onPressed: _isChanged && !_isSaving ? _updateUserData : null,
+      child: _isSaving
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                color: AppColors.buttonText,
+                strokeWidth: 2,
+              ),
+            )
+          : Text(
+              _tr('save_changes_btn', 'ذخیره'),
+              style: TextStyle(
+                color: _isChanged ? AppColors.buttonText : Colors.grey.shade600,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+    ),
+  ),
+),
+
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
