@@ -106,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(width: 10),
                   Text(
                     'select_language_title'.tr().isEmpty ? 'انتخاب زبان' : 'select_language_title'.tr(),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: darkTextColor),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: darkTextColor),
                   ),
                 ],
               ),
@@ -114,7 +114,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   RadioListTile<String>(
-                    title: Text('lang_dari'.tr().isEmpty ? 'فارسی / دری' : 'lang_dari'.tr()),
+                    title: Text(
+                      'lang_dari'.tr().isEmpty ? 'فارسی / دری' : 'lang_dari'.tr(),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
                     value: 'fa',
                     groupValue: selectedTempLang,
                     activeColor: primaryAccent,
@@ -124,7 +127,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   Divider(height: 1, color: borderLightColor),
                   RadioListTile<String>(
-                    title: Text('lang_pashto'.tr().isEmpty ? 'پښتو' : 'lang_pashto'.tr()),
+                    title: Text(
+                      'lang_pashto'.tr().isEmpty ? 'پښتو' : 'lang_pashto'.tr(),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
                     value: 'ps',
                     groupValue: selectedTempLang,
                     activeColor: primaryAccent,
@@ -134,7 +140,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   Divider(height: 1, color: borderLightColor),
                   RadioListTile<String>(
-                    title: Text('lang_english'.tr().isEmpty ? 'English' : 'lang_english'.tr()),
+                    title: Text(
+                      'lang_english'.tr().isEmpty ? 'English' : 'lang_english'.tr(),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
                     value: 'en',
                     groupValue: selectedTempLang,
                     activeColor: primaryAccent,
@@ -149,7 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => Navigator.pop(dialogContext),
                   child: Text(
                     'cancel'.tr().isEmpty ? 'انصراف' : 'cancel'.tr(),
-                    style: TextStyle(color: Colors.grey.shade600),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                 ),
                 ElevatedButton(
@@ -164,7 +173,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                   child: Text(
                     'confirm'.tr().isEmpty ? 'تایید' : 'confirm'.tr(),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
@@ -199,13 +208,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'clear_cache_title'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_title'.tr(),
-          style: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold),
+          style: TextStyle(color: darkTextColor, fontSize: 14, fontWeight: FontWeight.w500),
         ),
-        content: Text('clear_cache_desc'.tr().isEmpty ? 'آیا از پاکسازی فایل‌های موقت برنامه اطمینان دارید؟' : 'clear_cache_desc'.tr()),
+        content: Text(
+          'clear_cache_desc'.tr().isEmpty ? 'آیا از پاکسازی فایل‌های موقت برنامه اطمینان دارید؟' : 'clear_cache_desc'.tr(),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('cancel'.tr().isEmpty ? 'انصراف' : 'cancel'.tr(), style: TextStyle(color: Colors.grey.shade600)),
+            child: Text(
+              'cancel'.tr().isEmpty ? 'انصراف' : 'cancel'.tr(),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w500),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -219,7 +234,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('cache_cleared_msg'.tr().isEmpty ? 'حافظه موقت با موفقیت پاکسازی شد' : 'cache_cleared_msg'.tr()),
+                    content: Text(
+                      'cache_cleared_msg'.tr().isEmpty ? 'حافظه موقت با موفقیت پاکسازی شد' : 'cache_cleared_msg'.tr(),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
                     backgroundColor: successColor,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -227,7 +245,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               }
             },
-            child: Text('confirm'.tr().isEmpty ? 'تایید' : 'confirm'.tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text(
+              'confirm'.tr().isEmpty ? 'تایید' : 'confirm'.tr(),
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+            ),
           ),
         ],
       ),
@@ -243,20 +264,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'terms_of_service'.tr().isEmpty ? 'قوانین و مقررات' : 'terms_of_service'.tr(),
-          style: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold),
+          style: TextStyle(color: darkTextColor, fontSize: 14, fontWeight: FontWeight.w500),
         ),
         content: SingleChildScrollView(
           child: Text(
             'terms_of_service_detail'.tr().isEmpty
                 ? 'استفاده از اپلیکیشن تاکسی آنلاین سفیر به منزله پذیرش تمامی قوانین مربوط به حریم خصوصی، امنیت سفر و پرداخت‌ها می‌باشد.'
                 : 'terms_of_service_detail'.tr(),
-            style: const TextStyle(fontSize: 13, height: 1.6, color: Color(0xFF334155)),
+            style: const TextStyle(fontSize: 14, height: 1.6, color: Color(0xFF334155), fontWeight: FontWeight.w400),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('close'.tr().isEmpty ? 'بستن' : 'close'.tr(), style: TextStyle(color: primaryAccent, fontWeight: FontWeight.bold)),
+            child: Text(
+              'close'.tr().isEmpty ? 'بستن' : 'close'.tr(),
+              style: TextStyle(color: primaryAccent, fontSize: 14, fontWeight: FontWeight.w500),
+            ),
           ),
         ],
       ),
@@ -281,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           scrolledUnderElevation: 0,
           title: Text(
             'settings_title'.tr().isEmpty ? 'تنظیمات' : 'settings_title'.tr(),
-            style: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(color: darkTextColor, fontWeight: FontWeight.w500, fontSize: 14),
           ),
           centerTitle: true,
           leading: IconButton(
@@ -307,11 +331,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: Icon(Icons.language_rounded, color: darkTextColor),
                 title: Text(
                   'app_language_label'.tr().isEmpty ? 'زبان برنامه' : 'app_language_label'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
                 ),
                 subtitle: Text(
                   "${'current_language_prefix'.tr().isEmpty ? 'زبان فعلی' : 'current_language_prefix'.tr()}: ${_getLanguageName(currentLangCode)}",
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), fontWeight: FontWeight.w400),
                 ),
                 trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
                 onTap: _showLanguageDialog,
@@ -331,7 +355,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 secondary: Icon(Icons.notifications_active_outlined, color: darkTextColor),
                 title: Text(
                   'enable_notifications_label'.tr().isEmpty ? 'دریافت اعلانات' : 'enable_notifications_label'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
                 ),
                 value: _enableNotifications,
                 onChanged: _toggleNotification,
@@ -345,7 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 secondary: Icon(Icons.volume_up_outlined, color: darkTextColor),
                 title: Text(
                   'enable_sounds_label'.tr().isEmpty ? 'افکت‌های صوتی' : 'enable_sounds_label'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
                 ),
                 value: _enableSoundEffects,
                 onChanged: _toggleSound,
@@ -363,11 +387,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     : Icon(Icons.cleaning_services_outlined, color: darkTextColor),
                 title: Text(
                   'clear_cache_btn'.tr().isEmpty ? 'پاکسازی حافظه موقت' : 'clear_cache_btn'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
                 ),
                 subtitle: Text(
                   'clear_cache_subtitle'.tr().isEmpty ? 'آزادسازی فضای اشغال‌شده توسط عکس‌ها و نقشه‌ها' : 'clear_cache_subtitle'.tr(),
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), fontWeight: FontWeight.w400),
                 ),
                 trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
                 onTap: _isLoadingCache ? null : _clearCacheDialog,
@@ -383,7 +407,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: Icon(Icons.description_outlined, color: darkTextColor),
                 title: Text(
                   'terms_of_service'.tr().isEmpty ? 'شرایط و قوانین استفاده' : 'terms_of_service'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
                 ),
                 trailing: Icon(chevronIcon, color: const Color(0xFF94A3B8)),
                 onTap: _showTermsDialog,
@@ -393,11 +417,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: Icon(Icons.info_outline_rounded, color: darkTextColor),
                 title: Text(
                   'app_version_label'.tr().isEmpty ? 'نسخه برنامه' : 'app_version_label'.tr(),
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: darkTextColor),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: darkTextColor),
                 ),
                 subtitle: const Text(
                   "v1.0.0 (Safir Passengers)",
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 14, color: Color(0xFF64748B), fontWeight: FontWeight.w400),
                 ),
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -407,7 +431,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: Text(
                     'up_to_date'.tr().isEmpty ? 'به‌روز است' : 'up_to_date'.tr(),
-                    style: TextStyle(color: primaryAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: primaryAccent, fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -425,8 +449,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Text(
         title,
         style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
           color: darkTextColor,
           letterSpacing: 0.2,
         ),
