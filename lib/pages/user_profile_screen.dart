@@ -193,7 +193,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     "got_it_btn".tr().isEmpty ? "متوجه شدم" : "got_it_btn".tr(),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),
                   ),
                 ),
               ),
@@ -224,7 +224,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text("cancel".tr().isEmpty ? "انصراف" : "cancel".tr(), style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+            child: Text("cancel".tr().isEmpty ? "انصراف" : "cancel".tr(), style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -233,7 +233,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text("confirm".tr().isEmpty ? "تأیید" : "confirm".tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+            child: Text("confirm".tr().isEmpty ? "تأیید" : "confirm".tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -322,7 +322,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             const SizedBox(width: 4),
                             Text(
                               formatNumberByLocale(context, _userRating),
-                              style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.textPrimary, fontSize: 14.5),
+                              style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 14.5),
                             ),
                           ],
                         ),
@@ -361,7 +361,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 onTap: _openEditProfileDrawer,
                                 child: Text(
                                   "edit".tr().isEmpty ? "ویرایش" : "edit".tr(),
-                                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: AppColors.primaryBrand),
+                                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.primaryBrand),
                                 ),
                               ),
                             ],
@@ -374,7 +374,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 _userName.isEmpty
                                     ? ("default_user_name".tr().isEmpty ? "کاربر سفیر" : "default_user_name".tr())
                                     : _userName,
-                                style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                                style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimary, fontWeight: FontWeight.w600),
                               ),
                               Text(
                                 formatNumberByLocale(context, _userPhone),
@@ -551,7 +551,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         children: [
                           Text(
                             "wheelchair_option_label".tr().isEmpty ? "از ویلچر استفاده می‌کنم" : "wheelchair_option_label".tr(),
-                            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+                            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                           ),
                           Switch(
                             value: _useWheelchair,
@@ -588,7 +588,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             leading: const Icon(Icons.switch_account_outlined, color: AppColors.primaryBrand, size: 21),
                             title: Text(
                               "switch_account_title".tr().isEmpty ? "تغییر حساب کاربری" : "switch_account_title".tr(),
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                             ),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 13, color: AppColors.textSecondary),
                             onTap: () => _handleLogout(isSwitchAccount: true),
@@ -599,7 +599,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             leading: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 21),
                             title: Text(
                               "exit".tr().isEmpty ? "خروج" : "exit".tr(),
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: Colors.redAccent),
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.redAccent),
                             ),
                             trailing: const Icon(Icons.arrow_forward_ios, size: 13, color: Colors.grey),
                             onTap: () => _handleLogout(isSwitchAccount: false),
@@ -933,7 +933,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         style: const TextStyle(
                           color: AppColors.buttonText,
                           fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -964,7 +964,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               label,
               style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ),
@@ -1068,7 +1068,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           ? AppColors.textPrimary
                                           : AppColors.textSecondary,
                                       fontWeight: selected
-                                          ? FontWeight.w500
+                                          ? FontWeight.w600
                                           : FontWeight.w400,
                                     ),
                                   ),
@@ -1109,7 +1109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           ? AppColors.textPrimary
                                           : AppColors.textSecondary,
                                       fontWeight: selected
-                                          ? FontWeight.w500
+                                          ? FontWeight.w600
                                           : FontWeight.w400,
                                     ),
                                   ),
@@ -1146,7 +1146,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           ? AppColors.textPrimary
                                           : AppColors.textSecondary,
                                       fontWeight: selected
-                                          ? FontWeight.w500
+                                          ? FontWeight.w600
                                           : FontWeight.w400,
                                     ),
                                   ),
@@ -1186,7 +1186,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         style: const TextStyle(
                           color: AppColors.buttonText,
                           fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -1292,7 +1292,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     style: const TextStyle(
                       color: AppColors.buttonText,
                       fontSize: 15,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -1530,7 +1530,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           ? AppColors.buttonText
                                           : Colors.grey.shade600,
                                       fontSize: 15,
-                                      fontWeight: FontWeight.w500,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                           ),
@@ -1545,7 +1545,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // ساختار کاملاً اصلاح‌شده برای TextInput و بریدگی شناور دقیق
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -1557,7 +1556,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final OutlineInputBorder normalBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(
-        color: Color(0xFFE2E8F0),
+        color: AppColors.fieldBorder,
         width: 1,
       ),
     );
@@ -1571,7 +1570,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 7),
       child: TextField(
         controller: controller,
         readOnly: readOnly,
@@ -1587,18 +1586,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           isDense: false,
           labelText: label,
           hintText: hintText,
-          // 🔹 تنظیم ثابت ماندن روی بریدگی برای فارسی و انگلیسی
-          floatingLabelBehavior: FloatingLabelBehavior.always,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
           floatingLabelAlignment: FloatingLabelAlignment.start,
+          alignLabelWithHint: false,
           labelStyle: const TextStyle(
             color: Color(0xFF9CA3AF),
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
           ),
           floatingLabelStyle: const TextStyle(
-            color: AppColors.primaryBrand, // فقط موقع فوکوس فعال آبی می‌شود
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
+            color: AppColors.primaryBrand,
+            fontSize: 11.5,
+            fontWeight: FontWeight.w600,
+            backgroundColor: Colors.white,
           ),
           hintStyle: const TextStyle(
             color: Color(0xFF9CA3AF),
@@ -1609,7 +1609,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             horizontal: 16,
             vertical: 14,
           ),
-          filled: false,
+          filled: true,
+          fillColor: const Color(0xFFF8FAFC),
           border: normalBorder,
           enabledBorder: normalBorder,
           disabledBorder: normalBorder,
@@ -1619,7 +1620,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // ساختار یکدست Dropdown / Selection با دقیقاً همین استایل بریدگی
   Widget _buildSelectionField({
     required String label,
     required String hintText,
@@ -1631,37 +1631,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final OutlineInputBorder normalBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(
-        color: Color(0xFFE2E8F0),
+        color: AppColors.fieldBorder,
         width: 1,
       ),
+      gapPadding: 4,
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 7),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: label,
-            // 🔹 ثابت روی بریدگی همگام با سایر فیلدها
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            floatingLabelAlignment: FloatingLabelAlignment.start,
+            floatingLabelBehavior: hasValue
+                ? FloatingLabelBehavior.always
+                : FloatingLabelBehavior.never,
             labelStyle: const TextStyle(
               color: Color(0xFF9CA3AF),
               fontSize: 13,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w600,
             ),
             floatingLabelStyle: const TextStyle(
-              color: Color(0xFF9CA3AF), // همیشه خاکستری است مگر موقع فوکوس
+              color: Color(0xFF9CA3AF),
               fontSize: 12,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w600,
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 14,
+              vertical: 16,
             ),
-            filled: false,
+            filled: true,
+            fillColor: Colors.white,
             border: normalBorder,
             enabledBorder: normalBorder,
           ),
