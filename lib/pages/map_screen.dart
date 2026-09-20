@@ -174,7 +174,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   double actualFareAmount = 50.0;
   double? bidAmount;
   String selectedVehicle = "Car";
-  double _tripDistanceInKm = 0.0; // 👈 متغیر جدید برای ذخیره مسافت به کیلومتر
+  double _tripDistanceInKm = 0.0;
 
   final List<Map<String, dynamic>> _intercityCities = [
     {'name': 'هرات', 'province': 'هرات', 'lat': 34.3529, 'lng': 62.2040},
@@ -513,7 +513,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       customDestination: destLatLng,
       onRouteFetched: (points, fare, durationText, arrivalTime) async {
         if (mounted) {
-          // 📐 محاسبه دقیق مسافت کل به کیلومتر از روی نقاط مسیر OSRM
           double totalMeters = 0.0;
           for (int i = 0; i < points.length - 1; i++) {
             totalMeters += Geolocator.distanceBetween(
@@ -526,12 +525,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
           setState(() {
             _routePolylinePoints = points;
-            _tripDistanceInKm = totalMeters / 1000.0; // 👈 ذخیره کیلومتر
+            _tripDistanceInKm = totalMeters / 1000.0;
             actualFareAmount = fare;
             _tripDurationText = durationText;
             _estimatedArrivalTime = arrivalTime;
           });
-
 
           if (_routePolylinePoints.isNotEmpty) {
             await _mapController!.addLine(
@@ -634,7 +632,12 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     
     if (appInfo.pickUpLocation == null || appInfo.dropOffLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("لطفاً مبدأ و مقصد را مشخص کنید.")),
+        const SnackBar(
+          content: Text(
+            "لطفاً مبدأ و مقصد را مشخص کنید.",
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          ),
+        ),
       );
       return;
     }
@@ -694,7 +697,12 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
             if (tripStatus == TripStatus.arrived) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("راننده به مبدأ شما رسید.")),
+                const SnackBar(
+                  content: Text(
+                    "راننده به مبدأ شما رسید.",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
+                ),
               );
             }
 
@@ -703,7 +711,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               tripStreamSubscription?.cancel();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("سفر توسط سفیر لغو گردید."),
+                  content: Text(
+                    "سفر توسط سفیر لغو گردید.",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
                   backgroundColor: Colors.red,
                 ),
               );
@@ -803,13 +814,26 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               const SizedBox(height: 15),
               Text(
                 'ride_for_whom_title'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 15),
               ListTile(
                 leading: const Icon(Icons.person, color: AppColors.primaryBrand),
-                title: Text('for_myself'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                trailing: _rideForWhomKey == "for_myself" ? const Icon(Icons.check_circle, color: AppColors.success) : null,
+                title: Text(
+                  'for_myself'.tr(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                trailing: _rideForWhomKey == "for_myself"
+                    ? const Icon(Icons.check_circle, color: AppColors.success)
+                    : null,
                 onTap: () {
                   setState(() => _rideForWhomKey = "for_myself");
                   Navigator.pop(context);
@@ -818,8 +842,17 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.group_outlined, color: Colors.orange),
-                title: Text('for_someone_else'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                trailing: _rideForWhomKey == "for_someone_else" ? const Icon(Icons.check_circle, color: AppColors.success) : null,
+                title: Text(
+                  'for_someone_else'.tr(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                trailing: _rideForWhomKey == "for_someone_else"
+                    ? const Icon(Icons.check_circle, color: AppColors.success)
+                    : null,
                 onTap: () {
                   setState(() => _rideForWhomKey = "for_someone_else");
                   Navigator.pop(context);
@@ -877,19 +910,19 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             },
             onCameraMove: (CameraPosition position) {
               debugPrint(
-             'CAMERA MOVE | programmatic: $_isProgrammaticMove | '
-             'step: $_currentStep | sheet: $_isSheetExpanded',
-           );
+                'CAMERA MOVE | programmatic: $_isProgrammaticMove | '
+                'step: $_currentStep | sheet: $_isSheetExpanded',
+              );
 
-             if (!_isProgrammaticMove) {
-               if (!_isMapMoving) {
-                setState(() {
-               _isMapMoving = true;
-                 _isSheetExpanded = false;
-                });
-               }
+              if (!_isProgrammaticMove) {
+                if (!_isMapMoving) {
+                  setState(() {
+                    _isMapMoving = true;
+                    _isSheetExpanded = false;
+                  });
+                }
               }
-             },
+            },
             onCameraIdle: () {
               final bool wasProgrammaticMove = _isProgrammaticMove;
               _isProgrammaticMove = false;
@@ -1036,7 +1069,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                             _rideForWhomKey.tr(),
                             style: const TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.textPrimary,
                             ),
                           ),
