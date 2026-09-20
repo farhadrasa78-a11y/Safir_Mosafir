@@ -1349,12 +1349,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ScrollViewKeyboardDismissBehavior.onDrag,
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 120,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 60),
                   Center(
                     child: Container(
                       width: 96,
@@ -1495,46 +1495,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           onTap: _showDatePicker,
                         ),
                         const SizedBox(height: 25),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isChanged
-                                  ? AppColors.primaryButton
-                                  : Colors.grey.shade300,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            onPressed: _isChanged && !_isSaving
-                                ? _updateUserData
-                                : null,
-                            child: _isSaving
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      color: AppColors.buttonText,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Text(
-                                    _tr(
-                                      'save_changes_btn',
-                                      'ذخیره',
-                                    ),
-                                    style: TextStyle(
-                                      color: _isChanged
-                                          ? AppColors.buttonText
-                                          : Colors.grey.shade600,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                          ),
-                        ),
+                      
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -1579,7 +1540,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       textInputAction: textInputAction,
       textAlign: _isRtl ? TextAlign.right : TextAlign.left,
       // 👇 فاصلهٔ کافی بالای کیبورد هنگام اسکرول خودکار، برای جلوگیری از پرش/گیر کردن
-      scrollPadding: const EdgeInsets.only(bottom: 140),
+      scrollPadding: const EdgeInsets.only(bottom: 220),
       style: const TextStyle(
         color: AppColors.textPrimary,
         fontSize: 14,
@@ -1610,7 +1571,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 14,
+          vertical: 22,
         ),
         filled: true,
         fillColor: Colors.white,
@@ -1669,7 +1630,7 @@ Widget _buildSelectionField({
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 16,
+            vertical: 22,
           ),
           filled: true,
           fillColor: Colors.white,
