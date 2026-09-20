@@ -66,9 +66,11 @@
   "address_label": "Address",
   "address_hint": "Type your address.",
   "gender_label": "Gender",
+  "gener_hint": "Gender"
   "gender_male": "Male",
   "gender_female": "Female",
   "dob_label": "Date of Birth",
+  "dob_hint": "Data of Birth",
   "user_account": "User Account",
   "user_account_title": "User Account",
   "user_info_section_title": "User Information",
