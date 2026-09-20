@@ -1338,28 +1338,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: AnimatedPadding(
+  duration: const Duration(milliseconds: 150),
+  curve: Curves.easeOut,
   padding: EdgeInsets.only(
     left: 24,
     right: 24,
     top: 12,
     bottom: MediaQuery.of(context).viewInsets.bottom > 0
-        ? 12
+        ? MediaQuery.of(context).viewInsets.bottom + 12
         : MediaQuery.of(context).padding.bottom + 12,
   ),
-  decoration: const BoxDecoration(
-    color: Colors.white,
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black12,
-        blurRadius: 4,
-        offset: Offset(0, -2),
-      ),
-    ],
-  ),
-  child: SizedBox(
-    width: double.infinity,
+  child: Container(
     height: 48,
+    width: double.infinity,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+    ),
     child: ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: _isChanged
@@ -1392,6 +1387,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   ),
 ),
 
+
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
@@ -1403,7 +1399,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ScrollViewKeyboardDismissBehavior.onDrag,
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 120,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
