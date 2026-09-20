@@ -27,24 +27,21 @@ class CargoSheets {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
-        
-        return AnimatedPadding(
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutCubic,
-          padding: EdgeInsets.only(bottom: bottomInset),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
           child: Container(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(ctx).size.height * 0.85,
             ),
             padding: const EdgeInsets.all(16),
             child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,8 +66,8 @@ class CargoSheets {
                       Text(
                         'cargo.sender_details_title'.tr(),
                         style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -106,8 +103,8 @@ class CargoSheets {
                               'cargo.use_my_info'.tr(),
                               style: const TextStyle(
                                 color: AppColors.primaryBrand,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
                               ),
                             ),
                           ),
@@ -118,86 +115,50 @@ class CargoSheets {
                   ),
                   const SizedBox(height: 12),
 
-                  TextField(
+                  _buildField(
                     controller: nameController,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText: 'cargo.sender_fullname'.tr(),
-                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
-                      ),
-                    ),
+                    label: 'cargo.sender_fullname'.tr(),
                   ),
                   const SizedBox(height: 12),
 
-                  TextField(
+                  _buildField(
                     controller: phoneController,
+                    label: 'cargo.phone'.tr(),
                     keyboardType: TextInputType.phone,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText: 'cargo.phone'.tr(),
-                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 12),
 
-                  TextField(
+                  _buildField(
                     controller: addressController,
+                    label: 'cargo.origin_address_label'.tr(),
                     readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'cargo.origin_address_label'.tr(),
-                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                    suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
                   ),
                   const SizedBox(height: 12),
 
                   Row(
                     children: [
                       Expanded(
-                        child: TextField(
+                        child: _buildField(
                           controller: floorController,
-                          textInputAction: TextInputAction.next,
-                          decoration: InputDecoration(
-                            labelText: 'cargo.plaque'.tr(),
-                            labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
+                          label: 'cargo.plaque'.tr(),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: TextField(
+                        child: _buildField(
                           controller: unitController,
-                          textInputAction: TextInputAction.next,
-                          decoration: InputDecoration(
-                            labelText: 'cargo.unit'.tr(),
-                            labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
+                          label: 'cargo.unit'.tr(),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
 
-                  TextField(
+                  _buildField(
                     controller: noteController,
+                    label: 'cargo.description_optional'.tr(),
                     textInputAction: TextInputAction.done,
-                    decoration: InputDecoration(
-                      labelText: 'cargo.description_optional'.tr(),
-                      labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -218,8 +179,8 @@ class CargoSheets {
                         'cargo.confirm_continue'.tr(),
                         style: const TextStyle(
                           color: AppColors.buttonText,
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -252,7 +213,6 @@ class CargoSheets {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -262,19 +222,17 @@ class CargoSheets {
 
         return StatefulBuilder(
           builder: (context, setModalState) {
-            final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
-
-            return AnimatedPadding(
-              duration: const Duration(milliseconds: 150),
-              curve: Curves.easeOutCubic,
-              padding: EdgeInsets.only(bottom: bottomInset),
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              ),
               child: Container(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(ctx).size.height * 0.85,
                 ),
                 padding: const EdgeInsets.all(16),
                 child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
+                  physics: const ClampingScrollPhysics(),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,8 +257,8 @@ class CargoSheets {
                           Text(
                             'cargo.receiver_details_title'.tr(),
                             style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.textPrimary,
                             ),
                           ),
@@ -308,87 +266,82 @@ class CargoSheets {
                       ),
                       const SizedBox(height: 12),
 
-                      TextField(
+                      _buildField(
                         controller: nameController,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'cargo.receiver_fullname'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                        label: 'cargo.receiver_fullname'.tr(),
                       ),
                       const SizedBox(height: 12),
 
-                      TextField(
+                      _buildField(
                         controller: phoneController,
+                        label: 'cargo.receiver_phone'.tr(),
                         keyboardType: TextInputType.phone,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'cargo.receiver_phone'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
                       ),
                       const SizedBox(height: 12),
 
-                      TextField(
+                      _buildField(
                         controller: addressController,
+                        label: 'cargo.destination_address_label'.tr(),
                         readOnly: true,
-                        decoration: InputDecoration(
-                          labelText: 'cargo.destination_address_label'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                        suffixIcon: const Icon(Icons.location_on, size: 18, color: AppColors.primaryBrand),
                       ),
                       const SizedBox(height: 12),
 
                       Row(
                         children: [
                           Expanded(
-                            child: TextField(
+                            child: _buildField(
                               controller: floorController,
-                              textInputAction: TextInputAction.next,
-                              decoration: InputDecoration(
-                                labelText: 'cargo.plaque'.tr(),
-                                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
+                              label: 'cargo.plaque'.tr(),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: TextField(
+                            child: _buildField(
                               controller: unitController,
-                              textInputAction: TextInputAction.next,
-                              decoration: InputDecoration(
-                                labelText: 'cargo.unit'.tr(),
-                                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
+                              label: 'cargo.unit'.tr(),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
 
-                      TextField(
+                      _buildField(
                         controller: noteController,
+                        label: 'cargo.delivery_note'.tr(),
                         textInputAction: TextInputAction.done,
-                        decoration: InputDecoration(
-                          labelText: 'cargo.delivery_note'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
                       ),
                       const SizedBox(height: 12),
 
                       DropdownButtonFormField<String>(
                         value: currentPackage,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
                         decoration: InputDecoration(
                           labelText: 'cargo.cargo_type'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          labelStyle: const TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.fieldBorder, width: 1),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.fieldBorder, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
+                          ),
                         ),
                         items: [
                           'cargo.type_other'.tr(),
@@ -409,10 +362,33 @@ class CargoSheets {
 
                       DropdownButtonFormField<String>(
                         value: currentInsurance,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
                         decoration: InputDecoration(
                           labelText: 'cargo.insurance_amount'.tr(),
-                          labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          labelStyle: const TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.fieldBorder, width: 1),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.fieldBorder, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.primaryBrand, width: 1.5),
+                          ),
                         ),
                         items: [
                           'cargo.insurance_50k'.tr(),
@@ -448,8 +424,8 @@ class CargoSheets {
                             'cargo.confirm_continue'.tr(),
                             style: const TextStyle(
                               color: AppColors.buttonText,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -462,6 +438,71 @@ class CargoSheets {
           },
         );
       },
+    );
+  }
+
+  /// متد اختصاصی ساخت اینپوت هماهنگ با user screen
+  static Widget _buildField({
+    required TextEditingController controller,
+    required String label,
+    bool readOnly = false,
+    TextInputType keyboardType = TextInputType.text,
+    TextInputAction textInputAction = TextInputAction.next,
+    Widget? suffixIcon,
+  }) {
+    const normalBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+      borderSide: BorderSide(
+        color: AppColors.fieldBorder,
+        width: 1,
+      ),
+    );
+
+    const focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+      borderSide: BorderSide(
+        color: AppColors.primaryBrand,
+        width: 1.5,
+      ),
+    );
+
+    return TextField(
+      controller: controller,
+      readOnly: readOnly,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      style: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+      decoration: InputDecoration(
+        isDense: false,
+        labelText: label,
+        suffixIcon: suffixIcon,
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        floatingLabelAlignment: FloatingLabelAlignment.start,
+        labelStyle: const TextStyle(
+          color: Color(0xFF9CA3AF),
+          fontSize: 12.5,
+          fontWeight: FontWeight.w400,
+        ),
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.primaryBrand,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w500,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        border: normalBorder,
+        enabledBorder: normalBorder,
+        disabledBorder: normalBorder,
+        focusedBorder: focusedBorder,
+      ),
     );
   }
 
@@ -555,7 +596,7 @@ class CargoSheets {
               'cargo.select_vehicle'.tr(),
               style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: AppColors.textPrimary,
               ),
             ),
@@ -601,8 +642,8 @@ class CargoSheets {
                             vehicle['title'] as String,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontSize: 14,
+                              fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
                               color: isSelected ? AppColors.primaryBrand : AppColors.textPrimary,
                             ),
                           ),
@@ -620,19 +661,19 @@ class CargoSheets {
               children: [
                 Text(
                   'cargo.payer_side'.tr(),
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
                 ),
                 Row(
                   children: [
                     ChoiceChip(
-                      label: Text(senderText, style: const TextStyle(fontSize: 11)),
+                      label: Text(senderText, style: const TextStyle(fontSize: 14)),
                       selected: paymentPayer == senderText,
                       selectedColor: AppColors.primaryBrand.withOpacity(0.15),
                       onSelected: (v) => onPayerChanged(senderText),
                     ),
                     const SizedBox(width: 8),
                     ChoiceChip(
-                      label: Text(receiverText, style: const TextStyle(fontSize: 11)),
+                      label: Text(receiverText, style: const TextStyle(fontSize: 14)),
                       selected: paymentPayer == receiverText,
                       selectedColor: AppColors.primaryBrand.withOpacity(0.15),
                       onSelected: (v) => onPayerChanged(receiverText),
@@ -651,7 +692,7 @@ class CargoSheets {
                   children: [
                     Text(
                       'cargo.total_fare'.tr(),
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
                     ),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
@@ -663,7 +704,7 @@ class CargoSheets {
                         key: ValueKey<double>(currentFare),
                         style: const TextStyle(
                           fontSize: 19,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: AppColors.primaryBrand,
                         ),
                       ),
@@ -688,8 +729,8 @@ class CargoSheets {
                           'cargo.submit_order'.tr(),
                           style: const TextStyle(
                             color: AppColors.buttonText,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                 ),
