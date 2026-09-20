@@ -389,14 +389,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                   const SizedBox(height: 24),
 
-                  // کارت ۲: مدال‌های افتخار
+                                    // کارت ۲: مدال‌های افتخار (طراحی جدید و مدرن)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Align(
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         "badges_section_title".tr().isEmpty ? "مدال‌های افتخار" : "badges_section_title".tr(),
-                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                       ),
                     ),
                   ),
@@ -406,37 +406,46 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Row(
                       children: [
+                        // کارت خوش‌رفتار
                         Expanded(
                           child: InkWell(
                             onTap: () => _showBadgeDetails(
                               "badge_polite_title".tr().isEmpty ? "مسافر بااخلاق" : "badge_polite_title".tr(),
                               "badge_polite_desc".tr().isEmpty ? "رانندگان سفیر رفتار محترمانه و صمیمانه شما در طول سفر را تحسین کرده‌اند." : "badge_polite_desc".tr(),
-                              Icons.stars,
-                              const Color(0xFF15A968),
+                              Icons.sentiment_very_satisfied_rounded,
+                              const Color(0xFF10B981),
                             ),
                             borderRadius: BorderRadius.circular(16),
                             child: Container(
-                              height: 115,
+                              padding: const EdgeInsets.all(14),
                               margin: const EdgeInsetsDirectional.only(end: 6),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF2ECE89), Color(0xFF15A968)],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
+                                color: const Color(0xFFF8FAFC),
                                 borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.stars, size: 36, color: Colors.amber),
-                                  const SizedBox(height: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-                                    child: Text(
-                                      "badge_polite_label".tr().isEmpty ? "خوش‌رفتار" : "badge_polite_label".tr(),
-                                      style: const TextStyle(color: Color(0xFF15A968), fontWeight: FontWeight.w500, fontSize: 11.5),
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF10B981).withOpacity(0.12),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.sentiment_very_satisfied_rounded,
+                                      size: 26,
+                                      color: Color(0xFF10B981),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    "badge_polite_label".tr().isEmpty ? "خوش‌رفتار" : "badge_polite_label".tr(),
+                                    style: const TextStyle(
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12.5,
                                     ),
                                   ),
                                 ],
@@ -444,37 +453,47 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             ),
                           ),
                         ),
+
+                        // کارت وقت‌شناس
                         Expanded(
                           child: InkWell(
                             onTap: () => _showBadgeDetails(
                               "badge_punctual_title".tr().isEmpty ? "مسافر وقت‌شناس" : "badge_punctual_title".tr(),
                               "badge_punctual_desc".tr().isEmpty ? "حضور به موقع شما در مبدأ باعث سفری سریع‌تر و روان‌تر می‌شود." : "badge_punctual_desc".tr(),
-                              Icons.access_time_filled,
-                              const Color(0xFF7B1FA2),
+                              Icons.access_time_filled_rounded,
+                              AppColors.primaryBrand,
                             ),
                             borderRadius: BorderRadius.circular(16),
                             child: Container(
-                              height: 115,
+                              padding: const EdgeInsets.all(14),
                               margin: const EdgeInsetsDirectional.only(start: 6),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFFAB47BC), Color(0xFF7B1FA2)],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
+                                color: const Color(0xFFF8FAFC),
                                 borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.access_time_filled, size: 36, color: Colors.amber),
-                                  const SizedBox(height: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-                                    child: Text(
-                                      "badge_punctual_label".tr().isEmpty ? "وقت‌شناس" : "badge_punctual_label".tr(),
-                                      style: const TextStyle(color: Color(0xFF7B1FA2), fontWeight: FontWeight.w500, fontSize: 11.5),
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryBrand.withOpacity(0.12),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.access_time_filled_rounded,
+                                      size: 26,
+                                      color: AppColors.primaryBrand,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    "badge_punctual_label".tr().isEmpty ? "وقت‌شناس" : "badge_punctual_label".tr(),
+                                    style: const TextStyle(
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12.5,
                                     ),
                                   ),
                                 ],
@@ -485,6 +504,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ],
                     ),
                   ),
+
 
                   const SizedBox(height: 24),
 
