@@ -233,7 +233,7 @@ class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProv
                     style: TextStyle(
                       color: safirBrandColor,
                       fontSize: 24,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600, // 👈 ضخیم‌تر شد
                       fontFamily: 'Serif',
                     ),
                   ),
@@ -257,7 +257,7 @@ class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProv
                         color: Colors.transparent,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(20),
-                          onTap: null, // 🔹 رویداد انواگیشن جهت هدایت نشدن به صفحه نقشه غیرفعال گردید
+                          onTap: null, 
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Row(
@@ -425,7 +425,7 @@ class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProv
                                 style: TextStyle(
                                   color: isSelected ? safirBrandColor : Colors.grey[600],
                                   fontSize: 12,
-                                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400, // 👈 ضخیم‌تر شد
                                 ),
                               ),
                             ],
@@ -524,7 +524,7 @@ class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProv
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600, // 👈 ضخیم‌تر شد
                     ),
                   ),
                 ),
@@ -571,7 +571,7 @@ class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProv
                         style: TextStyle(
                           color: safirBrandColor,
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600, // 👈 ضخیم‌تر شد
                         ),
                       ),
                     ],
@@ -629,7 +629,7 @@ class _SafirHomeScreenState extends State<SafirHomeScreen> with SingleTickerProv
                       service['title'],
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600, // 👈 ضخیم‌تر شد
                         color: isSelected ? safirBrandColor : Colors.grey.shade800,
                       ),
                     ),
