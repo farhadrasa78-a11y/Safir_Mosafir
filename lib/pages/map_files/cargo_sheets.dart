@@ -66,8 +66,8 @@ class CargoSheets {
                       Text(
                         'cargo.sender_details_title'.tr(),
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -257,8 +257,8 @@ class CargoSheets {
                           Text(
                             'cargo.receiver_details_title'.tr(),
                             style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
                           ),
@@ -317,26 +317,32 @@ class CargoSheets {
                         value: currentPackage,
                         style: const TextStyle(
                           color: AppColors.textPrimary,
-                          fontSize: 14,
+                          fontSize: 13.5,
                           fontWeight: FontWeight.w400,
                         ),
                         decoration: InputDecoration(
                           labelText: 'cargo.cargo_type'.tr(),
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          floatingLabelAlignment: FloatingLabelAlignment.start,
                           labelStyle: const TextStyle(
                             color: Color(0xFF9CA3AF),
-                            fontSize: 12.5,
+                            fontSize: 13,
                             fontWeight: FontWeight.w400,
                           ),
-                          filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
+                          floatingLabelStyle: const TextStyle(
+                            color: AppColors.primaryBrand,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          filled: false,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.fieldBorder, width: 1),
+                            borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.fieldBorder, width: 1),
+                            borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -364,26 +370,32 @@ class CargoSheets {
                         value: currentInsurance,
                         style: const TextStyle(
                           color: AppColors.textPrimary,
-                          fontSize: 14,
+                          fontSize: 13.5,
                           fontWeight: FontWeight.w400,
                         ),
                         decoration: InputDecoration(
                           labelText: 'cargo.insurance_amount'.tr(),
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          floatingLabelAlignment: FloatingLabelAlignment.start,
                           labelStyle: const TextStyle(
                             color: Color(0xFF9CA3AF),
-                            fontSize: 12.5,
+                            fontSize: 13,
                             fontWeight: FontWeight.w400,
                           ),
-                          filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
+                          floatingLabelStyle: const TextStyle(
+                            color: AppColors.primaryBrand,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          filled: false,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.fieldBorder, width: 1),
+                            borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.fieldBorder, width: 1),
+                            borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -453,7 +465,7 @@ class CargoSheets {
     const normalBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(12)),
       borderSide: BorderSide(
-        color: AppColors.fieldBorder,
+        color: Color(0xFFE2E8F0),
         width: 1,
       ),
     );
@@ -473,31 +485,30 @@ class CargoSheets {
       textInputAction: textInputAction,
       style: const TextStyle(
         color: AppColors.textPrimary,
-        fontSize: 14,
+        fontSize: 13.5,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         isDense: false,
         labelText: label,
         suffixIcon: suffixIcon,
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
         floatingLabelAlignment: FloatingLabelAlignment.start,
         labelStyle: const TextStyle(
           color: Color(0xFF9CA3AF),
-          fontSize: 12.5,
+          fontSize: 13,
           fontWeight: FontWeight.w400,
         ),
         floatingLabelStyle: const TextStyle(
           color: AppColors.primaryBrand,
-          fontSize: 11.5,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
         ),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC),
+        filled: false,
         border: normalBorder,
         enabledBorder: normalBorder,
         disabledBorder: normalBorder,
@@ -595,8 +606,8 @@ class CargoSheets {
             Text(
               'cargo.select_vehicle'.tr(),
               style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontSize: 14.5,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ),
@@ -642,8 +653,8 @@ class CargoSheets {
                             vehicle['title'] as String,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                              fontSize: 13.5,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                               color: isSelected ? AppColors.primaryBrand : AppColors.textPrimary,
                             ),
                           ),
@@ -661,19 +672,19 @@ class CargoSheets {
               children: [
                 Text(
                   'cargo.payer_side'.tr(),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                 ),
                 Row(
                   children: [
                     ChoiceChip(
-                      label: Text(senderText, style: const TextStyle(fontSize: 14)),
+                      label: Text(senderText, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500)),
                       selected: paymentPayer == senderText,
                       selectedColor: AppColors.primaryBrand.withOpacity(0.15),
                       onSelected: (v) => onPayerChanged(senderText),
                     ),
                     const SizedBox(width: 8),
                     ChoiceChip(
-                      label: Text(receiverText, style: const TextStyle(fontSize: 14)),
+                      label: Text(receiverText, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500)),
                       selected: paymentPayer == receiverText,
                       selectedColor: AppColors.primaryBrand.withOpacity(0.15),
                       onSelected: (v) => onPayerChanged(receiverText),
@@ -692,7 +703,7 @@ class CargoSheets {
                   children: [
                     Text(
                       'cargo.total_fare'.tr(),
-                      style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w400),
                     ),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
@@ -703,8 +714,8 @@ class CargoSheets {
                         '${currentFare.toStringAsFixed(0)} ${'currency.afghani'.tr()}',
                         key: ValueKey<double>(currentFare),
                         style: const TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 18.5,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.primaryBrand,
                         ),
                       ),
