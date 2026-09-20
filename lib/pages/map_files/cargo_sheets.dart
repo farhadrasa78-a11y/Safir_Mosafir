@@ -46,29 +46,21 @@ class CargoSheets {
                 centerTitle: false,
               ),
 
-              /// 🟢 دکمه ثابتی که در پایین صفحه فیکس شده است
-              bottomNavigationBar: Container(
+              /// 🟢 دکمه شناور نرم که دقیقاً بالای کیبورد می‌ماند
+              bottomNavigationBar: AnimatedPadding(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOut,
                 padding: EdgeInsets.only(
                   left: 16,
                   right: 16,
                   top: 12,
                   bottom: MediaQuery.of(ctx).viewInsets.bottom > 0
-                      ? 12
+                      ? MediaQuery.of(ctx).viewInsets.bottom + 12
                       : MediaQuery.of(ctx).padding.bottom + 12,
                 ),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: SizedBox(
-                  width: double.infinity,
+                child: Container(
                   height: 48,
+                  width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1BAB58), // سبز اسنپ
@@ -97,11 +89,11 @@ class CargoSheets {
               body: SafeArea(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                     left: 16,
                     right: 16,
                     top: 12,
-                    bottom: MediaQuery.of(ctx).viewInsets.bottom + 100,
+                    bottom: 24, // 👈 تنظیم فضای خالی انتهای فرم
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,20 +144,20 @@ class CargoSheets {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20), // 👈 افزایش فاصله تا اولین مستطیل
 
                       _buildField(
                         controller: nameController,
                         label: 'cargo.sender_fullname'.tr(),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20), // 👈 افزایش فاصله بین کادرها
 
                       _buildField(
                         controller: phoneController,
                         label: 'cargo.phone'.tr(),
                         keyboardType: TextInputType.phone,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       _buildField(
                         controller: addressController,
@@ -173,7 +165,7 @@ class CargoSheets {
                         readOnly: true,
                         suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: labelGrey),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       Row(
                         children: [
@@ -192,7 +184,7 @@ class CargoSheets {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       _buildField(
                         controller: noteController,
@@ -255,29 +247,21 @@ class CargoSheets {
                   centerTitle: false,
                 ),
 
-                /// 🟢 دکمه ثابت پایین صفحه
-                bottomNavigationBar: Container(
+                /// 🟢 دکمه شناور نرم که دقیقاً بالای کیبورد می‌ماند
+                bottomNavigationBar: AnimatedPadding(
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOut,
                   padding: EdgeInsets.only(
                     left: 16,
                     right: 16,
                     top: 12,
                     bottom: MediaQuery.of(ctx).viewInsets.bottom > 0
-                        ? 12
+                        ? MediaQuery.of(ctx).viewInsets.bottom + 12
                         : MediaQuery.of(ctx).padding.bottom + 12,
                   ),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        offset: Offset(0, -2),
-                      ),
-                    ],
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
+                  child: Container(
                     height: 48,
+                    width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1BAB58),
@@ -306,11 +290,11 @@ class CargoSheets {
                 body: SafeArea(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.only(
+                    padding: const EdgeInsets.only(
                       left: 16,
                       right: 16,
                       top: 12,
-                      bottom: MediaQuery.of(ctx).viewInsets.bottom + 100,
+                      bottom: 24, // 👈 تنظیم فضای خالی انتهای فرم
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,14 +303,14 @@ class CargoSheets {
                           controller: nameController,
                           label: 'cargo.receiver_fullname'.tr(),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         _buildField(
                           controller: phoneController,
                           label: 'cargo.receiver_phone'.tr(),
                           keyboardType: TextInputType.phone,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         _buildField(
                           controller: addressController,
@@ -334,7 +318,7 @@ class CargoSheets {
                           readOnly: true,
                           suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: labelGrey),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         Row(
                           children: [
@@ -353,14 +337,14 @@ class CargoSheets {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         _buildField(
                           controller: noteController,
                           label: 'cargo.delivery_note'.tr(),
                           textInputAction: TextInputAction.done,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         _buildDropdownField(
                           label: 'cargo.cargo_type'.tr(),
@@ -380,7 +364,7 @@ class CargoSheets {
                             }
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         _buildDropdownField(
                           label: 'cargo.insurance_amount'.tr(),
@@ -542,6 +526,7 @@ class CargoSheets {
         ),
         border: normalBorder,
         enabledBorder: normalBorder,
+        disabledBorder: normalBorder,
         focusedBorder: focusedBorder,
       ),
       items: items
