@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization me';
 import 'package:easy_localization/easy_localization.dart';
 import '../../theme/app_colors.dart';
 import '../../global/global_var.dart';
@@ -16,12 +17,7 @@ class CargoSheets {
     required VoidCallback onConfirm,
     VoidCallback? onUseMyInfoPressed,
   }) {
-    if (nameController.text.trim().isEmpty && userName.isNotEmpty) {
-      nameController.text = userName;
-    }
-    if (phoneController.text.trim().isEmpty && userPhone.isNotEmpty) {
-      phoneController.text = userPhone;
-    }
+    // 🟢 پر شدن اتوماتیک اطلاعات حذف شد تا فیلدها در ابتدا خالی بمانند
 
     showModalBottomSheet(
       context: context,
@@ -75,6 +71,7 @@ class CargoSheets {
                   ),
                   const SizedBox(height: 8),
 
+                  // 🟢 دکمه اختیاری برای پر کردن اطلاعات از روی پروفایل
                   InkWell(
                     onTap: () {
                       if (onUseMyInfoPressed != null) {
@@ -103,7 +100,7 @@ class CargoSheets {
                               'cargo.use_my_info'.tr(),
                               style: const TextStyle(
                                 color: AppColors.primaryBrand,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                                 fontSize: 14,
                               ),
                             ),
