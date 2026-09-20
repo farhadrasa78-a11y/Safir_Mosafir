@@ -22,6 +22,7 @@ class AppColors {
   // 🎨 پس‌زمینه‌ها و کادرهای عمومی
   static const Color backgroundLight = Color(0xFFF8F9FA); // جهت رفع ارور smart_location_sheet
   static const Color borderLight = Color(0xFFE0E0E0);     // جهت رفع ارور smart_location_sheet
+  static const Color fieldBorder = Color(0xFFE2E8F0);     // 👈 جهت رفع ارور cargo_sheets
 
   // ✅ وضعیت‌ها (موفقیت، خطا)
   static const Color success = Color(0xFF22C55E);
