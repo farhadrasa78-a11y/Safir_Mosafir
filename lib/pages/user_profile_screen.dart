@@ -172,7 +172,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               const SizedBox(height: 16),
               Text(
                 title,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 12),
               Text(
@@ -219,7 +219,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
         content: Text(content, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
         actions: [
           TextButton(
@@ -274,7 +274,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           "user_account_title".tr().isEmpty ? "حساب کاربری" : "user_account_title".tr(),
-          style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500, fontSize: 17),
+          style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 17),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -355,7 +355,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             children: [
                               Text(
                                 "main_account_info_title".tr().isEmpty ? "اطلاعات حساب" : "main_account_info_title".tr(),
-                                style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+                                style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                               ),
                               GestureDetector(
                                 onTap: _openEditProfileDrawer,
@@ -389,7 +389,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                   const SizedBox(height: 24),
 
-                                    // کارت ۲: مدال‌های افتخار (طراحی جدید و مدرن)
+                  // کارت ۲: مدال‌های افتخار
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Align(
@@ -505,7 +505,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
 
-
                   const SizedBox(height: 24),
 
                   // کارت ۳: بخش دسترس‌پذیری
@@ -515,7 +514,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         "accessibility_section_title".tr().isEmpty ? "دسترس‌پذیری" : "accessibility_section_title".tr(),
-                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                       ),
                     ),
                   ),
@@ -655,7 +654,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return languageCode == 'fa' || languageCode == 'ps';
   }
 
-  // ماه‌ها بر اساس زبان اپلیکیشن (شمسی برای فارسی/پشتو و میلادی برای انگلیسی)
   List<String> _getMonthsByLocale() {
     if (_isRtl) {
       return [
@@ -879,7 +877,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         _tr('gender_sheet_title', 'انتخاب جنسیت'),
                         style: const TextStyle(
                           fontSize: 15.5,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -966,7 +964,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               label,
               style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
                 color: AppColors.textPrimary,
               ),
             ),
@@ -1025,7 +1023,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         _tr('dob_label', 'تاریخ تولد'),
                         style: const TextStyle(
                           fontSize: 15.5,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -1233,7 +1231,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     _tr('change_phone_title', 'تغییر شماره تماس'),
                     style: const TextStyle(
                       fontSize: 15.5,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
                   ),
@@ -1321,7 +1319,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _tr('user_info_section_title', 'اطلاعات کاربری'),
           style: const TextStyle(
             color: AppColors.textPrimary,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontSize: 17,
           ),
         ),
@@ -1397,7 +1395,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           _tr('main_account_info_title', 'اطلاعات اصلی'),
                           style: const TextStyle(
                             fontSize: 14.5,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
                         ),
@@ -1464,7 +1462,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           style: const TextStyle(
                             fontSize: 14.5,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
                         ),
@@ -1547,83 +1545,81 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // اصلاح کامل ناتچ فیلد و استایل شناور برای جلوگیری از شکستگی و بریدگی Focus
+  // ساختار کاملاً اصلاح‌شده برای TextInput و بریدگی شناور دقیق
   Widget _buildInputField({
-  required TextEditingController controller,
-  required String label,
-  required String hintText,
-  bool readOnly = false,
-  TextInputType keyboardType = TextInputType.text,
-  TextInputAction textInputAction = TextInputAction.next,
-}) {
-  final OutlineInputBorder normalBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: const BorderSide(
-      color: AppColors.fieldBorder,
-      width: 1,
-    ),
-  );
-
-  final OutlineInputBorder focusedBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: const BorderSide(
-      color: AppColors.primaryBrand,
-      width: 1.5,
-    ),
-  );
-
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 7),
-    child: TextField(
-      controller: controller,
-      readOnly: readOnly,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      textAlign: _isRtl ? TextAlign.right : TextAlign.left,
-      style: const TextStyle(
-        color: AppColors.textPrimary,
-        fontSize: 13.5,
-        fontWeight: FontWeight.w400,
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    bool readOnly = false,
+    TextInputType keyboardType = TextInputType.text,
+    TextInputAction textInputAction = TextInputAction.next,
+  }) {
+    final OutlineInputBorder normalBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(
+        color: Color(0xFFE2E8F0),
+        width: 1,
       ),
-      decoration: InputDecoration(
-        isDense: false,
-        labelText: label,
-        hintText: hintText,
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        alignLabelWithHint: false,
-        labelStyle: const TextStyle(
-          color: Color(0xFF9CA3AF),
-          fontSize: 12.5,
+    );
+
+    final OutlineInputBorder focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(
+        color: AppColors.primaryBrand,
+        width: 1.5,
+      ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        textAlign: _isRtl ? TextAlign.right : TextAlign.left,
+        style: const TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 13.5,
           fontWeight: FontWeight.w400,
         ),
-        floatingLabelStyle: const TextStyle(
-          color: AppColors.primaryBrand,
-          fontSize: 11.5,
-          fontWeight: FontWeight.w500,
-          backgroundColor: Colors.white,
+        decoration: InputDecoration(
+          isDense: false,
+          labelText: label,
+          hintText: hintText,
+          // 🔹 تنظیم ثابت ماندن روی بریدگی برای فارسی و انگلیسی
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          floatingLabelAlignment: FloatingLabelAlignment.start,
+          labelStyle: const TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: AppColors.primaryBrand, // فقط موقع فوکوس فعال آبی می‌شود
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          hintStyle: const TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 12.5,
+            fontWeight: FontWeight.w400,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+          filled: false,
+          border: normalBorder,
+          enabledBorder: normalBorder,
+          disabledBorder: normalBorder,
+          focusedBorder: focusedBorder,
         ),
-        hintStyle: const TextStyle(
-          color: Color(0xFF9CA3AF),
-          fontSize: 12.5,
-          fontWeight: FontWeight.w400,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC), // یا Colors.grey[100]
-        border: normalBorder,
-        enabledBorder: normalBorder,
-        disabledBorder: normalBorder,
-        focusedBorder: focusedBorder,
       ),
-    ),
-  );
-}
+    );
+  }
 
-
+  // ساختار یکدست Dropdown / Selection با دقیقاً همین استایل بریدگی
   Widget _buildSelectionField({
     required String label,
     required String hintText,
@@ -1635,39 +1631,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final OutlineInputBorder normalBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(
-        color: AppColors.fieldBorder,
+        color: Color(0xFFE2E8F0),
         width: 1,
       ),
-      gapPadding: 4,
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: label,
-            floatingLabelBehavior: hasValue
-                ? FloatingLabelBehavior.always
-                : FloatingLabelBehavior.never,
+            // 🔹 ثابت روی بریدگی همگام با سایر فیلدها
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            floatingLabelAlignment: FloatingLabelAlignment.start,
             labelStyle: const TextStyle(
               color: Color(0xFF9CA3AF),
               fontSize: 13,
               fontWeight: FontWeight.w400,
             ),
             floatingLabelStyle: const TextStyle(
-              color: Color(0xFF9CA3AF),
+              color: Color(0xFF9CA3AF), // همیشه خاکستری است مگر موقع فوکوس
               fontSize: 12,
               fontWeight: FontWeight.w400,
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 16,
+              vertical: 14,
             ),
-            filled: true,
-            fillColor: Colors.white,
+            filled: false,
             border: normalBorder,
             enabledBorder: normalBorder,
           ),
