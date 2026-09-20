@@ -115,11 +115,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   bool _isSheetExpanded = true; 
   Timer? _debounceTimer;
 
-  // 👇 نقطهٔ مرجعی که فاصلهٔ جابجایی واقعی مارکر نسبت به اون سنجیده می‌شه
-  LatLng? _referenceCenter;
-  // 👇 حداقل جابجایی (به متر) که باید اتفاق بیفته تا "جابجایی واقعی مارکر" حساب بشه، نه یک لمس ساده
-  static const double _markerMoveThresholdMeters = 5.0;
-
   bool _hasNotification = false; 
   String _rideForWhomKey = "for_myself"; 
 
@@ -201,9 +196,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       _selectedCategory = 0;
       _selectedVehicleType = 0;
     }
-
-    // 👇 نقطهٔ مرجع اولیه؛ به‌محض رسیدن موقعیت واقعی GPS، در onCameraIdle به‌روزرسانی می‌شه
-    _referenceCenter = widget.targetLocation ?? _currentUserLatLng;
 
     _startLiveLocationUpdates();
   }
@@ -396,8 +388,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
     setState(() {
       _originLatLng = currentCenter;
-      // 👇 برای مرحلهٔ بعد (مقصد)، نقطهٔ مرجع همینجا صفر می‌شه تا کشو دوباره باز و پایدار بمونه
-      _isMapMoving = false;
     });
 
     _animatedMapMove(currentCenter, 17.8);
@@ -926,22 +916,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
               if (!_isProgrammaticMove) {
                 if (!_isMapMoving) {
-                  // 👇 کشو فقط وقتی جمع بشه که مارکر واقعاً جابه‌جا شده باشه، نه با یه لمس ساده
-                  final double movedMeters = _referenceCenter == null
-                      ? _markerMoveThresholdMeters + 1
-                      : Geolocator.distanceBetween(
-                          _referenceCenter!.latitude,
-                          _referenceCenter!.longitude,
-                          position.target.latitude,
-                          position.target.longitude,
-                        );
-
-                  if (movedMeters > _markerMoveThresholdMeters) {
-                    setState(() {
-                      _isMapMoving = true;
-                      _isSheetExpanded = false;
-                    });
-                  }
+                  setState(() {
+                    _isMapMoving = true;
+                    _isSheetExpanded = false;
+                  });
                 }
               }
             },
@@ -955,12 +933,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 });
               }
 
-              // 👇 بعد از هر جابجایی برنامه‌ای (GPS، زوم اولیه، تایید مبدأ و ...)
-              // نقطهٔ مرجع رو به موقعیت جدید و "ساکن" به‌روزرسانی کن
-              if (wasProgrammaticMove && _mapController?.cameraPosition != null) {
-                _referenceCenter = _mapController!.cameraPosition!.target;
-              }
-
               if (!wasProgrammaticMove && _currentStep < 2 && _mapController != null) {
                 _updateAddressFromCamera(
                   _mapController!.cameraPosition!.target,
@@ -971,18 +943,8 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           ),
 
           if (_currentStep < 2)
-            Center(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                // 👇 دبل‌تپ روی مارکر = همون کاری که دکمهٔ «تایید مبدأ/مقصد» انجام می‌ده
-                onDoubleTap: () {
-                  HapticFeedback.mediumImpact();
-                  if (_currentStep == 0) {
-                    _confirmOrigin();
-                  } else if (_currentStep == 1) {
-                    _confirmDestination();
-                  }
-                },
+            IgnorePointer(
+              child: Center(
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
