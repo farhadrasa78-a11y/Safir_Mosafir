@@ -80,21 +80,12 @@ class MapBottomSheets {
           final double bottomSafeArea = MediaQuery.of(context).padding.bottom;
 
           return DraggableScrollableSheet(
-  // حالت اول: پایین؛ فقط VIP و نوار سه‌بخشی دیده شود
-  initialChildSize: 0.33,
-  minChildSize: 0.33,
-
-  // حالت دوم: بالا؛ بیشتر از این حد بالا نمی‌رود
-  maxChildSize: 0.58,
-
-  // بعد از رهاکردن انگشت فقط پایین یا بالا می‌ایستد
-  snap: true,
-
-  // پلهٔ وسط نمی‌خواهیم
-  snapSizes: const [],
-
-  // نقشه پشت پنل باقی می‌ماند
-  expand: false,
+            initialChildSize: 0.33,
+            minChildSize: 0.33,
+            maxChildSize: 0.58,
+            snap: true,
+            snapSizes: const [],
+            expand: false,
             builder: (context, scrollController) {
               return Container(
                 decoration: const BoxDecoration(
@@ -287,8 +278,8 @@ class MapBottomSheets {
                                 'btn_request_safir'.tr(),
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -364,8 +355,8 @@ class MapBottomSheets {
                     Text(
                       'searching_driver_msg'.tr(),
                       style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         color: AppColors.textPrimary,
                       ),
                     ),
@@ -397,7 +388,7 @@ class MapBottomSheets {
                   'new_bid_offer'.tr(),
                   style: const TextStyle(
                     color: AppColors.primaryBrand,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     fontSize: 14,
                   ),
                 ),
@@ -406,8 +397,8 @@ class MapBottomSheets {
               Text(
                 'opt_ride_options'.tr(),
                 style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -426,7 +417,8 @@ class MapBottomSheets {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 13.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
                         color: AppColors.textPrimary,
                       ),
                     ),
@@ -455,7 +447,8 @@ class MapBottomSheets {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 13.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
                         color: AppColors.textPrimary,
                       ),
                     ),
@@ -474,8 +467,8 @@ class MapBottomSheets {
                   Text(
                     '${fareAmount.toStringAsFixed(0)} $currency',
                     style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.textPrimary,
                     ),
                   ),
@@ -491,9 +484,10 @@ class MapBottomSheets {
                 child: Text(
                   'terms_and_privacy_notice'.tr(),
                   style: TextStyle(
-                    fontSize: 11.5,
+                    fontSize: 12,
                     color: Colors.grey.shade700,
                     height: 1.4,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
@@ -518,8 +512,8 @@ class MapBottomSheets {
                   'cancel_request_title'.tr(),
                   style: const TextStyle(
                     color: AppColors.textPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -582,8 +576,8 @@ class MapBottomSheets {
                       Text(
                         'cancel_request_title'.tr(),
                         style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -598,6 +592,7 @@ class MapBottomSheets {
                     'select_cancel_reason_title'.tr(),
                     style: const TextStyle(
                       fontSize: 14,
+                      fontWeight: FontWeight.w400,
                       color: AppColors.textPrimary,
                     ),
                   ),
@@ -612,7 +607,8 @@ class MapBottomSheets {
                       title: Text(
                         titleText,
                         style: const TextStyle(
-                          fontSize: 13.5,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -666,7 +662,8 @@ class MapBottomSheets {
                             'confirm_cancel_btn'.tr(),
                             style: const TextStyle(
                               color: Colors.red,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -678,6 +675,8 @@ class MapBottomSheets {
                           'cancel'.tr(),
                           style: const TextStyle(
                             color: AppColors.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -866,9 +865,9 @@ class MapBottomSheets {
             child: Text(
               title,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight:
-                    isSelected ? FontWeight.bold : FontWeight.w500,
+                    isSelected ? FontWeight.w500 : FontWeight.w400,
                 color: isSelected
                     ? AppColors.textPrimary
                     : Colors.grey.shade600,
@@ -942,8 +941,8 @@ class MapBottomSheets {
                           title,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
                             color: AppColors.textPrimary,
                           ),
                         ),
@@ -963,6 +962,7 @@ class MapBottomSheets {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 12,
+                      fontWeight: FontWeight.w400,
                       color: Colors.grey.shade600,
                     ),
                   ),
@@ -973,8 +973,8 @@ class MapBottomSheets {
             Text(
               price,
               style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
                 color: AppColors.textPrimary,
               ),
             ),
@@ -1001,7 +1001,7 @@ class MapBottomSheets {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: isActive
                 ? AppColors.primaryBrand
                 : Colors.grey.shade700,
