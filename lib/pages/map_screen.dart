@@ -111,7 +111,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   bool _isMapMoving = false;
   bool _isProgrammaticMove = false;
-  bool _userStartedMovingMap = false;
   bool _isSheetExpanded = true; 
   Timer? _debounceTimer;
 
@@ -552,7 +551,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                   southwest: LatLng(minLat, minLng),
                   northeast: LatLng(maxLat, maxLng),
                 ),
-                left: 50, top: 100, right: 50, bottom: 100,
+                left: 50, top: 120, right: 50, bottom: 100,
               ),
             );
           }
@@ -889,57 +888,57 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     Color activePinColor = _currentStep == 0 ? AppColors.originBlue : AppColors.primaryBrand;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          MapLibreMap(
-            initialCameraPosition: CameraPosition(
-              target: widget.targetLocation ?? _currentUserLatLng,
-              zoom: 15.0,
-            ),
-            styleString: 'assets/map/style.json',
-            myLocationEnabled: true,
-            myLocationTrackingMode: MyLocationTrackingMode.tracking,
-            myLocationRenderMode: MyLocationRenderMode.normal,
-            trackCameraPosition: true,
-            onMapCreated: (controller) {
-              _mapController = controller;
-              _isProgrammaticMove = true;
-              if (widget.targetLocation != null) {
-                _animatedMapMove(widget.targetLocation!, 17.8);
-              }
-            },
-            onCameraMove: (CameraPosition position) {
-              debugPrint(
-                'CAMERA MOVE | programmatic: $_isProgrammaticMove | '
-                'step: $_currentStep | sheet: $_isSheetExpanded',
-              );
-
-              if (!_isProgrammaticMove) {
-                if (!_isMapMoving) {
-                  setState(() {
+          RepaintBoundary(
+            child: MapLibreMap(
+              initialCameraPosition: CameraPosition(
+                target: widget.targetLocation ?? _currentUserLatLng,
+                zoom: 15.0,
+              ),
+              styleString: 'assets/map/style.json',
+              myLocationEnabled: true,
+              myLocationTrackingMode: MyLocationTrackingMode.tracking,
+              myLocationRenderMode: MyLocationRenderMode.normal,
+              trackCameraPosition: true,
+              onMapCreated: (controller) {
+                _mapController = controller;
+                _isProgrammaticMove = true;
+                if (widget.targetLocation != null) {
+                  _animatedMapMove(widget.targetLocation!, 17.8);
+                }
+              },
+              onCameraMove: (CameraPosition position) {
+                if (!_isProgrammaticMove) {
+                  if (!_isMapMoving) {
                     _isMapMoving = true;
-                    _isSheetExpanded = false;
+                    if (_isSheetExpanded) {
+                      setState(() {
+                        _isSheetExpanded = false;
+                      });
+                    }
+                  }
+                }
+              },
+              onCameraIdle: () {
+                final bool wasProgrammaticMove = _isProgrammaticMove;
+                _isProgrammaticMove = false;
+
+                if (_isMapMoving && mounted) {
+                  setState(() {
+                    _isMapMoving = false;
                   });
                 }
-              }
-            },
-            onCameraIdle: () {
-              final bool wasProgrammaticMove = _isProgrammaticMove;
-              _isProgrammaticMove = false;
 
-              if (_isMapMoving && mounted) {
-                setState(() {
-                  _isMapMoving = false;
-                });
-              }
-
-              if (!wasProgrammaticMove && _currentStep < 2 && _mapController != null) {
-                _updateAddressFromCamera(
-                  _mapController!.cameraPosition!.target,
-                );
-              }
-            },
-            onMapClick: (_, __) {},
+                if (!wasProgrammaticMove && _currentStep < 2 && _mapController != null) {
+                  _updateAddressFromCamera(
+                    _mapController!.cameraPosition!.target,
+                  );
+                }
+              },
+              onMapClick: (_, __) {},
+            ),
           ),
 
           if (_currentStep < 2)
@@ -1021,13 +1020,15 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
+          // 🛠️ افزودن Appbar سفارشی در بالای صفحه که از پنهان شدن زیر ساعت و باتری گوشی جلوگیری می‌کند
           Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
+            top: MediaQuery.of(context).padding.top + 8,
             left: 16,
             right: 16,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // دکمه بازگشت/خانه (رنگ آیکن به خاکستری تیره تغییر یافته است)
                 GestureDetector(
                   onTap: _handleBackAction,
                   child: Container(
@@ -1042,7 +1043,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     ),
                     child: Icon(
                       _currentStep == 0 ? Icons.home_rounded : Icons.arrow_back,
-                      color: AppColors.primaryBrand,
+                      color: Colors.grey[700], // 🛠️ تغییر رنگ به خاکستری تیره
                       size: 24,
                     ),
                   ),
@@ -1078,6 +1079,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     ),
                   ),
 
+                // دکمه پروفایل/منو (رنگ آیکن به خاکستری تیره تغییر یافته است)
                 GestureDetector(
                   onTap: _showAdvancedProfile,
                   child: Container(
@@ -1094,9 +1096,9 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                       alignment: Alignment.center,
                       clipBehavior: Clip.none,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.person_outline,
-                          color: AppColors.primaryBrand,
+                          color: Colors.grey[700], // 🛠️ تغییر رنگ به خاکستری تیره
                           size: 26,
                         ),
                         if (_hasNotification)
