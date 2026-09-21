@@ -508,9 +508,10 @@ class _SenderDialogContentState extends State<_SenderDialogContent> {
                 children: [
                   IconButton(
                     icon: Icon(
-                      Directionality.of(context) == TextDirection.rtl
-                          ? Icons.arrow_back_rtl
+                      Directionality.of(context) == TextDirection.RTL
+                          ? Icons.arrow_forward
                           : Icons.arrow_back,
+
                       color: AppColors.textPrimary,
                     ),
                     onPressed: () => Navigator.pop(context),
@@ -770,9 +771,10 @@ class _ReceiverDialogContentState extends State<_ReceiverDialogContent> {
                 children: [
                   IconButton(
                     icon: Icon(
-                      Directionality.of(context) == TextDirection.rtl
-                          ? Icons.arrow_back_rtl
+                      Directionality.of(context) == TextDirection.RTL
+                          ? Icons.arrow_forward
                           : Icons.arrow_back,
+
                       color: AppColors.textPrimary,
                     ),
                     onPressed: () => Navigator.pop(context),
