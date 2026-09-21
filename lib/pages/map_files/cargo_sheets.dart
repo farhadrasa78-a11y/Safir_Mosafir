@@ -487,7 +487,7 @@ class CargoSheets {
   }) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
       padding: const EdgeInsets.fromLTRB(
         _sidePadding,
         _topPadding,
