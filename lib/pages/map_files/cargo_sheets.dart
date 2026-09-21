@@ -28,6 +28,8 @@ class CargoSheets {
           builder: (context, setModalState) {
             return Scaffold(
               backgroundColor: Colors.white,
+              // 👇 پیش‌فرض true است؛ همین خودش bottomNavigationBar را دقیقاً بالای کیبورد قرار می‌دهد
+              resizeToAvoidBottomInset: true,
               appBar: AppBar(
                 backgroundColor: Colors.white,
                 elevation: 0,
@@ -46,19 +48,16 @@ class CargoSheets {
                 centerTitle: false,
               ),
 
-              /// 🟢 دکمه شناور نرم که دقیقاً بالای کیبورد می‌ماند
-              bottomNavigationBar: AnimatedPadding(
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOut,
+              /// 🟢 دکمه ثابت پایین صفحه؛ خودِ Scaffold آن را بالای کیبورد نگه می‌دارد
+              /// (دیگر ارتفاع کیبورد دستی جمع نمی‌شود، چون باعث پرش/لرزش دوگانه می‌شد)
+              bottomNavigationBar: Padding(
                 padding: EdgeInsets.only(
                   left: 16,
                   right: 16,
                   top: 12,
-                  bottom: MediaQuery.of(ctx).viewInsets.bottom > 0
-                      ? MediaQuery.of(ctx).viewInsets.bottom + 12
-                      : MediaQuery.of(ctx).padding.bottom + 12,
+                  bottom: MediaQuery.of(ctx).padding.bottom + 12, // 👈 فقط فاصلهٔ safe-area
                 ),
-                child: Container(
+                child: SizedBox(
                   height: 48,
                   width: double.infinity,
                   child: ElevatedButton(
@@ -93,7 +92,7 @@ class CargoSheets {
                     left: 16,
                     right: 16,
                     top: 12,
-                    bottom: 24, // 👈 تنظیم فضای خالی انتهای فرم
+                    bottom: 160, // 👈 فضای اضافهٔ اسکرول، تا وقتی کیبورد باز می‌شود جای «نفس کشیدن» داشته باشد
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,6 +228,7 @@ class CargoSheets {
             builder: (context, setModalState) {
               return Scaffold(
                 backgroundColor: Colors.white,
+                resizeToAvoidBottomInset: true,
                 appBar: AppBar(
                   backgroundColor: Colors.white,
                   elevation: 0,
@@ -247,19 +247,15 @@ class CargoSheets {
                   centerTitle: false,
                 ),
 
-                /// 🟢 دکمه شناور نرم که دقیقاً بالای کیبورد می‌ماند
-                bottomNavigationBar: AnimatedPadding(
-                  duration: const Duration(milliseconds: 150),
-                  curve: Curves.easeOut,
+                /// 🟢 دکمه ثابت پایین صفحه؛ خودِ Scaffold آن را بالای کیبورد نگه می‌دارد
+                bottomNavigationBar: Padding(
                   padding: EdgeInsets.only(
                     left: 16,
                     right: 16,
                     top: 12,
-                    bottom: MediaQuery.of(ctx).viewInsets.bottom > 0
-                        ? MediaQuery.of(ctx).viewInsets.bottom + 12
-                        : MediaQuery.of(ctx).padding.bottom + 12,
+                    bottom: MediaQuery.of(ctx).padding.bottom + 12,
                   ),
-                  child: Container(
+                  child: SizedBox(
                     height: 48,
                     width: double.infinity,
                     child: ElevatedButton(
@@ -294,7 +290,7 @@ class CargoSheets {
                       left: 16,
                       right: 16,
                       top: 12,
-                      bottom: 24, // 👈 تنظیم فضای خالی انتهای فرم
+                      bottom: 160, // 👈 فضای اضافهٔ اسکرول
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
