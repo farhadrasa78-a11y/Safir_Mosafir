@@ -4,13 +4,13 @@ import '../../theme/app_colors.dart';
 import '../../global/global_var.dart';
 
 class CargoSheets {
-  /// 🎨 رنگ‌های اصلی
+  /// 🎨 رنگ اختصاصی فوکوس (آبی اسنپی)
   static const Color focusBlue = Color(0xFF0066FF);
   static const Color borderGrey = Color(0xFFD6D6D6);
   static const Color labelGrey = Color(0xFF9E9E9E);
   static const Color errorRed = Color(0xFFE53935);
 
-  /// 📦 ۱. صفحه اطلاعات فرستنده
+  /// 📦 ۱. صفحه کامل اطلاعات فرستنده (Sender Screen)
   static void showSenderDialog({
     required BuildContext context,
     required TextEditingController nameController,
@@ -25,21 +25,237 @@ class CargoSheets {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (ctx) => _SenderDialogContent(
-          nameController: nameController,
-          phoneController: phoneController,
-          addressController: addressController,
-          unitController: unitController,
-          floorController: floorController,
-          noteController: noteController,
-          onConfirm: onConfirm,
-          onUseMyInfoPressed: onUseMyInfoPressed,
+        builder: (ctx) => StatefulBuilder(
+          builder: (context, setModalState) {
+            final double keyboardHeight = MediaQuery.of(ctx).viewInsets.bottom;
+            final bool isKeyboardOpen = keyboardHeight > 0;
+
+            // متغیرهای ذخیره وضعیت خطای فیلدها
+            String? nameError;
+            String? phoneError;
+            String? floorError;
+
+            return Scaffold(
+              backgroundColor: Colors.white,
+              resizeToAvoidBottomInset: false, // 👈 جلوگیری از لرزش و پرش Scaffold
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+                title: Text(
+                  'cargo.sender_details_title'.tr(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                centerTitle: false,
+              ),
+
+              /// 🟢 دکمه شناور که دقیقاً بالای کیبورد قرار می‌گیرد
+              bottomNavigationBar: AnimatedPadding(
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.easeOut,
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 12,
+                  bottom: isKeyboardOpen
+                      ? keyboardHeight + 12
+                      : MediaQuery.of(ctx).padding.bottom + 12,
+                ),
+                child: SizedBox(
+                  height: 48,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1BAB58),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      setModalState(() {
+                        // 🛑 شرط‌های اعتبارسنجی خانه پری
+                        bool isValid = true;
+
+                        if (nameController.text.trim().isEmpty) {
+                          nameError = 'لطفاً نام فرستنده را وارد کنید';
+                          isValid = false;
+                        } else {
+                          nameError = null;
+                        }
+
+                        if (phoneController.text.trim().isEmpty) {
+                          phoneError = 'لطفاً شماره تماس را وارد کنید';
+                          isValid = false;
+                        } else {
+                          phoneError = null;
+                        }
+
+                        if (floorController.text.trim().isEmpty) {
+                          floorError = 'پلاک/طبقه الزامی است';
+                          isValid = false;
+                        } else {
+                          floorError = null;
+                        }
+
+                        if (!isValid) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(
+                              content: Text('لطفاً بخش‌های ضروری را تکمیل کنید'),
+                              backgroundColor: errorRed,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          return;
+                        }
+
+                        Navigator.pop(ctx);
+                        onConfirm();
+                      });
+                    },
+                    child: Text(
+                      'cargo.confirm_continue'.tr(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              /// 📜 بخش اسکرول فرم (با قابلیت ۲۴ پیکسل اسکرول اضافی نرم روی کیبورد)
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 12,
+                    // 👈 80 پیکسل شامل ارتفاع دکمه (48) + حاشیه‌ها (12) + ۲۴ پیکسل فضای اسکرول آزاد
+                    bottom: isKeyboardOpen ? keyboardHeight + 80 : 24,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // دکمه پر کردن اطلاعات حساب کاربری
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              setModalState(() {
+                                if (onUseMyInfoPressed != null) {
+                                  onUseMyInfoPressed();
+                                } else {
+                                  nameController.text = userName;
+                                  phoneController.text = userPhone;
+                                }
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3F4F9),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'cargo.use_my_info'.tr(),
+                                    style: const TextStyle(
+                                      color: focusBlue,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(
+                                    Icons.arrow_downward_rounded,
+                                    size: 16,
+                                    color: focusBlue,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      _buildField(
+                        controller: nameController,
+                        label: 'cargo.sender_fullname'.tr(),
+                        errorText: nameError,
+                      ),
+                      const SizedBox(height: 20),
+
+                      _buildField(
+                        controller: phoneController,
+                        label: 'cargo.phone'.tr(),
+                        keyboardType: TextInputType.phone,
+                        errorText: phoneError,
+                      ),
+                      const SizedBox(height: 20),
+
+                      _buildField(
+                        controller: addressController,
+                        label: 'cargo.origin_address_label'.tr(),
+                        readOnly: true,
+                        suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: labelGrey),
+                      ),
+                      const SizedBox(height: 20),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _buildField(
+                              controller: floorController,
+                              label: 'cargo.plaque'.tr(),
+                              errorText: floorError,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildField(
+                              controller: unitController,
+                              label: 'cargo.unit'.tr(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      _buildField(
+                        controller: noteController,
+                        label: 'cargo.description_optional'.tr(),
+                        textInputAction: TextInputAction.done,
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  /// 📥 ۲. صفحه اطلاعات گیرنده
+  /// 📥 ۲. صفحه کامل اطلاعات گیرنده (Receiver Screen)
   static void showReceiverDialog({
     required BuildContext context,
     required TextEditingController nameController,
@@ -57,24 +273,232 @@ class CargoSheets {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (ctx) => _ReceiverDialogContent(
-          nameController: nameController,
-          phoneController: phoneController,
-          addressController: addressController,
-          unitController: unitController,
-          floorController: floorController,
-          noteController: noteController,
-          selectedPackageType: selectedPackageType,
-          onPackageTypeChanged: onPackageTypeChanged,
-          selectedInsurance: selectedInsurance,
-          onInsuranceChanged: onInsuranceChanged,
-          onConfirm: onConfirm,
-        ),
+        builder: (ctx) {
+          String currentPackage = selectedPackageType;
+          String currentInsurance = selectedInsurance;
+
+          String? nameError;
+          String? phoneError;
+          String? floorError;
+
+          return StatefulBuilder(
+            builder: (context, setModalState) {
+              final double keyboardHeight = MediaQuery.of(ctx).viewInsets.bottom;
+              final bool isKeyboardOpen = keyboardHeight > 0;
+
+              return Scaffold(
+                backgroundColor: Colors.white,
+                resizeToAvoidBottomInset: false,
+                appBar: AppBar(
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                  title: Text(
+                    'cargo.receiver_details_title'.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  centerTitle: false,
+                ),
+
+                /// 🟢 دکمه شناور نرم
+                bottomNavigationBar: AnimatedPadding(
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.easeOut,
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 12,
+                    bottom: isKeyboardOpen
+                        ? keyboardHeight + 12
+                        : MediaQuery.of(ctx).padding.bottom + 12,
+                  ),
+                  child: SizedBox(
+                    height: 48,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1BAB58),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        setModalState(() {
+                          // 🛑 شرط‌های اعتبارسنجی فرم گیرنده
+                          bool isValid = true;
+
+                          if (nameController.text.trim().isEmpty) {
+                            nameError = 'نام گیرنده الزامی است';
+                            isValid = false;
+                          } else {
+                            nameError = null;
+                          }
+
+                          if (phoneController.text.trim().isEmpty) {
+                            phoneError = 'شماره گیرنده الزامی است';
+                            isValid = false;
+                          } else {
+                            phoneError = null;
+                          }
+
+                          if (floorController.text.trim().isEmpty) {
+                            floorError = 'پلاک/طبقه الزامی است';
+                            isValid = false;
+                          } else {
+                            floorError = null;
+                          }
+
+                          if (!isValid) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                content: Text('لطفاً اطلاعات ضروری گیرنده را تکمیل کنید'),
+                                backgroundColor: errorRed,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            return;
+                          }
+
+                          Navigator.pop(ctx);
+                          onConfirm();
+                        });
+                      },
+                      child: Text(
+                        'cargo.confirm_continue'.tr(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                /// 📜 اسکرول فرم گیرنده
+                body: SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 12,
+                      bottom: isKeyboardOpen ? keyboardHeight + 80 : 24,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildField(
+                          controller: nameController,
+                          label: 'cargo.receiver_fullname'.tr(),
+                          errorText: nameError,
+                        ),
+                        const SizedBox(height: 20),
+
+                        _buildField(
+                          controller: phoneController,
+                          label: 'cargo.receiver_phone'.tr(),
+                          keyboardType: TextInputType.phone,
+                          errorText: phoneError,
+                        ),
+                        const SizedBox(height: 20),
+
+                        _buildField(
+                          controller: addressController,
+                          label: 'cargo.destination_address_label'.tr(),
+                          readOnly: true,
+                          suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: labelGrey),
+                        ),
+                        const SizedBox(height: 20),
+
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: _buildField(
+                                controller: floorController,
+                                label: 'cargo.plaque'.tr(),
+                                errorText: floorError,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildField(
+                                controller: unitController,
+                                label: 'cargo.unit'.tr(),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        _buildField(
+                          controller: noteController,
+                          label: 'cargo.delivery_note'.tr(),
+                          textInputAction: TextInputAction.done,
+                        ),
+                        const SizedBox(height: 20),
+
+                        _buildDropdownField(
+                          label: 'cargo.cargo_type'.tr(),
+                          value: currentPackage,
+                          items: [
+                            'cargo.type_other'.tr(),
+                            'cargo.type_home_furniture'.tr(),
+                            'cargo.type_office_furniture'.tr(),
+                            'cargo.type_goods_food'.tr(),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) {
+                              setModalState(() {
+                                currentPackage = val;
+                              });
+                              onPackageTypeChanged(val);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
+                        _buildDropdownField(
+                          label: 'cargo.insurance_amount'.tr(),
+                          value: currentInsurance,
+                          items: [
+                            'cargo.insurance_50k'.tr(),
+                            'cargo.insurance_100k'.tr(),
+                            'cargo.insurance_500k'.tr(),
+                            'cargo.no_insurance'.tr(),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) {
+                              setModalState(() {
+                                currentInsurance = val;
+                              });
+                              onInsuranceChanged(val);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  /// 🔹 متد ساخت فیلدهای ورودی متنی
+  /// 🔹 متد ساخت فیلدهای ورودی متنی (با اصلاح scrollPadding و پشتیبانی از errorText)
   static Widget _buildField({
     required TextEditingController controller,
     required String label,
@@ -86,17 +510,26 @@ class CargoSheets {
   }) {
     const normalBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: borderGrey, width: 1.0),
+      borderSide: BorderSide(
+        color: borderGrey,
+        width: 1.0,
+      ),
     );
 
     const focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: focusBlue, width: 1.5),
+      borderSide: BorderSide(
+        color: focusBlue,
+        width: 1.5,
+      ),
     );
 
     const errorBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: errorRed, width: 1.5),
+      borderSide: BorderSide(
+        color: errorRed,
+        width: 1.5,
+      ),
     );
 
     return TextField(
@@ -105,7 +538,7 @@ class CargoSheets {
       readOnly: readOnly,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
-      scrollPadding: const EdgeInsets.all(80), // پدینگ مناسب برای آوردن فیلد بالای کیبورد
+      scrollPadding: const EdgeInsets.only(bottom: 40), // 👈 اصلاح شده برای جلوگیری از لرزش
       style: const TextStyle(
         color: AppColors.textPrimary,
         fontSize: 14,
@@ -119,15 +552,25 @@ class CargoSheets {
         suffixIcon: suffixIcon,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         floatingLabelAlignment: FloatingLabelAlignment.start,
-        labelStyle: const TextStyle(color: labelGrey, fontSize: 13, fontWeight: FontWeight.w400),
+        labelStyle: const TextStyle(
+          color: labelGrey,
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+        ),
         floatingLabelStyle: TextStyle(
           color: errorText != null ? errorRed : focusBlue,
           fontSize: 12,
           fontWeight: FontWeight.w500,
           backgroundColor: Colors.white,
         ),
-        hintStyle: const TextStyle(color: labelGrey, fontSize: 13),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+        hintStyle: const TextStyle(
+          color: labelGrey,
+          fontSize: 13,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 18,
+        ),
         filled: true,
         fillColor: Colors.white,
         border: normalBorder,
@@ -138,7 +581,7 @@ class CargoSheets {
     );
   }
 
-  /// 🔹 متد ساخت فیلدهای دراپ‌داون
+  /// 🔹 متد ساخت فیلدهای دراپ‌داون انتخابی
   static Widget _buildDropdownField({
     required String label,
     required String value,
@@ -147,23 +590,40 @@ class CargoSheets {
   }) {
     const normalBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: borderGrey, width: 1.0),
+      borderSide: BorderSide(
+        color: borderGrey,
+        width: 1.0,
+      ),
     );
 
     const focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: focusBlue, width: 1.5),
+      borderSide: BorderSide(
+        color: focusBlue,
+        width: 1.5,
+      ),
     );
 
     return DropdownButtonFormField<String>(
       key: ValueKey('dropdown_$label'),
-      value: items.contains(value) ? value : items.first,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w400),
-      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: labelGrey),
+      value: value,
+      style: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: labelGrey,
+      ),
       decoration: InputDecoration(
         labelText: label,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
-        labelStyle: const TextStyle(color: labelGrey, fontSize: 13, fontWeight: FontWeight.w400),
+        labelStyle: const TextStyle(
+          color: labelGrey,
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+        ),
         floatingLabelStyle: const TextStyle(
           color: focusBlue,
           fontSize: 12,
@@ -172,18 +632,26 @@ class CargoSheets {
         ),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 18,
+        ),
         border: normalBorder,
         enabledBorder: normalBorder,
         disabledBorder: normalBorder,
         focusedBorder: focusedBorder,
       ),
-      items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+      items: items
+          .map((e) => DropdownMenuItem(
+                value: e,
+                child: Text(e),
+              ))
+          .toList(),
       onChanged: onChanged,
     );
   }
 
-  /// 📐 تابع محاسبه قیمت
+  /// 📐 تابع محاسبه قیمت اختصاصی هر خودرو بر اساس مسافت (کیلومتر)
   static double calculateFareForVehicle(String vehicleId, double distanceInKm) {
     double baseRate = 50.0;
     double perKmRate = 20.0;
@@ -210,7 +678,7 @@ class CargoSheets {
     return calculatedFare < baseRate ? baseRate : calculatedFare;
   }
 
-  /// 🚚 ۳. شیت مرحله نهایی انتخاب خودرو
+  /// 🚚 ۳. شیت مرحله نهایی انتخاب خودرو و تایید سفارش
   static Widget buildCargoSummarySheet({
     required BuildContext context,
     required double fareAmount,
@@ -414,508 +882,6 @@ class CargoSheets {
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 🏢 ویجت اطلاعات فرستنده
-class _SenderDialogContent extends StatefulWidget {
-  final TextEditingController nameController;
-  final TextEditingController phoneController;
-  final TextEditingController addressController;
-  final TextEditingController unitController;
-  final TextEditingController floorController;
-  final TextEditingController noteController;
-  final VoidCallback onConfirm;
-  final VoidCallback? onUseMyInfoPressed;
-
-  const _SenderDialogContent({
-    required this.nameController,
-    required this.phoneController,
-    required this.addressController,
-    required this.unitController,
-    required this.floorController,
-    required this.noteController,
-    required this.onConfirm,
-    this.onUseMyInfoPressed,
-  });
-
-  @override
-  State<_SenderDialogContent> createState() => _SenderDialogContentState();
-}
-
-class _SenderDialogContentState extends State<_SenderDialogContent> {
-  String? nameError;
-  String? phoneError;
-  String? floorError;
-
-  void _validateAndSubmit() {
-    setState(() {
-      bool isValid = true;
-
-      if (widget.nameController.text.trim().isEmpty) {
-        nameError = 'لطفاً نام فرستنده را وارد کنید';
-        isValid = false;
-      } else {
-        nameError = null;
-      }
-
-      if (widget.phoneController.text.trim().isEmpty) {
-        phoneError = 'لطفاً شماره تماس را وارد کنید';
-        isValid = false;
-      } else {
-        phoneError = null;
-      }
-
-      if (widget.floorController.text.trim().isEmpty) {
-        floorError = 'پلاک/طبقه الزامی است';
-        isValid = false;
-      } else {
-        floorError = null;
-      }
-
-      if (isValid) {
-        Navigator.pop(context);
-        widget.onConfirm();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('لطفاً بخش‌های ضروری را تکمیل کنید'),
-            backgroundColor: CargoSheets.errorRed,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), // پدینگ انتهای صفحه برای اسکرول راحت‌تر
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // هدر سازگار با RTL
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Directionality.of(context) == TextDirection.RTL
-                          ? Icons.arrow_forward
-                          : Icons.arrow_back,
-
-                      color: AppColors.textPrimary,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'cargo.sender_details_title'.tr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // دکمه «استفاده از اطلاعات من»
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        if (widget.onUseMyInfoPressed != null) {
-                          widget.onUseMyInfoPressed!();
-                        } else {
-                          widget.nameController.text = userName;
-                          widget.phoneController.text = userPhone;
-                        }
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F9),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'cargo.use_my_info'.tr(),
-                            style: const TextStyle(
-                              color: CargoSheets.focusBlue,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.arrow_downward_rounded,
-                            size: 16,
-                            color: CargoSheets.focusBlue,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // ورودی‌ها
-              CargoSheets._buildField(
-                controller: widget.nameController,
-                label: 'cargo.sender_fullname'.tr(),
-                errorText: nameError,
-              ),
-              const SizedBox(height: 16),
-
-              CargoSheets._buildField(
-                controller: widget.phoneController,
-                label: 'cargo.phone'.tr(),
-                keyboardType: TextInputType.phone,
-                errorText: phoneError,
-              ),
-              const SizedBox(height: 16),
-
-              CargoSheets._buildField(
-                controller: widget.addressController,
-                label: 'cargo.origin_address_label'.tr(),
-                readOnly: true,
-                suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: CargoSheets.labelGrey),
-              ),
-              const SizedBox(height: 16),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: CargoSheets._buildField(
-                      controller: widget.floorController,
-                      label: 'cargo.plaque'.tr(),
-                      errorText: floorError,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: CargoSheets._buildField(
-                      controller: widget.unitController,
-                      label: 'cargo.unit'.tr(),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              CargoSheets._buildField(
-                controller: widget.noteController,
-                label: 'cargo.description_optional'.tr(),
-                textInputAction: TextInputAction.done,
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 8,
-          bottom: MediaQuery.of(context).padding.bottom + 8,
-        ),
-        child: SizedBox(
-          height: 48,
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1BAB58),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-            ),
-            onPressed: _validateAndSubmit,
-            child: Text(
-              'cargo.confirm_continue'.tr(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 🏢 ویجت اطلاعات گیرنده
-class _ReceiverDialogContent extends StatefulWidget {
-  final TextEditingController nameController;
-  final TextEditingController phoneController;
-  final TextEditingController addressController;
-  final TextEditingController unitController;
-  final TextEditingController floorController;
-  final TextEditingController noteController;
-  final String selectedPackageType;
-  final ValueChanged<String?> onPackageTypeChanged;
-  final String selectedInsurance;
-  final ValueChanged<String?> onInsuranceChanged;
-  final VoidCallback onConfirm;
-
-  const _ReceiverDialogContent({
-    required this.nameController,
-    required this.phoneController,
-    required this.addressController,
-    required this.unitController,
-    required this.floorController,
-    required this.noteController,
-    required this.selectedPackageType,
-    required this.onPackageTypeChanged,
-    required this.selectedInsurance,
-    required this.onInsuranceChanged,
-    required this.onConfirm,
-  });
-
-  @override
-  State<_ReceiverDialogContent> createState() => _ReceiverDialogContentState();
-}
-
-class _ReceiverDialogContentState extends State<_ReceiverDialogContent> {
-  late String currentPackage;
-  late String currentInsurance;
-
-  String? nameError;
-  String? phoneError;
-  String? floorError;
-
-  @override
-  void initState() {
-    super.initState();
-    currentPackage = widget.selectedPackageType;
-    currentInsurance = widget.selectedInsurance;
-  }
-
-  void _validateAndSubmit() {
-    setState(() {
-      bool isValid = true;
-
-      if (widget.nameController.text.trim().isEmpty) {
-        nameError = 'نام گیرنده الزامی است';
-        isValid = false;
-      } else {
-        nameError = null;
-      }
-
-      if (widget.phoneController.text.trim().isEmpty) {
-        phoneError = 'شماره گیرنده الزامی است';
-        isValid = false;
-      } else {
-        phoneError = null;
-      }
-
-      if (widget.floorController.text.trim().isEmpty) {
-        floorError = 'پلاک/طبقه الزامی است';
-        isValid = false;
-      } else {
-        floorError = null;
-      }
-
-      if (isValid) {
-        Navigator.pop(context);
-        widget.onConfirm();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('لطفاً اطلاعات ضروری گیرنده را تکمیل کنید'),
-            backgroundColor: CargoSheets.errorRed,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Directionality.of(context) == TextDirection.RTL
-                          ? Icons.arrow_forward
-                          : Icons.arrow_back,
-
-                      color: AppColors.textPrimary,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'cargo.receiver_details_title'.tr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              CargoSheets._buildField(
-                controller: widget.nameController,
-                label: 'cargo.receiver_fullname'.tr(),
-                errorText: nameError,
-              ),
-              const SizedBox(height: 16),
-
-              CargoSheets._buildField(
-                controller: widget.phoneController,
-                label: 'cargo.receiver_phone'.tr(),
-                keyboardType: TextInputType.phone,
-                errorText: phoneError,
-              ),
-              const SizedBox(height: 16),
-
-              CargoSheets._buildField(
-                controller: widget.addressController,
-                label: 'cargo.destination_address_label'.tr(),
-                readOnly: true,
-                suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: CargoSheets.labelGrey),
-              ),
-              const SizedBox(height: 16),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: CargoSheets._buildField(
-                      controller: widget.floorController,
-                      label: 'cargo.plaque'.tr(),
-                      errorText: floorError,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: CargoSheets._buildField(
-                      controller: widget.unitController,
-                      label: 'cargo.unit'.tr(),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              CargoSheets._buildField(
-                controller: widget.noteController,
-                label: 'cargo.delivery_note'.tr(),
-                textInputAction: TextInputAction.done,
-              ),
-              const SizedBox(height: 16),
-
-              CargoSheets._buildDropdownField(
-                label: 'cargo.cargo_type'.tr(),
-                value: currentPackage,
-                items: [
-                  'cargo.type_other'.tr(),
-                  'cargo.type_home_furniture'.tr(),
-                  'cargo.type_office_furniture'.tr(),
-                  'cargo.type_goods_food'.tr(),
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      currentPackage = val;
-                    });
-                    widget.onPackageTypeChanged(val);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-
-              CargoSheets._buildDropdownField(
-                label: 'cargo.insurance_amount'.tr(),
-                value: currentInsurance,
-                items: [
-                  'cargo.insurance_50k'.tr(),
-                  'cargo.insurance_100k'.tr(),
-                  'cargo.insurance_500k'.tr(),
-                  'cargo.no_insurance'.tr(),
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      currentInsurance = val;
-                    });
-                    widget.onInsuranceChanged(val);
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 8,
-          bottom: MediaQuery.of(context).padding.bottom + 8,
-        ),
-        child: SizedBox(
-          height: 48,
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1BAB58),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-            ),
-            onPressed: _validateAndSubmit,
-            child: Text(
-              'cargo.confirm_continue'.tr(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
         ),
       ),
     );
