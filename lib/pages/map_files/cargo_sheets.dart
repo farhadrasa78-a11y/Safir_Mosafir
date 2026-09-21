@@ -8,6 +8,7 @@ class CargoSheets {
   static const Color focusBlue = Color(0xFF0066FF);
   static const Color borderGrey = Color(0xFFD6D6D6);
   static const Color labelGrey = Color(0xFF9E9E9E);
+  static const Color errorRed = Color(0xFFE53935);
 
   /// 📦 ۱. صفحه کامل اطلاعات فرستنده (Sender Screen)
   static void showSenderDialog({
@@ -26,10 +27,17 @@ class CargoSheets {
       MaterialPageRoute(
         builder: (ctx) => StatefulBuilder(
           builder: (context, setModalState) {
+            final double keyboardHeight = MediaQuery.of(ctx).viewInsets.bottom;
+            final bool isKeyboardOpen = keyboardHeight > 0;
+
+            // متغیرهای ذخیره وضعیت خطای فیلدها
+            String? nameError;
+            String? phoneError;
+            String? floorError;
+
             return Scaffold(
               backgroundColor: Colors.white,
-              // 👇 پیش‌فرض true است؛ همین خودش bottomNavigationBar را دقیقاً بالای کیبورد قرار می‌دهد
-              resizeToAvoidBottomInset: true,
+              resizeToAvoidBottomInset: false, // 👈 جلوگیری از لرزش و پرش Scaffold
               appBar: AppBar(
                 backgroundColor: Colors.white,
                 elevation: 0,
@@ -48,29 +56,69 @@ class CargoSheets {
                 centerTitle: false,
               ),
 
-              /// 🟢 دکمه ثابت پایین صفحه؛ خودِ Scaffold آن را بالای کیبورد نگه می‌دارد
-              /// (دیگر ارتفاع کیبورد دستی جمع نمی‌شود، چون باعث پرش/لرزش دوگانه می‌شد)
-              bottomNavigationBar: Padding(
+              /// 🟢 دکمه شناور که دقیقاً بالای کیبورد قرار می‌گیرد
+              bottomNavigationBar: AnimatedPadding(
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.easeOut,
                 padding: EdgeInsets.only(
                   left: 16,
                   right: 16,
                   top: 12,
-                  bottom: MediaQuery.of(ctx).padding.bottom + 12, // 👈 فقط فاصلهٔ safe-area
+                  bottom: isKeyboardOpen
+                      ? keyboardHeight + 12
+                      : MediaQuery.of(ctx).padding.bottom + 12,
                 ),
                 child: SizedBox(
                   height: 48,
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1BAB58), // سبز اسنپ
+                      backgroundColor: const Color(0xFF1BAB58),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
                     onPressed: () {
-                      Navigator.pop(ctx);
-                      onConfirm();
+                      setModalState(() {
+                        // 🛑 شرط‌های اعتبارسنجی خانه پری
+                        bool isValid = true;
+
+                        if (nameController.text.trim().isEmpty) {
+                          nameError = 'لطفاً نام فرستنده را وارد کنید';
+                          isValid = false;
+                        } else {
+                          nameError = null;
+                        }
+
+                        if (phoneController.text.trim().isEmpty) {
+                          phoneError = 'لطفاً شماره تماس را وارد کنید';
+                          isValid = false;
+                        } else {
+                          phoneError = null;
+                        }
+
+                        if (floorController.text.trim().isEmpty) {
+                          floorError = 'پلاک/طبقه الزامی است';
+                          isValid = false;
+                        } else {
+                          floorError = null;
+                        }
+
+                        if (!isValid) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(
+                              content: Text('لطفاً بخش‌های ضروری را تکمیل کنید'),
+                              backgroundColor: errorRed,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          return;
+                        }
+
+                        Navigator.pop(ctx);
+                        onConfirm();
+                      });
                     },
                     child: Text(
                       'cargo.confirm_continue'.tr(),
@@ -84,15 +132,16 @@ class CargoSheets {
                 ),
               ),
 
-              /// 📜 بخش اسکرول‌پذیر فرم
+              /// 📜 بخش اسکرول فرم (با قابلیت ۲۴ پیکسل اسکرول اضافی نرم روی کیبورد)
               body: SafeArea(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(
+                  padding: EdgeInsets.only(
                     left: 16,
                     right: 16,
                     top: 12,
-                    bottom: 160, // 👈 فضای اضافهٔ اسکرول، تا وقتی کیبورد باز می‌شود جای «نفس کشیدن» داشته باشد
+                    // 👈 80 پیکسل شامل ارتفاع دکمه (48) + حاشیه‌ها (12) + ۲۴ پیکسل فضای اسکرول آزاد
+                    bottom: isKeyboardOpen ? keyboardHeight + 80 : 24,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,18 +192,20 @@ class CargoSheets {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20), // 👈 افزایش فاصله تا اولین مستطیل
+                      const SizedBox(height: 20),
 
                       _buildField(
                         controller: nameController,
                         label: 'cargo.sender_fullname'.tr(),
+                        errorText: nameError,
                       ),
-                      const SizedBox(height: 20), // 👈 افزایش فاصله بین کادرها
+                      const SizedBox(height: 20),
 
                       _buildField(
                         controller: phoneController,
                         label: 'cargo.phone'.tr(),
                         keyboardType: TextInputType.phone,
+                        errorText: phoneError,
                       ),
                       const SizedBox(height: 20),
 
@@ -167,11 +218,13 @@ class CargoSheets {
                       const SizedBox(height: 20),
 
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: _buildField(
                               controller: floorController,
                               label: 'cargo.plaque'.tr(),
+                              errorText: floorError,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -224,11 +277,18 @@ class CargoSheets {
           String currentPackage = selectedPackageType;
           String currentInsurance = selectedInsurance;
 
+          String? nameError;
+          String? phoneError;
+          String? floorError;
+
           return StatefulBuilder(
             builder: (context, setModalState) {
+              final double keyboardHeight = MediaQuery.of(ctx).viewInsets.bottom;
+              final bool isKeyboardOpen = keyboardHeight > 0;
+
               return Scaffold(
                 backgroundColor: Colors.white,
-                resizeToAvoidBottomInset: true,
+                resizeToAvoidBottomInset: false,
                 appBar: AppBar(
                   backgroundColor: Colors.white,
                   elevation: 0,
@@ -247,13 +307,17 @@ class CargoSheets {
                   centerTitle: false,
                 ),
 
-                /// 🟢 دکمه ثابت پایین صفحه؛ خودِ Scaffold آن را بالای کیبورد نگه می‌دارد
-                bottomNavigationBar: Padding(
+                /// 🟢 دکمه شناور نرم
+                bottomNavigationBar: AnimatedPadding(
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.easeOut,
                   padding: EdgeInsets.only(
                     left: 16,
                     right: 16,
                     top: 12,
-                    bottom: MediaQuery.of(ctx).padding.bottom + 12,
+                    bottom: isKeyboardOpen
+                        ? keyboardHeight + 12
+                        : MediaQuery.of(ctx).padding.bottom + 12,
                   ),
                   child: SizedBox(
                     height: 48,
@@ -267,8 +331,45 @@ class CargoSheets {
                         elevation: 0,
                       ),
                       onPressed: () {
-                        Navigator.pop(ctx);
-                        onConfirm();
+                        setModalState(() {
+                          // 🛑 شرط‌های اعتبارسنجی فرم گیرنده
+                          bool isValid = true;
+
+                          if (nameController.text.trim().isEmpty) {
+                            nameError = 'نام گیرنده الزامی است';
+                            isValid = false;
+                          } else {
+                            nameError = null;
+                          }
+
+                          if (phoneController.text.trim().isEmpty) {
+                            phoneError = 'شماره گیرنده الزامی است';
+                            isValid = false;
+                          } else {
+                            phoneError = null;
+                          }
+
+                          if (floorController.text.trim().isEmpty) {
+                            floorError = 'پلاک/طبقه الزامی است';
+                            isValid = false;
+                          } else {
+                            floorError = null;
+                          }
+
+                          if (!isValid) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                content: Text('لطفاً اطلاعات ضروری گیرنده را تکمیل کنید'),
+                                backgroundColor: errorRed,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            return;
+                          }
+
+                          Navigator.pop(ctx);
+                          onConfirm();
+                        });
                       },
                       child: Text(
                         'cargo.confirm_continue'.tr(),
@@ -286,11 +387,11 @@ class CargoSheets {
                 body: SafeArea(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.only(
+                    padding: EdgeInsets.only(
                       left: 16,
                       right: 16,
                       top: 12,
-                      bottom: 160, // 👈 فضای اضافهٔ اسکرول
+                      bottom: isKeyboardOpen ? keyboardHeight + 80 : 24,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,6 +399,7 @@ class CargoSheets {
                         _buildField(
                           controller: nameController,
                           label: 'cargo.receiver_fullname'.tr(),
+                          errorText: nameError,
                         ),
                         const SizedBox(height: 20),
 
@@ -305,6 +407,7 @@ class CargoSheets {
                           controller: phoneController,
                           label: 'cargo.receiver_phone'.tr(),
                           keyboardType: TextInputType.phone,
+                          errorText: phoneError,
                         ),
                         const SizedBox(height: 20),
 
@@ -317,11 +420,13 @@ class CargoSheets {
                         const SizedBox(height: 20),
 
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: _buildField(
                                 controller: floorController,
                                 label: 'cargo.plaque'.tr(),
+                                errorText: floorError,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -393,7 +498,7 @@ class CargoSheets {
     );
   }
 
-  /// 🔹 متد ساخت فیلدهای ورودی متنی (با رنگ بریدگی آبی #0066FF و حاشیه نازک خاکستری در حالت عادی)
+  /// 🔹 متد ساخت فیلدهای ورودی متنی (با اصلاح scrollPadding و پشتیبانی از errorText)
   static Widget _buildField({
     required TextEditingController controller,
     required String label,
@@ -401,6 +506,7 @@ class CargoSheets {
     TextInputType keyboardType = TextInputType.text,
     TextInputAction textInputAction = TextInputAction.next,
     Widget? suffixIcon,
+    String? errorText,
   }) {
     const normalBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -413,7 +519,15 @@ class CargoSheets {
     const focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
       borderSide: BorderSide(
-        color: focusBlue, // 👈 #0066FF
+        color: focusBlue,
+        width: 1.5,
+      ),
+    );
+
+    const errorBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(10)),
+      borderSide: BorderSide(
+        color: errorRed,
         width: 1.5,
       ),
     );
@@ -424,7 +538,7 @@ class CargoSheets {
       readOnly: readOnly,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
-      scrollPadding: const EdgeInsets.only(bottom: 220),
+      scrollPadding: const EdgeInsets.only(bottom: 40), // 👈 اصلاح شده برای جلوگیری از لرزش
       style: const TextStyle(
         color: AppColors.textPrimary,
         fontSize: 14,
@@ -433,6 +547,8 @@ class CargoSheets {
       decoration: InputDecoration(
         isDense: false,
         labelText: label,
+        errorText: errorText,
+        errorStyle: const TextStyle(color: errorRed, fontSize: 11),
         suffixIcon: suffixIcon,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         floatingLabelAlignment: FloatingLabelAlignment.start,
@@ -441,11 +557,11 @@ class CargoSheets {
           fontSize: 13,
           fontWeight: FontWeight.w400,
         ),
-        floatingLabelStyle: const TextStyle(
-          color: focusBlue, // 👈 موقع فوکوس و بریدگی آبی می‌شود
+        floatingLabelStyle: TextStyle(
+          color: errorText != null ? errorRed : focusBlue,
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          backgroundColor: Colors.white, // پس‌زمینه سفید برای تمیز بریدن خط
+          backgroundColor: Colors.white,
         ),
         hintStyle: const TextStyle(
           color: labelGrey,
@@ -453,14 +569,14 @@ class CargoSheets {
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
-          vertical: 18, // 👈 ارتفاع بزرگ‌تر فیلد
+          vertical: 18,
         ),
         filled: true,
         fillColor: Colors.white,
         border: normalBorder,
-        enabledBorder: normalBorder,
+        enabledBorder: errorText != null ? errorBorder : normalBorder,
         disabledBorder: normalBorder,
-        focusedBorder: focusedBorder,
+        focusedBorder: errorText != null ? errorBorder : focusedBorder,
       ),
     );
   }
