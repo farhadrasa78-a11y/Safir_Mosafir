@@ -74,7 +74,7 @@ class CargoSheets {
     );
   }
 
-  /// 🔹 متد ساخت فیلدهای ورودی متنی بدون لرزش
+  /// 🔹 متد ساخت فیلدهای ورودی متنی
   static Widget _buildField({
     required TextEditingController controller,
     required String label,
@@ -105,7 +105,7 @@ class CargoSheets {
       readOnly: readOnly,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
-      scrollPadding: const EdgeInsets.only(bottom: 40), // جلوگیری از لرزش فوکوس
+      scrollPadding: const EdgeInsets.all(80), // پدینگ مناسب برای آوردن فیلد بالای کیبورد
       style: const TextStyle(
         color: AppColors.textPrimary,
         fontSize: 14,
@@ -157,7 +157,7 @@ class CargoSheets {
 
     return DropdownButtonFormField<String>(
       key: ValueKey('dropdown_$label'),
-      value: value,
+      value: items.contains(value) ? value : items.first,
       style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w400),
       icon: const Icon(Icons.keyboard_arrow_down_rounded, color: labelGrey),
       decoration: InputDecoration(
@@ -420,7 +420,7 @@ class CargoSheets {
   }
 }
 
-/// 🏢 ویجت اختصاصی اطلاعات فرستنده
+/// 🏢 ویجت اطلاعات فرستنده
 class _SenderDialogContent extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController phoneController;
@@ -493,195 +493,181 @@ class _SenderDialogContentState extends State<_SenderDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final bool isKeyboardOpen = keyboardHeight > 0;
-
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false, // جلوگیری از لرزش دکمه و صفحه
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
-          children: [
-            /// 📜 بخش اسکرول‌پذیر (هدر + دکمه استفاده از اطلاعات + تمامی فیلدها)
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 16,
-                  // ایجاد فضای اسکرول کاملاً آزاد برای دیدن پلاک/توضیحات بالای کیبورد
-                  bottom: isKeyboardOpen ? keyboardHeight + 80 : 24,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 🟢 ۱. هدر بالای صفحه (با اسکرول بالا می‌رود و مخفی می‌شود)
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                          onPressed: () => Navigator.pop(context),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'cargo.sender_details_title'.tr(),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), // پدینگ انتهای صفحه برای اسکرول راحت‌تر
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // هدر سازگار با RTL
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Directionality.of(context) == TextDirection.rtl
+                          ? Icons.arrow_back_rtl
+                          : Icons.arrow_back,
+                      color: AppColors.textPrimary,
                     ),
-                    const SizedBox(height: 16),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'cargo.sender_details_title'.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
 
-                    // 🟢 ۲. دکمه «استفاده از اطلاعات من» (با اسکرول بالا رفته و مخفی می‌شود)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              if (widget.onUseMyInfoPressed != null) {
-                                widget.onUseMyInfoPressed!();
-                              } else {
-                                widget.nameController.text = userName;
-                                widget.phoneController.text = userPhone;
-                              }
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F9),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'cargo.use_my_info'.tr(),
-                                  style: const TextStyle(
-                                    color: CargoSheets.focusBlue,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.arrow_downward_rounded,
-                                  size: 16,
-                                  color: CargoSheets.focusBlue,
-                                ),
-                              ],
+              // دکمه «استفاده از اطلاعات من»
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (widget.onUseMyInfoPressed != null) {
+                          widget.onUseMyInfoPressed!();
+                        } else {
+                          widget.nameController.text = userName;
+                          widget.phoneController.text = userPhone;
+                        }
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F4F9),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'cargo.use_my_info'.tr(),
+                            style: const TextStyle(
+                              color: CargoSheets.focusBlue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.arrow_downward_rounded,
+                            size: 16,
+                            color: CargoSheets.focusBlue,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-
-                    // 🟢 ۳. ورودی‌ها
-                    CargoSheets._buildField(
-                      controller: widget.nameController,
-                      label: 'cargo.sender_fullname'.tr(),
-                      errorText: nameError,
-                    ),
-                    const SizedBox(height: 16),
-
-                    CargoSheets._buildField(
-                      controller: widget.phoneController,
-                      label: 'cargo.phone'.tr(),
-                      keyboardType: TextInputType.phone,
-                      errorText: phoneError,
-                    ),
-                    const SizedBox(height: 16),
-
-                    CargoSheets._buildField(
-                      controller: widget.addressController,
-                      label: 'cargo.origin_address_label'.tr(),
-                      readOnly: true,
-                      suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: CargoSheets.labelGrey),
-                    ),
-                    const SizedBox(height: 16),
-
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: CargoSheets._buildField(
-                            controller: widget.floorController,
-                            label: 'cargo.plaque'.tr(),
-                            errorText: floorError,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CargoSheets._buildField(
-                            controller: widget.unitController,
-                            label: 'cargo.unit'.tr(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    CargoSheets._buildField(
-                      controller: widget.noteController,
-                      label: 'cargo.description_optional'.tr(),
-                      textInputAction: TextInputAction.done,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // 🟢 ۴. دکمه ثابت «تایید و ادامه» چسبیده به بالای کیبورد بدون تکان و لرزش
-            Padding(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 8,
-                bottom: isKeyboardOpen
-                    ? keyboardHeight + 12
-                    : MediaQuery.of(context).padding.bottom + 12,
-              ),
-              child: SizedBox(
-                height: 48,
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1BAB58),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: _validateAndSubmit,
-                  child: Text(
-                    'cargo.confirm_continue'.tr(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // ورودی‌ها
+              CargoSheets._buildField(
+                controller: widget.nameController,
+                label: 'cargo.sender_fullname'.tr(),
+                errorText: nameError,
+              ),
+              const SizedBox(height: 16),
+
+              CargoSheets._buildField(
+                controller: widget.phoneController,
+                label: 'cargo.phone'.tr(),
+                keyboardType: TextInputType.phone,
+                errorText: phoneError,
+              ),
+              const SizedBox(height: 16),
+
+              CargoSheets._buildField(
+                controller: widget.addressController,
+                label: 'cargo.origin_address_label'.tr(),
+                readOnly: true,
+                suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: CargoSheets.labelGrey),
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: CargoSheets._buildField(
+                      controller: widget.floorController,
+                      label: 'cargo.plaque'.tr(),
+                      errorText: floorError,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CargoSheets._buildField(
+                      controller: widget.unitController,
+                      label: 'cargo.unit'.tr(),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              CargoSheets._buildField(
+                controller: widget.noteController,
+                label: 'cargo.description_optional'.tr(),
+                textInputAction: TextInputAction.done,
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 8,
+          bottom: MediaQuery.of(context).padding.bottom + 8,
+        ),
+        child: SizedBox(
+          height: 48,
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1BAB58),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
             ),
-          ],
+            onPressed: _validateAndSubmit,
+            child: Text(
+              'cargo.confirm_continue'.tr(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// 🏢 ویجت اختصاصی اطلاعات گیرنده
+/// 🏢 ویجت اطلاعات گیرنده
 class _ReceiverDialogContent extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController phoneController;
@@ -770,175 +756,164 @@ class _ReceiverDialogContentState extends State<_ReceiverDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final bool isKeyboardOpen = keyboardHeight > 0;
-
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 16,
-                  bottom: isKeyboardOpen ? keyboardHeight + 80 : 24,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                          onPressed: () => Navigator.pop(context),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'cargo.receiver_details_title'.tr(),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Directionality.of(context) == TextDirection.rtl
+                          ? Icons.arrow_back_rtl
+                          : Icons.arrow_back,
+                      color: AppColors.textPrimary,
                     ),
-                    const SizedBox(height: 20),
-
-                    CargoSheets._buildField(
-                      controller: widget.nameController,
-                      label: 'cargo.receiver_fullname'.tr(),
-                      errorText: nameError,
-                    ),
-                    const SizedBox(height: 16),
-
-                    CargoSheets._buildField(
-                      controller: widget.phoneController,
-                      label: 'cargo.receiver_phone'.tr(),
-                      keyboardType: TextInputType.phone,
-                      errorText: phoneError,
-                    ),
-                    const SizedBox(height: 16),
-
-                    CargoSheets._buildField(
-                      controller: widget.addressController,
-                      label: 'cargo.destination_address_label'.tr(),
-                      readOnly: true,
-                      suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: CargoSheets.labelGrey),
-                    ),
-                    const SizedBox(height: 16),
-
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: CargoSheets._buildField(
-                            controller: widget.floorController,
-                            label: 'cargo.plaque'.tr(),
-                            errorText: floorError,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CargoSheets._buildField(
-                            controller: widget.unitController,
-                            label: 'cargo.unit'.tr(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    CargoSheets._buildField(
-                      controller: widget.noteController,
-                      label: 'cargo.delivery_note'.tr(),
-                      textInputAction: TextInputAction.done,
-                    ),
-                    const SizedBox(height: 16),
-
-                    CargoSheets._buildDropdownField(
-                      label: 'cargo.cargo_type'.tr(),
-                      value: currentPackage,
-                      items: [
-                        'cargo.type_other'.tr(),
-                        'cargo.type_home_furniture'.tr(),
-                        'cargo.type_office_furniture'.tr(),
-                        'cargo.type_goods_food'.tr(),
-                      ],
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() {
-                            currentPackage = val;
-                          });
-                          widget.onPackageTypeChanged(val);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    CargoSheets._buildDropdownField(
-                      label: 'cargo.insurance_amount'.tr(),
-                      value: currentInsurance,
-                      items: [
-                        'cargo.insurance_50k'.tr(),
-                        'cargo.insurance_100k'.tr(),
-                        'cargo.insurance_500k'.tr(),
-                        'cargo.no_insurance'.tr(),
-                      ],
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() {
-                            currentInsurance = val;
-                          });
-                          widget.onInsuranceChanged(val);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 8,
-                bottom: isKeyboardOpen
-                    ? keyboardHeight + 12
-                    : MediaQuery.of(context).padding.bottom + 12,
-              ),
-              child: SizedBox(
-                height: 48,
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1BAB58),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
-                  onPressed: _validateAndSubmit,
-                  child: Text(
-                    'cargo.confirm_continue'.tr(),
+                  const SizedBox(width: 12),
+                  Text(
+                    'cargo.receiver_details_title'.tr(),
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              CargoSheets._buildField(
+                controller: widget.nameController,
+                label: 'cargo.receiver_fullname'.tr(),
+                errorText: nameError,
+              ),
+              const SizedBox(height: 16),
+
+              CargoSheets._buildField(
+                controller: widget.phoneController,
+                label: 'cargo.receiver_phone'.tr(),
+                keyboardType: TextInputType.phone,
+                errorText: phoneError,
+              ),
+              const SizedBox(height: 16),
+
+              CargoSheets._buildField(
+                controller: widget.addressController,
+                label: 'cargo.destination_address_label'.tr(),
+                readOnly: true,
+                suffixIcon: const Icon(Icons.edit_outlined, size: 20, color: CargoSheets.labelGrey),
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: CargoSheets._buildField(
+                      controller: widget.floorController,
+                      label: 'cargo.plaque'.tr(),
+                      errorText: floorError,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CargoSheets._buildField(
+                      controller: widget.unitController,
+                      label: 'cargo.unit'.tr(),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              CargoSheets._buildField(
+                controller: widget.noteController,
+                label: 'cargo.delivery_note'.tr(),
+                textInputAction: TextInputAction.done,
+              ),
+              const SizedBox(height: 16),
+
+              CargoSheets._buildDropdownField(
+                label: 'cargo.cargo_type'.tr(),
+                value: currentPackage,
+                items: [
+                  'cargo.type_other'.tr(),
+                  'cargo.type_home_furniture'.tr(),
+                  'cargo.type_office_furniture'.tr(),
+                  'cargo.type_goods_food'.tr(),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() {
+                      currentPackage = val;
+                    });
+                    widget.onPackageTypeChanged(val);
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+
+              CargoSheets._buildDropdownField(
+                label: 'cargo.insurance_amount'.tr(),
+                value: currentInsurance,
+                items: [
+                  'cargo.insurance_50k'.tr(),
+                  'cargo.insurance_100k'.tr(),
+                  'cargo.insurance_500k'.tr(),
+                  'cargo.no_insurance'.tr(),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() {
+                      currentInsurance = val;
+                    });
+                    widget.onInsuranceChanged(val);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 8,
+          bottom: MediaQuery.of(context).padding.bottom + 8,
+        ),
+        child: SizedBox(
+          height: 48,
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1BAB58),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            onPressed: _validateAndSubmit,
+            child: Text(
+              'cargo.confirm_continue'.tr(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
