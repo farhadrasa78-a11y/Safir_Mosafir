@@ -632,5 +632,10 @@
   "month_qaws": "قوس",
   "month_jady": "جدی",
   "month_dalwa": "دلو",
-  "month_hoot": "حوت"
+  "month_hoot": "حوت",
+  "chat_driver_default_name": "راننده سفیر",
+  "chat_safir_driver_label": "راننده سفیر",
+  "chat_no_messages_yet": "هنوز پیامی ارسال نشده است",
+  "chat_type_message_hint": "پیام خود را بنویسید..."
+
 }
