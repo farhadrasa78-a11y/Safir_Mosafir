@@ -632,5 +632,10 @@
   "month_qaws": "Qaws (Nov-Dec)",
   "month_jady": "Jady (Dec-Jan)",
   "month_dalwa": "Dalwa (Jan-Feb)",
-  "month_hoot": "Hoot (Feb-Mar)"
+  "month_hoot": "Hoot (Feb-Mar)",
+  "driver_default_name": "Safir Driver",
+  "safir_driver_label": "Safir Driver",
+  "no_messages_yet": "No messages yet",
+  "type_message_hint": "Type a message..."
+
 }
