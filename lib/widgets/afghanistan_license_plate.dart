@@ -18,7 +18,7 @@ class AfghanistanLicensePlate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // اگر شماره فارسی خالی باشد، از شماره انگلیسی استفاده می‌کند و بالعکس
+    // انتخاب شماره پلاک (ترجیحاً شماره فارسی و در غیر این صورت انگلیسی)
     final String displayNum = farsiNumber.isNotEmpty
         ? farsiNumber
         : (englishNumber.isNotEmpty ? englishNumber : "---");
@@ -27,9 +27,7 @@ class AfghanistanLicensePlate extends StatelessWidget {
     final String displayCategory = categoryLetter.isNotEmpty ? categoryLetter : "ش";
 
     return Container(
-      width: 140,
-      height: 38,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xFFFAFAFA),
         borderRadius: BorderRadius.circular(6),
@@ -45,59 +43,90 @@ class AfghanistanLicensePlate extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // سمت چپ: نوع کتبی (شخصی / موقت)
-          Text(
-            isTemporary ? "موقت" : "شخصی",
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.redAccent,
-            ),
-          ),
-
-          // وسط: شماره پلاک (درشت و خوانا)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              displayNum,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-                color: Colors.black,
-                letterSpacing: 0.8,
-              ),
-            ),
-          ),
-
-          // سمت راست: دسته و ولایت (مثلاً: کابل - ش)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                displayCategory,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+      child: isTemporary
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "موقت",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.redAccent,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 3),
-              Text(
-                displayProvince,
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                const SizedBox(width: 8),
+                Text(
+                  displayNum,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                    letterSpacing: 0.8,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
+              ],
+            )
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAlignment.center,
+              children: [
+                // سمت راست (در حالت RTL سمت چپ): حرف دسته (مثلاً «ش»)
+                Text(
+                  displayCategory,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.redAccent,
+                  ),
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6),
+                  child: Text(
+                    "-",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                // مرکز: شماره پلاک
+                Text(
+                  displayNum,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6),
+                  child: Text(
+                    "-",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                // سمت چپ (در حالت RTL سمت راست): نام ولایت (متغیر)
+                Text(
+                  displayProvince,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
