@@ -47,7 +47,7 @@ class AfghanistanLicensePlate extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // سمت چپ: نوع کتبی (شخصی / موقت)
           Text(
