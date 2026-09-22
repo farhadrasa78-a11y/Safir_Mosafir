@@ -105,7 +105,6 @@ class MapBottomSheets {
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-
                     Container(
                       width: 42,
                       height: 5,
@@ -114,14 +113,11 @@ class MapBottomSheets {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     _buildTabs(
                       selectedCategory: selectedCategory,
                       onCategoryChanged: onCategoryChanged,
                     ),
-
                     Expanded(
                       child: PageView(
                         key: ValueKey(selectedCategory),
@@ -135,12 +131,7 @@ class MapBottomSheets {
                         children: [
                           ListView(
                             controller: scrollController,
-                            padding: const EdgeInsets.fromLTRB(
-                              16,
-                              12,
-                              16,
-                              12,
-                            ),
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                             children: [
                               _buildVehicleCard(
                                 title: 'vehicle_eco_title'.tr(),
@@ -173,15 +164,9 @@ class MapBottomSheets {
                               ),
                             ],
                           ),
-
                           ListView(
                             controller: scrollController,
-                            padding: const EdgeInsets.fromLTRB(
-                              16,
-                              12,
-                              16,
-                              12,
-                            ),
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                             children: [
                               _buildVehicleCard(
                                 title: 'vehicle_bike_title'.tr(),
@@ -202,7 +187,6 @@ class MapBottomSheets {
                         ],
                       ),
                     ),
-
                     Container(
                       padding: EdgeInsets.fromLTRB(
                         16,
@@ -232,7 +216,10 @@ class MapBottomSheets {
                                 child: _buildOptionButton(
                                   title: 'opt_ride_options'.tr(),
                                   isActive: hasActiveTripOptions,
-                                  onTap: onTripOptionsTap,
+                                  onTap: () {
+                                    HapticFeedback.lightImpact();
+                                    onTripOptionsTap();
+                                  },
                                 ),
                               ),
                               Container(
@@ -244,7 +231,10 @@ class MapBottomSheets {
                                 child: _buildOptionButton(
                                   title: 'opt_schedule'.tr(),
                                   isActive: isScheduled,
-                                  onTap: onScheduleTap,
+                                  onTap: () {
+                                    HapticFeedback.lightImpact();
+                                    onScheduleTap();
+                                  },
                                 ),
                               ),
                               Container(
@@ -256,7 +246,10 @@ class MapBottomSheets {
                                 child: _buildOptionButton(
                                   title: 'opt_promo_code'.tr(),
                                   isActive: hasPromoCode,
-                                  onTap: onPromoCodeTap,
+                                  onTap: () {
+                                    HapticFeedback.lightImpact();
+                                    onPromoCodeTap();
+                                  },
                                 ),
                               ),
                             ],
@@ -279,7 +272,7 @@ class MapBottomSheets {
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -356,7 +349,7 @@ class MapBottomSheets {
                       'searching_driver_msg'.tr(),
                       style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
@@ -388,7 +381,7 @@ class MapBottomSheets {
                   'new_bid_offer'.tr(),
                   style: const TextStyle(
                     color: AppColors.primaryBrand,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
@@ -398,7 +391,7 @@ class MapBottomSheets {
                 'opt_ride_options'.tr(),
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -468,7 +461,7 @@ class MapBottomSheets {
                     '${fareAmount.toStringAsFixed(0)} $currency',
                     style: const TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
                   ),
@@ -513,7 +506,7 @@ class MapBottomSheets {
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -524,7 +517,7 @@ class MapBottomSheets {
     );
   }
 
-  // 🔴 دیالوگ دلایل لغو
+  // 🔴 دیالوگ دلایل لغو (پردازش فوق سریع)
   static void _showCancelReasonDialog(
     BuildContext context,
     VoidCallback onConfirmCancel, {
@@ -570,14 +563,25 @@ class MapBottomSheets {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Center(
+                    child: Container(
+                      width: 38,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'cancel_request_title'.tr(),
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -638,32 +642,43 @@ class MapBottomSheets {
                           ),
                           onPressed: selectedReasonKey == null
                               ? null
-                              : () async {
+                              : () {
                                   HapticFeedback.mediumImpact();
-
-                                  if (currentRideId != null &&
-                                      currentRideId.isNotEmpty) {
-                                    await FirebaseFirestore.instance
-                                        .collection('rides')
-                                        .doc(currentRideId)
-                                        .update({
-                                      'status': 'cancelled',
-                                      'cancelReason': selectedReasonKey,
-                                    });
-                                  }
-
+                                  
+                                  // ⚡ اجرای سریع بدون وقفه
                                   if (context.mounted) {
                                     Navigator.pop(context);
                                   }
-
                                   onConfirmCancel();
+
+                                  if (currentRideId != null && currentRideId.isNotEmpty) {
+                                    WriteBatch batch = FirebaseFirestore.instance.batch();
+                                    DocumentReference rideRef = FirebaseFirestore.instance.collection('rides').doc(currentRideId);
+                                    
+                                    batch.update(rideRef, {
+                                      'status': 'cancelled_by_passenger',
+                                      'cancelReason': selectedReasonKey,
+                                      'cancelledAt': FieldValue.serverTimestamp(),
+                                    });
+
+                                    // گزارش ادمین
+                                    DocumentReference adminReportRef = FirebaseFirestore.instance.collection('reports').doc();
+                                    batch.set(adminReportRef, {
+                                      'tripId': currentRideId,
+                                      'type': 'cancellation',
+                                      'reason': selectedReasonKey,
+                                      'timestamp': FieldValue.serverTimestamp(),
+                                    });
+
+                                    batch.commit();
+                                  }
                                 },
                           child: Text(
                             'confirm_cancel_btn'.tr(),
                             style: const TextStyle(
                               color: Colors.red,
                               fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -676,7 +691,7 @@ class MapBottomSheets {
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -691,9 +706,118 @@ class MapBottomSheets {
     );
   }
 
-  // 🚕 مرحله ۴: پذیرفته شدن سفر توسط راننده
+  // 💳 شیت اختصاصی و مدرن تسویه حساب
+  static void _showPaymentSheet(BuildContext context, String tripId, dynamic amount) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Icon(Icons.account_balance_wallet_rounded, size: 48, color: AppColors.primaryBrand),
+              const SizedBox(height: 12),
+              Text(
+                'تسویه حساب سفر',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'مبلغ قابل پرداخت: $amount افغانی',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryBrand),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber.shade200),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'در صورت عدم پرداخت، این مبلغ به عنوان بدهکاری در حساب شما ثبت شده و سفر بعدی شما قفل خواهد شد.',
+                        style: TextStyle(fontSize: 12, color: Colors.black87),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBrand,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    if (tripId.isNotEmpty) {
+                      WriteBatch batch = FirebaseFirestore.instance.batch();
+                      DocumentReference rideRef = FirebaseFirestore.instance.collection('rides').doc(tripId);
+                      
+                      batch.update(rideRef, {
+                        'paymentStatus': 'paid',
+                        'status': 'completed',
+                        'paidAmount': amount,
+                        'paidAt': FieldValue.serverTimestamp(),
+                      });
+
+                      // ثبت تراکنش مال
+                      DocumentReference transRef = FirebaseFirestore.instance.collection('transactions').doc();
+                      batch.set(transRef, {
+                        'tripId': tripId,
+                        'amount': amount,
+                        'status': 'success',
+                        'timestamp': FieldValue.serverTimestamp(),
+                      });
+
+                      await batch.commit();
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('تسویه حساب با موفقیت انجام شد.')),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text(
+                    'تایید و پرداخت نقدی',
+                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // 🚕 مرحله ۴: پذیرفته شدن سفر توسط راننده + لغو سفر و پرداخت هوشمند
   static Widget buildStep4(
     Color safirColor, {
+    String tripId = '',
     String carColorDriver = '',
     dynamic tripFareAmount = 0,
     String plateProvinceDriver = '',
@@ -705,6 +829,7 @@ class MapBottomSheets {
     String carDetailsDriver = '',
     String photoDriver = '',
     String phoneNumberDriver = '',
+    VoidCallback? onCancelTrip,
   }) {
     return Positioned(
       bottom: 0,
@@ -713,54 +838,77 @@ class MapBottomSheets {
       child: Builder(
         builder: (context) {
           final Map<String, dynamic> driverData = {
-            'full_name': nameDriver.isNotEmpty
-                ? nameDriver
-                : 'default_driver_title'.tr(),
-            'car_model': carDetailsDriver.isNotEmpty
-                ? carDetailsDriver
-                : 'تویوتا کرولا',
-            'car_color': carColorDriver.isNotEmpty
-                ? carColorDriver
-                : 'سفید',
+            'tripId': tripId,
+            'full_name': nameDriver,
+            'car_model': carDetailsDriver,
+            'car_color': carColorDriver,
             'photo': photoDriver,
             'fare_amount': tripFareAmount,
-            'plate_province': plateProvinceDriver.isNotEmpty
-                ? plateProvinceDriver
-                : 'کابل',
-            'plate_category': plateCategoryDriver.isNotEmpty
-                ? plateCategoryDriver
-                : 'ش',
-            'plate_farsi_num': plateFarsiNumDriver.isNotEmpty
-                ? plateFarsiNumDriver
-                : '٤٤٨٩٢',
-            'plate_num': plateNumDriver.isNotEmpty ? plateNumDriver : '44892',
+            'plate_province': plateProvinceDriver,
+            'plate_category': plateCategoryDriver,
+            'plate_farsi_num': plateFarsiNumDriver,
+            'plate_num': plateNumDriver,
             'is_temp_plate': isTempPlateDriver,
           };
 
-          return DriverInfoCard(
-            driverData: driverData,
-            onCallPressed: () {
-              HapticFeedback.lightImpact();
-              if (phoneNumberDriver.isNotEmpty) {
-                launchUrl(Uri.parse('tel:$phoneNumberDriver'));
-              }
-            },
-            onMessagePressed: () {
-              HapticFeedback.lightImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatPage(
-                    tripId: driverData['tripId'] ?? driverData['id'] ?? '',
-                    driverName: nameDriver,
-                    driverPhoto: photoDriver,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 🔴 کشو و دکمه اختصاصی لغو سفر در بالای کارت راننده (۲۴ پیکسل پدینگ)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 42,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.redAccent, width: 1.2),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 2,
+                    ),
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      if (onCancelTrip != null) {
+                        _showCancelReasonDialog(context, onCancelTrip, currentRideId: tripId);
+                      }
+                    },
+                    icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent, size: 18),
+                    label: const Text(
+                      'لغو سفر فعلی',
+                      style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
-              );
-            },
-            onPaymentPressed: () {
-              HapticFeedback.lightImpact();
-            },
+              ),
+
+              DriverInfoCard(
+                driverData: driverData,
+                onCallPressed: () {
+                  HapticFeedback.lightImpact();
+                  if (phoneNumberDriver.isNotEmpty) {
+                    launchUrl(Uri.parse('tel:$phoneNumberDriver'));
+                  }
+                },
+                onMessagePressed: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(
+                        tripId: tripId,
+                        driverName: nameDriver.isNotEmpty ? nameDriver : "راننده سفیر",
+                        driverPhoto: photoDriver,
+                      ),
+                    ),
+                  );
+                },
+                onPaymentPressed: () {
+                  HapticFeedback.mediumImpact();
+                  _showPaymentSheet(context, tripId, tripFareAmount);
+                },
+              ),
+            ],
           );
         },
       ),
@@ -867,7 +1015,7 @@ class MapBottomSheets {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight:
-                    isSelected ? FontWeight.w500 : FontWeight.w400,
+                    isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected
                     ? AppColors.textPrimary
                     : Colors.grey.shade600,
@@ -941,7 +1089,7 @@ class MapBottomSheets {
                           title,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             fontSize: 14,
                             color: AppColors.textPrimary,
                           ),
@@ -973,7 +1121,7 @@ class MapBottomSheets {
             Text(
               price,
               style: const TextStyle(
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontSize: 14,
                 color: AppColors.textPrimary,
               ),
@@ -1001,7 +1149,7 @@ class MapBottomSheets {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             color: isActive
                 ? AppColors.primaryBrand
                 : Colors.grey.shade700,
