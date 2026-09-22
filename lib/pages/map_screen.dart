@@ -175,6 +175,14 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   String selectedVehicle = "Car";
   double _tripDistanceInKm = 0.0;
 
+  // 🔹 متغیرهای ذخیره‌سازی هوشمند اطلاعات راننده و پلاک
+  String _driverPlateProvince = "";
+  String _driverPlateCategory = "";
+  String _driverPlateFarsiNum = "";
+  String _driverPlateNum = "";
+  bool _driverIsTempPlate = false;
+  String _driverCarColor = "";
+
   final List<Map<String, dynamic>> _intercityCities = [
     {'name': 'هرات', 'province': 'هرات', 'lat': 34.3529, 'lng': 62.2040},
     {'name': 'مزار شریف', 'province': 'بلخ', 'lat': 36.7069, 'lng': 67.1108},
@@ -624,6 +632,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     );
   }
 
+  // 🟢 ثبت هوشمندانه و کامل اطلاعات سفر جهت رندر بدون نقص در اپلیکیشن راننده
   void startTrip() async {
     HapticFeedback.heavyImpact();
     
@@ -646,16 +655,34 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     try {
       tripRequestRef = FirebaseFirestore.instance.collection('rides').doc();
 
+      String passengerUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+      String passengerNameVal = FirebaseAuth.instance.currentUser?.displayName ?? 'مسافر سفیر';
+      String passengerPhoneVal = FirebaseAuth.instance.currentUser?.phoneNumber ?? '';
+
+      // ثبت تمام فرمت‌های نام کلیدها جهت خواندن توسط تمام نسخه‌های برنامه راننده
       Map<String, dynamic> passengerTripDetails = {
         'ride_id': tripRequestRef!.id,
         'status': TripStatus.searching,
         'driver_id': 'waiting',
         'createdAt': FieldValue.serverTimestamp(),
         
-        'passenger_id': FirebaseAuth.instance.currentUser?.uid ?? '',
-        'passenger_name': FirebaseAuth.instance.currentUser?.displayName ?? 'مسافر',
-        'passenger_phone': FirebaseAuth.instance.currentUser?.phoneNumber ?? '',
+        // اطلاعات مسافر
+        'passenger_id': passengerUid,
+        'passenger_name': passengerNameVal,
+        'passenger_phone': passengerPhoneVal,
+        'userName': passengerNameVal,
+        'userPhone': passengerPhoneVal,
+        'userRating': '4.8',
         
+        // آدرس‌های متنی مبدأ و مقصد (پوشش کامل کلیدها)
+        'originAddress': appInfo.pickUpLocation!.placeName ?? '',
+        'destinationAddress': appInfo.dropOffLocation!.placeName ?? '',
+        'origin_address': appInfo.pickUpLocation!.placeName ?? '',
+        'destination_address': appInfo.dropOffLocation!.placeName ?? '',
+        'pickup_address': appInfo.pickUpLocation!.placeName ?? '',
+        'dropoff_address': appInfo.dropOffLocation!.placeName ?? '',
+
+        // مختصات جغرافیایی
         'origin': {
           'latitude': appInfo.pickUpLocation!.latitudePosition,
           'longitude': appInfo.pickUpLocation!.longitudePosition,
@@ -664,13 +691,23 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           'latitude': appInfo.dropOffLocation!.latitudePosition,
           'longitude': appInfo.dropOffLocation!.longitudePosition,
         },
-        'origin_address': appInfo.pickUpLocation!.placeName ?? '',
-        'destination_address': appInfo.dropOffLocation!.placeName ?? '',
+        'originLatLng': GeoPoint(
+          appInfo.pickUpLocation!.latitudePosition!,
+          appInfo.pickUpLocation!.longitudePosition!,
+        ),
+        'destinationLatLng': GeoPoint(
+          appInfo.dropOffLocation!.latitudePosition!,
+          appInfo.dropOffLocation!.longitudePosition!,
+        ),
         
-        'fare_amount': actualFareAmount,
+        // جزئیات مال و خودرو
+        'fareAmount': actualFareAmount,
+        'fare': actualFareAmount,
+        'price': actualFareAmount,
+        'distance': _tripDistanceInKm,
+        'duration': _tripDurationText,
         'service_type': widget.serviceType,
         'vehicle_type': selectedVehicle,
-        'trip_duration': _tripDurationText,
       };
 
       await tripRequestRef!.set(passengerTripDetails);
@@ -683,10 +720,18 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
         if (mounted) {
           setState(() {
+            // استخراج کامل و هوشمند داتای راننده و خودرو
             nameDriver = data["driver_name"] ?? data["driverName"] ?? nameDriver;
             phoneNumberDriver = data["driver_phone"] ?? data["driverPhone"] ?? phoneNumberDriver;
             photoDriver = data["driver_photo"] ?? data["driverPhoto"] ?? photoDriver;
-            carDetailsDriver = data["car_details"] ?? data["carDetails"] ?? carDetailsDriver;
+            carDetailsDriver = data["car_details"] ?? data["carModel"] ?? carDetailsDriver;
+
+            _driverCarColor = data["car_color"] ?? data["carColor"] ?? "سفید";
+            _driverPlateProvince = data["plate_province"] ?? "کابل";
+            _driverPlateCategory = data["plate_category"] ?? "ش";
+            _driverPlateFarsiNum = data["plate_farsi_num"] ?? data["plateNumber"] ?? "";
+            _driverPlateNum = data["plate_num"] ?? data["plateNumber"] ?? "";
+            _driverIsTempPlate = data["is_temp_plate"] ?? false;
 
             if (tripStatus == TripStatus.accepted || 
                 tripStatus == TripStatus.arrived || 
@@ -732,7 +777,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                   driverId: data["driver_id"] ?? data["driverId"] ?? "",
                   driverName: nameDriver,
                   carModel: carDetailsDriver,
-                  plateNumber: data["car_number"] ?? data["plateNumber"] ?? "",
+                  plateNumber: _driverPlateFarsiNum.isNotEmpty ? _driverPlateFarsiNum : _driverPlateNum,
                   driverPhoto: photoDriver,
                 ),
               ),
@@ -814,7 +859,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               Text(
                 'ride_for_whom_title'.tr(),
                 style: const TextStyle(
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   fontSize: 14,
                   color: AppColors.textPrimary,
                 ),
@@ -825,7 +870,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 title: Text(
                   'for_myself'.tr(),
                   style: const TextStyle(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                     color: AppColors.textPrimary,
                   ),
@@ -844,7 +889,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 title: Text(
                   'for_someone_else'.tr(),
                   style: const TextStyle(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                     color: AppColors.textPrimary,
                   ),
@@ -1020,7 +1065,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
-          // 🛠️ افزودن Appbar سفارشی در بالای صفحه که از پنهان شدن زیر ساعت و باتری گوشی جلوگیری می‌کند
+          // 🛠️ Appbar سفارشی بالای صفحه
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             left: 16,
@@ -1028,7 +1073,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // دکمه بازگشت/خانه (رنگ آیکن به خاکستری تیره تغییر یافته است)
                 GestureDetector(
                   onTap: _handleBackAction,
                   child: Container(
@@ -1043,7 +1087,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     ),
                     child: Icon(
                       _currentStep == 0 ? Icons.home_rounded : Icons.arrow_back,
-                      color: Colors.grey[700], // 🛠️ تغییر رنگ به خاکستری تیره
+                      color: Colors.grey[700],
                       size: 24,
                     ),
                   ),
@@ -1070,7 +1114,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                             _rideForWhomKey.tr(),
                             style: const TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
                           ),
@@ -1079,7 +1123,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     ),
                   ),
 
-                // دکمه پروفایل/منو (رنگ آیکن به خاکستری تیره تغییر یافته است)
                 GestureDetector(
                   onTap: _showAdvancedProfile,
                   child: Container(
@@ -1098,7 +1141,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                       children: [
                         Icon(
                           Icons.person_outline,
-                          color: Colors.grey[700], // 🛠️ تغییر رنگ به خاکستری تیره
+                          color: Colors.grey[700],
                           size: 26,
                         ),
                         if (_hasNotification)
@@ -1244,20 +1287,23 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               onBidPricePressed: () {},
             ),
 
+          // 🟢 فراخوانی اصلاح‌شده مرحله ۴ با ارسال کامل شناسه سفر، پلاک و مشخصات خودرو
           if (_currentStep == 4)
             MapBottomSheets.buildStep4(
               AppColors.primaryBrand,
+              tripId: tripRequestRef?.id ?? "",
               nameDriver: nameDriver,
               photoDriver: photoDriver,
               phoneNumberDriver: phoneNumberDriver,
               carDetailsDriver: carDetailsDriver,
-              carColorDriver: "", 
-              plateProvinceDriver: "",
-              plateCategoryDriver: "",
-              plateFarsiNumDriver: "",
-              plateNumDriver: "",
-              isTempPlateDriver: false,
+              carColorDriver: _driverCarColor,
+              plateProvinceDriver: _driverPlateProvince,
+              plateCategoryDriver: _driverPlateCategory,
+              plateFarsiNumDriver: _driverPlateFarsiNum,
+              plateNumDriver: _driverPlateNum,
+              isTempPlateDriver: _driverIsTempPlate,
               tripFareAmount: actualFareAmount,
+              onCancelTrip: cancelTrip,
             ),
         ],
       ),
