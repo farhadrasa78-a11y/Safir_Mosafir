@@ -632,5 +632,10 @@
   "month_qaws": "لیندۍ",
   "month_jady": "مرغومی",
   "month_dalwa": "سلواغه",
-  "month_hoot": "کب"
+  "month_hoot": "کب",
+  "chat_driver_default_name": "د سفیر چلوونکی",
+  "chat_safir_driver_label": "د سفیر چلوونکی",
+  "chat_no_messages_yet": "تر اوسه هېڅ پیغام نه دی لېږل شوی",
+  "chat_type_message_hint": "خپل پیغام ولیکئ..."
+
 }
