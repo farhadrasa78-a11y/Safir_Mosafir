@@ -517,7 +517,7 @@ class MapBottomSheets {
     );
   }
 
-  // 🔴 دیالوگ دلایل لغو
+  // 🔴 دیالوگ دلایل لغو آسنکرون و سریع
   static void _showCancelReasonDialog(
     BuildContext context,
     VoidCallback onConfirmCancel, {
@@ -642,7 +642,7 @@ class MapBottomSheets {
                           ),
                           onPressed: selectedReasonKey == null
                               ? null
-                              : () {
+                              : () async {
                                   HapticFeedback.mediumImpact();
                                   if (context.mounted) {
                                     Navigator.pop(context);
@@ -650,24 +650,28 @@ class MapBottomSheets {
                                   onConfirmCancel();
 
                                   if (currentRideId != null && currentRideId.isNotEmpty) {
-                                    WriteBatch batch = FirebaseFirestore.instance.batch();
-                                    DocumentReference rideRef = FirebaseFirestore.instance.collection('rides').doc(currentRideId);
-                                    
-                                    batch.update(rideRef, {
-                                      'status': 'cancelled_by_passenger',
-                                      'cancelReason': selectedReasonKey,
-                                      'cancelledAt': FieldValue.serverTimestamp(),
-                                    });
+                                    try {
+                                      WriteBatch batch = FirebaseFirestore.instance.batch();
+                                      DocumentReference rideRef = FirebaseFirestore.instance.collection('rides').doc(currentRideId);
+                                      
+                                      batch.update(rideRef, {
+                                        'status': 'cancelled_by_passenger',
+                                        'cancelReason': selectedReasonKey,
+                                        'cancelledAt': FieldValue.serverTimestamp(),
+                                      });
 
-                                    DocumentReference adminReportRef = FirebaseFirestore.instance.collection('reports').doc();
-                                    batch.set(adminReportRef, {
-                                      'tripId': currentRideId,
-                                      'type': 'cancellation',
-                                      'reason': selectedReasonKey,
-                                      'timestamp': FieldValue.serverTimestamp(),
-                                    });
+                                      DocumentReference adminReportRef = FirebaseFirestore.instance.collection('reports').doc();
+                                      batch.set(adminReportRef, {
+                                        'tripId': currentRideId,
+                                        'type': 'cancellation',
+                                        'reason': selectedReasonKey,
+                                        'timestamp': FieldValue.serverTimestamp(),
+                                      });
 
-                                    batch.commit();
+                                      await batch.commit();
+                                    } catch (e) {
+                                      debugPrint("Error cancelling trip: $e");
+                                    }
                                   }
                                 },
                           child: Text(
@@ -810,7 +814,7 @@ class MapBottomSheets {
     );
   }
 
-  // 🚕 مرحله ۴: کشوی انیمیشن‌دار (موقع کشیدن به بالا دکمه لغو در زیر پرداخت ظاهر می‌شود)
+  // 🚕 مرحله ۴: پذیرش راننده و اطلاعات سفر
   static Widget buildStep4(
     Color safirColor, {
     String tripId = '',
@@ -830,14 +834,14 @@ class MapBottomSheets {
     return DraggableScrollableSheet(
       initialChildSize: 0.38,
       minChildSize: 0.38,
-      maxChildSize: 0.52,
+      maxChildSize: 0.55,
       snap: true,
       builder: (context, scrollController) {
-        // استخراج پوششی مقادیر پلاک
+        // مپ جامع داده‌های راننده جهت نمایش دقیق در DriverInfoCard
         final Map<String, dynamic> driverData = {
           'tripId': tripId,
-          'full_name': nameDriver,
-          'car_model': carDetailsDriver,
+          'full_name': nameDriver.isNotEmpty ? nameDriver : "راننده سفیر",
+          'car_model': carDetailsDriver.isNotEmpty ? carDetailsDriver : "خودرو سفیر",
           'car_color': carColorDriver.isNotEmpty ? carColorDriver : 'سفید',
           'photo': photoDriver,
           'fare_amount': tripFareAmount,
@@ -876,6 +880,7 @@ class MapBottomSheets {
                 ),
               ),
 
+              // کارت اطلاعات راننده (شامل دکمه‌های تماس، چت و پرداخت)
               DriverInfoCard(
                 driverData: driverData,
                 onCallPressed: () {
@@ -903,9 +908,9 @@ class MapBottomSheets {
                 },
               ),
 
-              // 🔴 دکمه لغو سفر (در زیر کلید پرداخت و کشوی قابل اسکرول بالا)
+              // 🔴 دکمه لغو سفر فعلی (زیر دکمه پرداخت و با قابلیت مشاهده با انیمیشن کشیدن شیت)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
                 child: SizedBox(
                   width: double.infinity,
                   height: 46,
