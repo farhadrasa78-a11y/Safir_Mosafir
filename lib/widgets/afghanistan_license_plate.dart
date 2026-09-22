@@ -3,28 +3,36 @@ import 'package:flutter/material.dart';
 class AfghanistanLicensePlate extends StatelessWidget {
   final String province;
   final String categoryLetter;
-  final String englishNumber;
   final String farsiNumber;
+  final String englishNumber;
   final bool isTemporary;
 
   const AfghanistanLicensePlate({
     super.key,
     this.province = "کابل",
     this.categoryLetter = "ش",
-    required this.englishNumber,
     required this.farsiNumber,
+    this.englishNumber = "",
     this.isTemporary = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    // اگر شماره فارسی خالی باشد، از شماره انگلیسی استفاده می‌کند و بالعکس
+    final String displayNum = farsiNumber.isNotEmpty
+        ? farsiNumber
+        : (englishNumber.isNotEmpty ? englishNumber : "---");
+
+    final String displayProvince = province.isNotEmpty ? province : "کابل";
+    final String displayCategory = categoryLetter.isNotEmpty ? categoryLetter : "ش";
+
     return Container(
-      width: 132,
-      height: 43,
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      width: 140,
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xFFFAFAFA),
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: Colors.black87,
           width: 1.5,
@@ -37,87 +45,53 @@ class AfghanistanLicensePlate extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAlignment.center,
         children: [
-          // ردیف بالایی
+          // سمت چپ: نوع کتبی (شخصی / موقت)
+          Text(
+            isTemporary ? "موقت" : "شخصی",
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.redAccent,
+            ),
+          ),
+
+          // وسط: شماره پلاک (درشت و خوانا)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              displayNum,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: Colors.black,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ),
+
+          // سمت راست: دسته و ولایت (مثلاً: کابل - ش)
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(
-                child: Text(
-                  province,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-
               Text(
-                farsiNumber,
+                displayCategory,
                 style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.black,
-                  letterSpacing: 0.5,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
-
+              const SizedBox(width: 3),
               Text(
-                categoryLetter,
+                displayProvince,
                 style: const TextStyle(
                   fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 1),
-
-          // خط وسط
-          const Divider(
-            height: 1,
-            thickness: 0.7,
-            color: Colors.black54,
-          ),
-
-          const SizedBox(height: 1),
-
-          // ردیف پایینی
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                isTemporary ? "موقت" : "شخصی",
-                style: const TextStyle(
-                  fontSize: 7.5,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.redAccent,
-                ),
-              ),
-
-              Text(
-                englishNumber,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  letterSpacing: 1.2,
-                ),
-              ),
-
-              const Text(
-                "AFG",
-                style: TextStyle(
-                  fontSize: 7,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
               ),
             ],
