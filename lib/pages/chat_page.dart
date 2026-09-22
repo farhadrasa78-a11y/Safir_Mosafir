@@ -85,14 +85,14 @@ class _ChatPageState extends State<ChatPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.driverName.isNotEmpty ? widget.driverName : "driver_title".tr(),
+                  widget.driverName.isNotEmpty ? widget.driverName : "chat_driver_default_name".tr(),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  "safir_driver_label".tr(),
+                  "chat_safir_driver_label".tr(),
                   style: const TextStyle(
                     fontSize: 11,
                     color: Colors.white70,
@@ -129,7 +129,7 @@ class _ChatPageState extends State<ChatPage> {
                         Icon(Icons.chat_bubble_outline_rounded, size: 48, color: Colors.grey.shade400),
                         const SizedBox(height: 12),
                         Text(
-                          "no_messages_yet".tr(),
+                          "chat_no_messages_yet".tr(),
                           style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                         ),
                       ],
@@ -228,7 +228,7 @@ class _ChatPageState extends State<ChatPage> {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => sendMessage(),
                       decoration: InputDecoration(
-                        hintText: "type_a_message_hint".tr(),
+                        hintText: "chat_type_message_hint".tr(),
                         hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
