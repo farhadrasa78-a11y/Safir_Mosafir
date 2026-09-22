@@ -632,7 +632,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     );
   }
 
-  // 🟢 ثبت هوشمندانه و کامل اطلاعات سفر جهت رندر بدون نقص در اپلیکیشن راننده
   void startTrip() async {
     HapticFeedback.heavyImpact();
     
@@ -659,14 +658,12 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       String passengerNameVal = FirebaseAuth.instance.currentUser?.displayName ?? 'مسافر سفیر';
       String passengerPhoneVal = FirebaseAuth.instance.currentUser?.phoneNumber ?? '';
 
-      // ثبت تمام فرمت‌های نام کلیدها جهت خواندن توسط تمام نسخه‌های برنامه راننده
       Map<String, dynamic> passengerTripDetails = {
         'ride_id': tripRequestRef!.id,
         'status': TripStatus.searching,
         'driver_id': 'waiting',
         'createdAt': FieldValue.serverTimestamp(),
         
-        // اطلاعات مسافر
         'passenger_id': passengerUid,
         'passenger_name': passengerNameVal,
         'passenger_phone': passengerPhoneVal,
@@ -674,7 +671,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         'userPhone': passengerPhoneVal,
         'userRating': '4.8',
         
-        // آدرس‌های متنی مبدأ و مقصد (پوشش کامل کلیدها)
         'originAddress': appInfo.pickUpLocation!.placeName ?? '',
         'destinationAddress': appInfo.dropOffLocation!.placeName ?? '',
         'origin_address': appInfo.pickUpLocation!.placeName ?? '',
@@ -682,7 +678,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         'pickup_address': appInfo.pickUpLocation!.placeName ?? '',
         'dropoff_address': appInfo.dropOffLocation!.placeName ?? '',
 
-        // مختصات جغرافیایی
         'origin': {
           'latitude': appInfo.pickUpLocation!.latitudePosition,
           'longitude': appInfo.pickUpLocation!.longitudePosition,
@@ -700,7 +695,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           appInfo.dropOffLocation!.longitudePosition!,
         ),
         
-        // جزئیات مال و خودرو
         'fareAmount': actualFareAmount,
         'fare': actualFareAmount,
         'price': actualFareAmount,
@@ -720,7 +714,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
         if (mounted) {
           setState(() {
-            // استخراج کامل و هوشمند داتای راننده و خودرو
             nameDriver = data["driver_name"] ?? data["driverName"] ?? nameDriver;
             phoneNumberDriver = data["driver_phone"] ?? data["driverPhone"] ?? phoneNumberDriver;
             photoDriver = data["driver_photo"] ?? data["driverPhoto"] ?? photoDriver;
@@ -833,80 +826,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         }
       });
     }
-  }
-
-  void _showRideForWhomSheet() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                'ride_for_whom_title'.tr(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 15),
-              ListTile(
-                leading: const Icon(Icons.person, color: AppColors.primaryBrand),
-                title: Text(
-                  'for_myself'.tr(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                trailing: _rideForWhomKey == "for_myself"
-                    ? const Icon(Icons.check_circle, color: AppColors.success)
-                    : null,
-                onTap: () {
-                  setState(() => _rideForWhomKey = "for_myself");
-                  Navigator.pop(context);
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.group_outlined, color: Colors.orange),
-                title: Text(
-                  'for_someone_else'.tr(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                trailing: _rideForWhomKey == "for_someone_else"
-                    ? const Icon(Icons.check_circle, color: AppColors.success)
-                    : null,
-                onTap: () {
-                  setState(() => _rideForWhomKey = "for_someone_else");
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   void _showAdvancedProfile() {
@@ -1065,7 +984,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
-          // 🛠️ Appbar سفارشی بالای صفحه
+          // Appbar بالای صفحه
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             left: 16,
@@ -1092,36 +1011,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     ),
                   ),
                 ),
-
-                if (_currentStep < 2)
-                  GestureDetector(
-                    onTap: _showRideForWhomSheet,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.keyboard_arrow_down, size: 20, color: AppColors.textPrimary),
-                          const SizedBox(width: 4),
-                          Text(
-                            _rideForWhomKey.tr(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
 
                 GestureDetector(
                   onTap: _showAdvancedProfile,
@@ -1287,7 +1176,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               onBidPricePressed: () {},
             ),
 
-          // 🟢 فراخوانی اصلاح‌شده مرحله ۴ با ارسال کامل شناسه سفر، پلاک و مشخصات خودرو
           if (_currentStep == 4)
             MapBottomSheets.buildStep4(
               AppColors.primaryBrand,
