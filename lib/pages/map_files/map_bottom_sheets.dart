@@ -517,7 +517,7 @@ class MapBottomSheets {
     );
   }
 
-  // 🔴 دیالوگ دلایل لغو (پردازش فوق سریع)
+  // 🔴 دیالوگ دلایل لغو
   static void _showCancelReasonDialog(
     BuildContext context,
     VoidCallback onConfirmCancel, {
@@ -644,8 +644,6 @@ class MapBottomSheets {
                               ? null
                               : () {
                                   HapticFeedback.mediumImpact();
-                                  
-                                  // ⚡ اجرای سریع بدون وقفه
                                   if (context.mounted) {
                                     Navigator.pop(context);
                                   }
@@ -661,7 +659,6 @@ class MapBottomSheets {
                                       'cancelledAt': FieldValue.serverTimestamp(),
                                     });
 
-                                    // گزارش ادمین
                                     DocumentReference adminReportRef = FirebaseFirestore.instance.collection('reports').doc();
                                     batch.set(adminReportRef, {
                                       'tripId': currentRideId,
@@ -706,7 +703,7 @@ class MapBottomSheets {
     );
   }
 
-  // 💳 شیت اختصاصی و مدرن تسویه حساب
+  // 💳 شیت تسویه حساب
   static void _showPaymentSheet(BuildContext context, String tripId, dynamic amount) {
     showModalBottomSheet(
       context: context,
@@ -731,9 +728,9 @@ class MapBottomSheets {
               const SizedBox(height: 16),
               const Icon(Icons.account_balance_wallet_rounded, size: 48, color: AppColors.primaryBrand),
               const SizedBox(height: 12),
-              Text(
+              const Text(
                 'تسویه حساب سفر',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
@@ -783,7 +780,6 @@ class MapBottomSheets {
                         'paidAt': FieldValue.serverTimestamp(),
                       });
 
-                      // ثبت تراکنش مال
                       DocumentReference transRef = FirebaseFirestore.instance.collection('transactions').doc();
                       batch.set(transRef, {
                         'tripId': tripId,
@@ -814,7 +810,7 @@ class MapBottomSheets {
     );
   }
 
-  // 🚕 مرحله ۴: پذیرفته شدن سفر توسط راننده + لغو سفر و پرداخت هوشمند
+  // 🚕 مرحله ۴: کشوی انیمیشن‌دار (موقع کشیدن به بالا دکمه لغو در زیر پرداخت ظاهر می‌شود)
   static Widget buildStep4(
     Color safirColor, {
     String tripId = '',
@@ -831,53 +827,51 @@ class MapBottomSheets {
     String phoneNumberDriver = '',
     VoidCallback? onCancelTrip,
   }) {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Builder(
-        builder: (context) {
-          final Map<String, dynamic> driverData = {
-            'tripId': tripId,
-            'full_name': nameDriver,
-            'car_model': carDetailsDriver,
-            'car_color': carColorDriver,
-            'photo': photoDriver,
-            'fare_amount': tripFareAmount,
-            'plate_province': plateProvinceDriver,
-            'plate_category': plateCategoryDriver,
-            'plate_farsi_num': plateFarsiNumDriver,
-            'plate_num': plateNumDriver,
-            'is_temp_plate': isTempPlateDriver,
-          };
+    return DraggableScrollableSheet(
+      initialChildSize: 0.38,
+      minChildSize: 0.38,
+      maxChildSize: 0.52,
+      snap: true,
+      builder: (context, scrollController) {
+        // استخراج پوششی مقادیر پلاک
+        final Map<String, dynamic> driverData = {
+          'tripId': tripId,
+          'full_name': nameDriver,
+          'car_model': carDetailsDriver,
+          'car_color': carColorDriver.isNotEmpty ? carColorDriver : 'سفید',
+          'photo': photoDriver,
+          'fare_amount': tripFareAmount,
+          'plate_province': plateProvinceDriver.isNotEmpty ? plateProvinceDriver : 'کابل',
+          'plate_category': plateCategoryDriver.isNotEmpty ? plateCategoryDriver : 'ش',
+          'plate_farsi_num': plateFarsiNumDriver.isNotEmpty ? plateFarsiNumDriver : plateNumDriver,
+          'plate_num': plateNumDriver,
+          'is_temp_plate': isTempPlateDriver,
+        };
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 15,
+                offset: Offset(0, -3),
+              ),
+            ],
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding: EdgeInsets.zero,
             children: [
-              // 🔴 کشو و دکمه اختصاصی لغو سفر در بالای کارت راننده (۲۴ پیکسل پدینگ)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 42,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.redAccent, width: 1.2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 2,
-                    ),
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      if (onCancelTrip != null) {
-                        _showCancelReasonDialog(context, onCancelTrip, currentRideId: tripId);
-                      }
-                    },
-                    icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent, size: 18),
-                    label: const Text(
-                      'لغو سفر فعلی',
-                      style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w600),
-                    ),
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 10, bottom: 4),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -908,17 +902,41 @@ class MapBottomSheets {
                   _showPaymentSheet(context, tripId, tripFareAmount);
                 },
               ),
+
+              // 🔴 دکمه لغو سفر (در زیر کلید پرداخت و کشوی قابل اسکرول بالا)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.red.shade50,
+                      side: const BorderSide(color: Colors.redAccent, width: 1.2),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      if (onCancelTrip != null) {
+                        _showCancelReasonDialog(context, onCancelTrip, currentRideId: tripId);
+                      }
+                    },
+                    icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent, size: 20),
+                    label: const Text(
+                      'لغو سفر فعلی',
+                      style: TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
-  static void showTripOptions(
-    BuildContext context,
-    TripOptionsSheet sheetContent,
-  ) {
+  static void showTripOptions(BuildContext context, TripOptionsSheet sheetContent) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -930,10 +948,7 @@ class MapBottomSheets {
     );
   }
 
-  static void showScheduleTrip(
-    BuildContext context,
-    ScheduleTripSheet sheetContent,
-  ) {
+  static void showScheduleTrip(BuildContext context, ScheduleTripSheet sheetContent) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -945,10 +960,7 @@ class MapBottomSheets {
     );
   }
 
-  static void showPromoCode(
-    BuildContext context,
-    PromoCodeSheet sheetContent,
-  ) {
+  static void showPromoCode(BuildContext context, PromoCodeSheet sheetContent) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1014,11 +1026,8 @@ class MapBottomSheets {
               title,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight:
-                    isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? AppColors.textPrimary
-                    : Colors.grey.shade600,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? AppColors.textPrimary : Colors.grey.shade600,
               ),
             ),
           ),
@@ -1067,9 +1076,7 @@ class MapBottomSheets {
               height: 45,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
-                final bool isBike = title.contains('موترسایکل') ||
-                    title.contains('Motorbike');
-
+                final bool isBike = title.contains('موترسایکل') || title.contains('Motorbike');
                 return Icon(
                   isBike ? Icons.motorcycle : Icons.directions_car,
                   size: 38,
@@ -1150,9 +1157,7 @@ class MapBottomSheets {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: isActive
-                ? AppColors.primaryBrand
-                : Colors.grey.shade700,
+            color: isActive ? AppColors.primaryBrand : Colors.grey.shade700,
           ),
         ),
       ),
