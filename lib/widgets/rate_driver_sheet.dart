@@ -70,9 +70,10 @@ class _RateDriverScreenState extends State<RateDriverScreen> with SingleTickerPr
     HapticFeedback.mediumImpact();
 
     try {
-      // ۱. ذخیره اطلاعات ثبت نظر در سفر
-      await FirebaseDatabase.instance
-          .ref()
+      final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
+
+      // ۱. ذخیره اطلاعات ثبت نظر در سفیر/سفر
+      await dbRef
           .child('All Ride Requests')
           .child(widget.tripId)
           .child('driver_rating')
@@ -83,15 +84,25 @@ class _RateDriverScreenState extends State<RateDriverScreen> with SingleTickerPr
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       });
 
-      // ۲. به روز رسانی میانگین امتیاز راننده
+      // ۲. به روز رسانی امتیاز و میانگین راننده
       if (widget.driverId.isNotEmpty) {
-        DatabaseReference driverRef = FirebaseDatabase.instance
-            .ref()
-            .child('drivers')
-            .child(widget.driverId)
-            .child('ratings');
+        DatabaseReference driverRef = dbRef.child('drivers').child(widget.driverId);
+        
+        // ثبت در سابقه امتیازات راننده
+        await driverRef.child('ratings').push().set(_rating);
 
-        await driverRef.push().set(_rating);
+        // محاسبه مجدد میانگین امتیاز راننده
+        final DataSnapshot snapshot = await driverRef.child('ratings').get();
+        if (snapshot.exists && snapshot.value is Map) {
+          Map ratingsMap = snapshot.value as Map;
+          double totalRating = 0;
+          ratingsMap.forEach((key, value) {
+            totalRating += (value as num).toDouble();
+          });
+          double avgRating = totalRating / ratingsMap.length;
+          
+          await driverRef.child('avg_rating').set(double.parse(avgRating.toStringAsFixed(1)));
+        }
       }
 
       if (mounted) {
@@ -162,7 +173,15 @@ class _RateDriverScreenState extends State<RateDriverScreen> with SingleTickerPr
                         ),
                         onPressed: () {
                           HapticFeedback.selectionClick();
-                          setState(() => _rating = index + 1);
+                          setState(() {
+                            _rating = index + 1;
+                            // هدایت هوشمند کاربر به زبانه مربوطه بر اساس امتیاز
+                            if (_rating <= 3) {
+                              _tabController.animateTo(1); // نکات منفی
+                            } else {
+                              _tabController.animateTo(0); // نکات مثبت
+                            }
+                          });
                         },
                       );
                     }),
@@ -179,8 +198,9 @@ class _RateDriverScreenState extends State<RateDriverScreen> with SingleTickerPr
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // انعطاف‌پذیر کردن ارتفاع برای جلوگیری از Overflow
                   SizedBox(
-                    height: 150,
+                    height: 180,
                     child: TabBarView(
                       controller: _tabController,
                       children: [
@@ -310,10 +330,10 @@ class _RateDriverScreenState extends State<RateDriverScreen> with SingleTickerPr
 
   Widget _buildTagsGrid(List<String> tags) {
     return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 2.8,
+        childAspectRatio: 2.6,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
@@ -346,7 +366,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> with SingleTickerPr
             child: Text(
               tagKey.tr(),
               style: TextStyle(
-                fontSize: 12.5,
+                fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 color: isSelected ? Colors.green.shade800 : AppColors.textPrimary,
               ),
