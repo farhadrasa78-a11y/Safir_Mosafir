@@ -4,11 +4,13 @@ import 'package:safir_passengers/theme/app_colors.dart';
 class LiveLocationMarker extends StatefulWidget {
   final Color? color;
   final double accuracy; // دقت GPS برحسب متر
+  final double? heading; // زاویه جهت حرکت (برحسب درجه)
 
   const LiveLocationMarker({
     super.key,
     this.color,
     this.accuracy = 0.0,
+    this.heading,
   });
 
   @override
@@ -54,68 +56,74 @@ class _LiveLocationMarkerState extends State<LiveLocationMarker>
         ? (widget.accuracy * 2.2).clamp(30.0, 800.0)
         : 0.0;
 
+    // محاسبه زاویه چرخش (تبدیل درجه به رادیان)
+    final double radians = ((widget.heading ?? 0.0) * 3.141592653589793) / 180.0;
+
     return RepaintBoundary( // 🚀 جلوگیری از فشار اضافه به CPU/GPU حین انیمیشن
-      child: OverflowBox(
-        minWidth: 0,
-        maxWidth: 900,
-        minHeight: 0,
-        maxHeight: 900,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // ۱. هاله پویای دقت GPS با انیمیشن Fade و Pulse همزمان
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 400),
-              opacity: showAccuracyCircle ? 1.0 : 0.0,
-              child: AnimatedBuilder(
-                animation: _pulseAnimation,
-                builder: (context, child) {
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
-                    width: visualDiameter * _pulseAnimation.value,
-                    height: visualDiameter * _pulseAnimation.value,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: activeColor.withOpacity(0.12),
-                      border: Border.all(
-                        color: activeColor.withOpacity(0.35),
-                        width: 1.5,
+      child: Transform.rotate(
+        angle: radians,
+        child: OverflowBox(
+          minWidth: 0,
+          maxWidth: 900,
+          minHeight: 0,
+          maxHeight: 900,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // ۱. هاله پویای دقت GPS با انیمیشن Fade و Pulse همزمان
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 400),
+                opacity: showAccuracyCircle ? 1.0 : 0.0,
+                child: AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                      width: visualDiameter * _pulseAnimation.value,
+                      height: visualDiameter * _pulseAnimation.value,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: activeColor.withOpacity(0.12),
+                        border: Border.all(
+                          color: activeColor.withOpacity(0.35),
+                          width: 1.5,
+                        ),
                       ),
+                    );
+                  },
+                ),
+              ),
+
+              // ۲. حلقه سفید بیرونی نقطه زنده
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 5,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 1.5),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
 
-            // ۲. حلقه سفید بیرونی نقطه زنده
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    blurRadius: 5,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 1.5),
-                  ),
-                ],
+              // ۳. هسته اصلی نقطه زنده (آبی)
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: activeColor,
+                  shape: BoxShape.circle,
+                ),
               ),
-            ),
-
-            // ۳. هسته اصلی نقطه زنده (آبی)
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: activeColor,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
