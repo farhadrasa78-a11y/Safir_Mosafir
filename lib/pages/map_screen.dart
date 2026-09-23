@@ -109,6 +109,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   Symbol? _originSymbol;
   Symbol? _destinationSymbol;
 
+  // 🔹 مارکر و استریم اختصاصی لوکیشن زنده راننده
+  Symbol? _driverLiveSymbol;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _driverLocationStreamSubscription;
+  String? _assignedDriverId;
+
   bool _isMapMoving = false;
   bool _isProgrammaticMove = false;
   bool _isSheetExpanded = true; 
@@ -212,6 +217,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     _debounceTimer?.cancel();
     _positionStreamSubscription?.cancel();
     tripStreamSubscription?.cancel();
+    _driverLocationStreamSubscription?.cancel();
     _senderNameController.dispose();
     _senderPhoneController.dispose();
     _senderAddressController.dispose();
@@ -225,6 +231,71 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     _receiverFloorController.dispose();
     _receiverNoteController.dispose();
     super.dispose();
+  }
+
+  /// 🔹 استریم و بروزرسانی موقعیت زنده راننده از کالکشن driver_locations
+  void _listenToDriverLiveLocation(String driverId) {
+    if (_assignedDriverId == driverId && _driverLocationStreamSubscription != null) return;
+
+    _driverLocationStreamSubscription?.cancel();
+    _assignedDriverId = driverId;
+
+    _driverLocationStreamSubscription = FirebaseFirestore.instance
+        .collection('driver_locations')
+        .doc(driverId)
+        .snapshots()
+        .listen((snapshot) async {
+      if (!snapshot.exists || snapshot.data() == null || _mapController == null) return;
+
+      final data = snapshot.data()!;
+      final double? lat = double.tryParse(data['latitude']?.toString() ?? '');
+      final double? lng = double.tryParse(data['longitude']?.toString() ?? '');
+      final double heading = double.tryParse(data['heading']?.toString() ?? '') ?? 0.0;
+
+      if (lat != null && lng != null) {
+        final driverLatLng = LatLng(lat, lng);
+        await _updateDriverMarkerOnMap(driverLatLng, heading);
+      }
+    });
+  }
+
+  /// 🔹 نمایش/بروزرسانی مارکر راننده روی نقشه
+  Future<void> _updateDriverMarkerOnMap(LatLng position, double heading) async {
+    if (_mapController == null) return;
+
+    try {
+      final bytes = await widgetToImageBytes(
+        LiveLocationMarker(heading: heading),
+      );
+
+      await _mapController!.addImage('driver-live-marker', bytes);
+
+      if (_driverLiveSymbol != null) {
+        await _mapController!.removeSymbol(_driverLiveSymbol!);
+      }
+
+      _driverLiveSymbol = await _mapController!.addSymbol(
+        SymbolOptions(
+          geometry: position,
+          iconImage: 'driver-live-marker',
+          iconAnchor: 'center',
+        ),
+      );
+    } catch (e) {
+      debugPrint("Error updating driver live marker: $e");
+    }
+  }
+
+  /// 🔹 حذف مارکر زنده راننده و لغو شنود
+  Future<void> _stopListeningToDriverLocation() async {
+    await _driverLocationStreamSubscription?.cancel();
+    _driverLocationStreamSubscription = null;
+    _assignedDriverId = null;
+
+    if (_driverLiveSymbol != null && _mapController != null) {
+      await _mapController!.removeSymbol(_driverLiveSymbol!);
+      _driverLiveSymbol = null;
+    }
   }
 
   Future<void> _startLiveLocationUpdates() async {
@@ -711,6 +782,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         
         var data = snapshot.data() as Map<String, dynamic>;
         String tripStatus = data["status"] ?? TripStatus.searching;
+        String driverId = data["driver_id"] ?? data["driverId"] ?? "";
 
         if (mounted) {
           setState(() {
@@ -730,6 +802,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 tripStatus == TripStatus.arrived || 
                 tripStatus == TripStatus.onTrip) {
               _currentStep = 4;
+
+              // 🔹 شروع استریم موقعیت زنده راننده از کالکشن driver_locations
+              if (driverId.isNotEmpty && driverId != "waiting") {
+                _listenToDriverLiveLocation(driverId);
+              }
             }
 
             if (tripStatus == TripStatus.arrived) {
@@ -746,6 +823,8 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             if (tripStatus == TripStatus.cancelledByDriver) {
               _currentStep = 2;
               tripStreamSubscription?.cancel();
+              _stopListeningToDriverLocation();
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text(
@@ -761,13 +840,15 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
         if (tripStatus == TripStatus.completed || tripStatus == TripStatus.ended) {
           tripStreamSubscription?.cancel();
+          _stopListeningToDriverLocation();
+
           if (mounted) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => RateDriverScreen(
                   tripId: tripRequestRef?.id ?? "",
-                  driverId: data["driver_id"] ?? data["driverId"] ?? "",
+                  driverId: driverId,
                   driverName: nameDriver,
                   carModel: carDetailsDriver,
                   plateNumber: _driverPlateFarsiNum.isNotEmpty ? _driverPlateFarsiNum : _driverPlateNum,
@@ -797,6 +878,8 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
 
     tripStreamSubscription?.cancel();
+    _stopListeningToDriverLocation();
+
     if (mounted) setState(() => _currentStep = 2);
   }
 
