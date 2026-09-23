@@ -1269,7 +1269,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                         onPromoCodeTap: _openPromoCodeSheet,
                       ),
 
-          if (_currentStep == 3)
+                              if (_currentStep == 3) ...[
             MapBottomSheets.buildStep3(
               safirColor: AppColors.primaryBrand,
               originAddress: currentOrigin,
@@ -1278,8 +1278,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               onCancel: cancelTrip,
               onBidPricePressed: () {},
             ),
-
-          if (_currentStep == 4)
+          ] else if (_currentStep == 4) ...[
             MapBottomSheets.buildStep4(
               AppColors.primaryBrand,
               tripId: tripRequestRef?.id ?? "",
@@ -1294,9 +1293,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               plateNumDriver: _driverPlateNum,
               isTempPlateDriver: _driverIsTempPlate,
               tripFareAmount: actualFareAmount,
+              estimatedArrivalTime: _tripDurationText.isNotEmpty ? _tripDurationText : "۵ دقیقه",
               onCancelTrip: cancelTrip,
             ),
-        ],
+          ],
       ),
     );
   }
