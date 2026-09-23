@@ -814,7 +814,7 @@ class MapBottomSheets {
     );
   }
 
-  // 🚕 مرحله ۴: پذیرش راننده و اطلاعات سفر
+    // 🚕 مرحله ۴: پذیرش راننده، زمان رسیدن و اطلاعات کامل سفر
   static Widget buildStep4(
     Color safirColor, {
     String tripId = '',
@@ -829,117 +829,144 @@ class MapBottomSheets {
     String carDetailsDriver = '',
     String photoDriver = '',
     String phoneNumberDriver = '',
+    String estimatedArrivalTime = '۵ دقیقه', // زمان تخمینی رسیدن
     VoidCallback? onCancelTrip,
   }) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.38,
-      minChildSize: 0.38,
-      maxChildSize: 0.55,
-      snap: true,
-      builder: (context, scrollController) {
-        // مپ جامع داده‌های راننده جهت نمایش دقیق در DriverInfoCard
-        final Map<String, dynamic> driverData = {
-          'tripId': tripId,
-          'full_name': nameDriver.isNotEmpty ? nameDriver : "راننده سفیر",
-          'car_model': carDetailsDriver.isNotEmpty ? carDetailsDriver : "خودرو سفیر",
-          'car_color': carColorDriver.isNotEmpty ? carColorDriver : 'سفید',
-          'photo': photoDriver,
-          'fare_amount': tripFareAmount,
-          'plate_province': plateProvinceDriver.isNotEmpty ? plateProvinceDriver : 'کابل',
-          'plate_category': plateCategoryDriver.isNotEmpty ? plateCategoryDriver : 'ش',
-          'plate_farsi_num': plateFarsiNumDriver.isNotEmpty ? plateFarsiNumDriver : plateNumDriver,
-          'plate_num': plateNumDriver,
-          'is_temp_plate': isTempPlateDriver,
-        };
+    return Positioned.fill(
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.38,
+        minChildSize: 0.22,
+        maxChildSize: 0.65,
+        snap: true,
+        expand: false,
+        builder: (context, scrollController) {
+          final Map<String, dynamic> driverData = {
+            'tripId': tripId,
+            'full_name': nameDriver.isNotEmpty ? nameDriver : "راننده سفیر",
+            'car_model': carDetailsDriver.isNotEmpty ? carDetailsDriver : "خودرو سفیر",
+            'car_color': carColorDriver.isNotEmpty ? carColorDriver : 'سفید',
+            'photo': photoDriver,
+            'fare_amount': tripFareAmount,
+            'plate_province': plateProvinceDriver.isNotEmpty ? plateProvinceDriver : 'کابل',
+            'plate_category': plateCategoryDriver.isNotEmpty ? plateCategoryDriver : 'ش',
+            'plate_farsi_num': plateFarsiNumDriver.isNotEmpty ? plateFarsiNumDriver : plateNumDriver,
+            'plate_num': plateNumDriver,
+            'is_temp_plate': isTempPlateDriver,
+          };
 
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 15,
-                offset: Offset(0, -3),
-              ),
-            ],
-          ),
-          child: ListView(
-            controller: scrollController,
-            padding: EdgeInsets.zero,
-            children: [
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 10, bottom: 4),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                  offset: Offset(0, -3),
+                ),
+              ],
+            ),
+            child: ListView(
+              controller: scrollController,
+              padding: EdgeInsets.zero,
+              children: [
+                // ۱. هدر کشویی باریک بالای شیت
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 8),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
-              ),
 
-              // کارت اطلاعات راننده (شامل دکمه‌های تماس، چت و پرداخت)
-              DriverInfoCard(
-                driverData: driverData,
-                onCallPressed: () {
-                  HapticFeedback.lightImpact();
-                  if (phoneNumberDriver.isNotEmpty) {
-                    launchUrl(Uri.parse('tel:$phoneNumberDriver'));
-                  }
-                },
-                onMessagePressed: () {
-                  HapticFeedback.lightImpact();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatPage(
-                        tripId: tripId,
-                        driverName: nameDriver.isNotEmpty ? nameDriver : "راننده سفیر",
-                        driverPhoto: photoDriver,
+                // ۲. بخش چسبیده زمان رسیدن راننده (مشابه تصویر جدید)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.access_time_filled, color: safirColor, size: 22),
+                      const SizedBox(width: 8),
+                      Text(
+                        "$estimatedArrivalTime تا رسیدن سفیر...",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1, thickness: 0.8),
+
+                // ۳. کارت اطلاعات راننده (عکس، اسم، پلاک و دکمه پرداخت)
+                DriverInfoCard(
+                  driverData: driverData,
+                  onCallPressed: () {
+                    HapticFeedback.lightImpact();
+                    if (phoneNumberDriver.isNotEmpty) {
+                      launchUrl(Uri.parse('tel:$phoneNumberDriver'));
+                    }
+                  },
+                  onMessagePressed: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(
+                          tripId: tripId,
+                          driverName: nameDriver.isNotEmpty ? nameDriver : "راننده سفیر",
+                          driverPhoto: photoDriver,
+                        ),
+                      ),
+                    );
+                  },
+                  onPaymentPressed: () {
+                    HapticFeedback.mediumImpact();
+                    _showPaymentSheet(context, tripId, tripFareAmount);
+                  },
+                ),
+
+                // ۴. دکمه لغو سفر با فاصله ۲۰ پیکسل (با بالا کشیدن کامل شیت ظاهر می‌شود)
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.red.shade50,
+                        side: const BorderSide(color: Colors.redAccent, width: 1.2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        if (onCancelTrip != null) {
+                          _showCancelReasonDialog(context, onCancelTrip, currentRideId: tripId);
+                        }
+                      },
+                      icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent, size: 20),
+                      label: const Text(
+                        'لغو سفر فعلی',
+                        style: TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.w600),
                       ),
                     ),
-                  );
-                },
-                onPaymentPressed: () {
-                  HapticFeedback.mediumImpact();
-                  _showPaymentSheet(context, tripId, tripFareAmount);
-                },
-              ),
-
-              // 🔴 دکمه لغو سفر فعلی (زیر دکمه پرداخت و با قابلیت مشاهده با انیمیشن کشیدن شیت)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 46,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.red.shade50,
-                      side: const BorderSide(color: Colors.redAccent, width: 1.2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      if (onCancelTrip != null) {
-                        _showCancelReasonDialog(context, onCancelTrip, currentRideId: tripId);
-                      }
-                    },
-                    icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent, size: 20),
-                    label: const Text(
-                      'لغو سفر فعلی',
-                      style: TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
+
 
   static void showTripOptions(BuildContext context, TripOptionsSheet sheetContent) {
     showModalBottomSheet(
