@@ -69,7 +69,7 @@ class AfghanistanLicensePlate extends StatelessWidget {
             )
           : Row(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // سمت راست (در حالت RTL سمت چپ): حرف دسته (مثلاً «ش»)
                 Text(
