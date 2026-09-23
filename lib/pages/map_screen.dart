@@ -109,7 +109,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   Symbol? _originSymbol;
   Symbol? _destinationSymbol;
 
-  // 🔹 مارکر و استریم اختصاصی لوکیشن زنده راننده
   Symbol? _driverLiveSymbol;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _driverLocationStreamSubscription;
   String? _assignedDriverId;
@@ -180,7 +179,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   String selectedVehicle = "Car";
   double _tripDistanceInKm = 0.0;
 
-  // 🔹 متغیرهای ذخیره‌سازی هوشمند اطلاعات راننده و پلاک
   String _driverPlateProvince = "";
   String _driverPlateCategory = "";
   String _driverPlateFarsiNum = "";
@@ -233,7 +231,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     super.dispose();
   }
 
-  /// 🔹 استریم و بروزرسانی موقعیت زنده راننده از کالکشن driver_locations
   void _listenToDriverLiveLocation(String driverId) {
     if (_assignedDriverId == driverId && _driverLocationStreamSubscription != null) return;
 
@@ -259,7 +256,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     });
   }
 
-  /// 🔹 نمایش/بروزرسانی مارکر راننده روی نقشه
   Future<void> _updateDriverMarkerOnMap(LatLng position, double heading) async {
     if (_mapController == null) return;
 
@@ -286,7 +282,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   }
 
-  /// 🔹 حذف مارکر زنده راننده و لغو شنود
   Future<void> _stopListeningToDriverLocation() async {
     await _driverLocationStreamSubscription?.cancel();
     _driverLocationStreamSubscription = null;
@@ -798,19 +793,18 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             _driverPlateNum = data["plate_num"] ?? data["plateNumber"] ?? "";
             _driverIsTempPlate = data["is_temp_plate"] ?? false;
 
-                        if (tripStatus == TripStatus.accepted || 
+            if (tripStatus == TripStatus.accepted || 
                 tripStatus == TripStatus.arrived || 
                 tripStatus == TripStatus.onTrip) {
               
               setState(() {
-                _currentStep = 4; // فقط مرحله ۴ فعال شود
+                _currentStep = 4;
 
                 nameDriver = data["driver_name"] ?? data["driverName"] ?? nameDriver;
                 phoneNumberDriver = data["driver_phone"] ?? data["driverPhone"] ?? phoneNumberDriver;
                 photoDriver = data["driver_photo"] ?? data["driverPhoto"] ?? photoDriver;
                 carDetailsDriver = data["car_details"] ?? data["carModel"] ?? carDetailsDriver;
 
-                // دریافت کامل مشخصات پلاک و رنگ خودرو
                 _driverCarColor = data["car_color"] ?? data["carColor"] ?? "سفید";
                 _driverPlateProvince = data["plate_province"] ?? "کابل";
                 _driverPlateCategory = data["plate_category"] ?? "ش";
@@ -819,15 +813,12 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 _driverIsTempPlate = data["is_temp_plate"] ?? false;
               });
 
-              // ۱. شروع شنود موقعیت زنده راننده
               if (driverId.isNotEmpty && driverId != "waiting") {
                 _listenToDriverLiveLocation(driverId);
               }
 
-              // ۲. بروزرسانی مسیر و محاسبه زمان رسیدن تا مبدأ مسافر
               _fetchRoute();
             }
-
 
             if (tripStatus == TripStatus.arrived) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -953,11 +944,13 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     String currentDestination = appInfo?.dropOffLocation?.placeName ?? 'select_destination_hint'.tr();
 
     Color activePinColor = _currentStep == 0 ? AppColors.originBlue : AppColors.primaryBrand;
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
+          // 🗺️ ۱. نقشه تمام صفحه (تا بالای گوشی بدون نوار سفید)
           RepaintBoundary(
             child: MapLibreMap(
               initialCameraPosition: CameraPosition(
@@ -1008,6 +1001,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             ),
           ),
 
+          // 📍 ۲. پین شناور در وسط نقشه
           if (_currentStep < 2)
             IgnorePointer(
               child: Center(
@@ -1087,44 +1081,29 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
-          // Appbar بالای صفحه
+          // 🔘 ۳. دکمه‌های شناور بالای صفحه (دقیقاً مطابق تصویر نمونه شما)
           Positioned(
-            top: MediaQuery.of(context).padding.top + 8,
+            top: statusBarHeight + 8,
             left: 16,
             right: 16,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: _handleBackAction,
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
-                      ],
-                    ),
-                    child: Icon(
-                      _currentStep == 0 ? Icons.home_rounded : Icons.arrow_back,
-                      color: Colors.grey[700],
-                      size: 24,
-                    ),
-                  ),
-                ),
-
+                // دکمه پروفایل شناور سمت چپ
                 GestureDetector(
                   onTap: _showAdvancedProfile,
                   child: Container(
-                    width: 44,
-                    height: 44,
+                    width: 48,
+                    height: 48,
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                       boxShadow: [
-                        BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
                       ],
                     ),
                     child: Stack(
@@ -1133,13 +1112,13 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                       children: [
                         Icon(
                           Icons.person_outline,
-                          color: Colors.grey[700],
+                          color: Colors.grey[800],
                           size: 26,
                         ),
                         if (_hasNotification)
                           Positioned(
-                            top: 2,
-                            right: 2,
+                            top: 3,
+                            right: 3,
                             child: Container(
                               width: 10,
                               height: 10,
@@ -1154,10 +1133,67 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                     ),
                   ),
                 ),
+
+                // دکمه بیضی "برای خودم" در وسط
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.keyboard_arrow_down, size: 22, color: Colors.green.shade700),
+                      const SizedBox(width: 6),
+                      Text(
+                        'برای خودم',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // دکمه خانه / بازگشت شناور سمت راست
+                GestureDetector(
+                  onTap: _handleBackAction,
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      _currentStep == 0 ? Icons.home_outlined : Icons.arrow_back,
+                      color: Colors.grey[800],
+                      size: 26,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
 
+          // 📄 ۴. باتم‌شیت‌ها بر اساس مراحل (بدون تداخل)
           if (_currentStep == 0 || _currentStep == 1)
             SmartLocationSheet(
               currentStep: _currentStep,
@@ -1269,7 +1305,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                         onPromoCodeTap: _openPromoCodeSheet,
                       ),
 
-                              if (_currentStep == 3) ...[
+          if (_currentStep == 3) ...[
             MapBottomSheets.buildStep3(
               safirColor: AppColors.primaryBrand,
               originAddress: currentOrigin,
@@ -1297,6 +1333,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               onCancelTrip: cancelTrip,
             ),
           ],
+        ],
       ),
     );
   }
