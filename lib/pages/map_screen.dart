@@ -798,16 +798,36 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             _driverPlateNum = data["plate_num"] ?? data["plateNumber"] ?? "";
             _driverIsTempPlate = data["is_temp_plate"] ?? false;
 
-            if (tripStatus == TripStatus.accepted || 
+                        if (tripStatus == TripStatus.accepted || 
                 tripStatus == TripStatus.arrived || 
                 tripStatus == TripStatus.onTrip) {
-              _currentStep = 4;
+              
+              setState(() {
+                _currentStep = 4; // فقط مرحله ۴ فعال شود
 
-              // 🔹 شروع استریم موقعیت زنده راننده از کالکشن driver_locations
+                nameDriver = data["driver_name"] ?? data["driverName"] ?? nameDriver;
+                phoneNumberDriver = data["driver_phone"] ?? data["driverPhone"] ?? phoneNumberDriver;
+                photoDriver = data["driver_photo"] ?? data["driverPhoto"] ?? photoDriver;
+                carDetailsDriver = data["car_details"] ?? data["carModel"] ?? carDetailsDriver;
+
+                // دریافت کامل مشخصات پلاک و رنگ خودرو
+                _driverCarColor = data["car_color"] ?? data["carColor"] ?? "سفید";
+                _driverPlateProvince = data["plate_province"] ?? "کابل";
+                _driverPlateCategory = data["plate_category"] ?? "ش";
+                _driverPlateFarsiNum = data["plate_farsi_num"] ?? data["plateNumber"] ?? "";
+                _driverPlateNum = data["plate_num"] ?? data["plateNumber"] ?? "";
+                _driverIsTempPlate = data["is_temp_plate"] ?? false;
+              });
+
+              // ۱. شروع شنود موقعیت زنده راننده
               if (driverId.isNotEmpty && driverId != "waiting") {
                 _listenToDriverLiveLocation(driverId);
               }
+
+              // ۲. بروزرسانی مسیر و محاسبه زمان رسیدن تا مبدأ مسافر
+              _fetchRoute();
             }
+
 
             if (tripStatus == TripStatus.arrived) {
               ScaffoldMessenger.of(context).showSnackBar(
