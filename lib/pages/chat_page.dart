@@ -42,7 +42,7 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.clear();
 
     await FirebaseFirestore.instance
-        .collection("tripRequests")
+        .collection("rides")
         .doc(widget.tripId)
         .collection("chats")
         .add({
