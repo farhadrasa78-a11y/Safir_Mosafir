@@ -109,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection("tripRequests")
+                  .collection("rides")
                   .doc(widget.tripId)
                   .collection("chats")
                   .orderBy("timestamp", descending: true)
