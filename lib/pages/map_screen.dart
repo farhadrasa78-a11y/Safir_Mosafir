@@ -285,7 +285,20 @@ bool _hasPlayedArrivedSound = false;
   }
 
   /// 🚀 بروزرسانی مارکر ماشین راننده روی نقشه با چرخش جهت حرکت
-  Future<void> _updateDriverMarkerOnMap(
+  Future<Uint8List?> _loadCarIconBytes() async {
+  if (_cachedDriverCarBytes != null) return _cachedDriverCarBytes;
+
+  try {
+    final ByteData data = await rootBundle.load('assets/images/tracking_car.png');
+    _cachedDriverCarBytes = data.buffer.asUint8List();
+    return _cachedDriverCarBytes;
+  } catch (e) {
+    debugPrint('Error loading car icon asset: $e');
+    return null;
+  }
+}
+
+Future<void> _updateDriverMarkerOnMap(
   LatLng position,
   double heading,
 ) async {
@@ -293,20 +306,17 @@ bool _hasPlayedArrivedSound = false;
   if (controller == null) return;
 
   try {
-    _cachedDriverCarBytes ??= await widgetToImageBytes(
-      const DriverCarMarker(),
-    );
+    final Uint8List? carBytes = await _loadCarIconBytes();
+    if (carBytes == null) return;
 
-    await controller.addImage(
-      'driver-car-icon',
-      _cachedDriverCarBytes!,
-    );
+    await controller.addImage('driver-car-icon', carBytes);
 
-    final options = SymbolOptions(
+    final SymbolOptions options = SymbolOptions(
       geometry: position,
       iconImage: 'driver-car-icon',
       iconAnchor: 'center',
       iconRotate: heading,
+      iconSize: 1.2,
     );
 
     if (_driverLiveSymbol == null) {
@@ -314,25 +324,11 @@ bool _hasPlayedArrivedSound = false;
     } else {
       await controller.updateSymbol(_driverLiveSymbol!, options);
     }
-
-    if (_currentStep == 4) {
-      _isProgrammaticMove = true;
-
-      await controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: position,
-            zoom: 17.8,
-            bearing: heading,
-            tilt: 45.0,
-          ),
-        ),
-      );
-    }
   } catch (e) {
     debugPrint('Error updating driver live marker: $e');
   }
-  }
+}
+
 
   Future<void> _stopListeningToDriverLocation() async {
     await _driverLocationStreamSubscription?.cancel();
