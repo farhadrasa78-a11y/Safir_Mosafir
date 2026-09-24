@@ -12,8 +12,11 @@ dependencies:
     sdk: flutter
 
   easy_localization: ^3.0.7
+
   flutter_localizations:
     sdk: flutter
+
+  audioplayers: ^6.0.0
 
   maplibre_gl: ^0.26.2
   latlong2: ^0.9.1
@@ -51,8 +54,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
 
+  flutter_lints: ^3.0.0
   flutter_native_splash: ^2.4.6
 
 flutter_native_splash:
@@ -75,6 +78,9 @@ flutter:
     - assets/images/
     - assets/vehicles/
     - assets/lang/
+    - assets/audio/fa/
+    - assets/audio/fa/driver_accepted.mp3
+    - assets/audio/fa/driver_arrived.mp3
     - assets/map/style.json
     - assets/fonts/
 
