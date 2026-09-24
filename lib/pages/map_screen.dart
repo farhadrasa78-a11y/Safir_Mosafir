@@ -307,7 +307,6 @@ bool _hasPlayedArrivedSound = false;
       iconImage: 'driver-car-icon',
       iconAnchor: 'center',
       iconRotate: heading,
-      iconAllowOverlap: true,
       iconIgnorePlacement: true,
     );
 
