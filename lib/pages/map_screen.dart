@@ -12,6 +12,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import 'package:safir_passengers/appInfo/app_info.dart';
 import 'package:safir_passengers/constants/trip_status.dart';
@@ -194,6 +195,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   DocumentReference? tripRequestRef;
   StreamSubscription<DocumentSnapshot>? tripStreamSubscription;
+  final AudioPlayer _tripAudioPlayer = AudioPlayer();
+
+String? _lastTripStatus;
+bool _hasPlayedAcceptedSound = false;
+bool _hasPlayedArrivedSound = false;
 
   double actualFareAmount = 50.0;
   double? bidAmount;
@@ -249,6 +255,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     _receiverUnitController.dispose();
     _receiverFloorController.dispose();
     _receiverNoteController.dispose();
+    _tripAudioPlayer.dispose();
     super.dispose();
   }
 
@@ -743,6 +750,31 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         },
       ),
     );
+  }
+  Future<void> _playTripStatusSound(String tripStatus) async {
+  try {
+    if (tripStatus == TripStatus.accepted && !_hasPlayedAcceptedSound) {
+      _hasPlayedAcceptedSound = true;
+
+      await _tripAudioPlayer.stop();
+      await _tripAudioPlayer.play(
+        AssetSource('audio/fa/driver_accepted.mp3'),
+        volume: 1.0,
+      );
+    }
+
+    if (tripStatus == TripStatus.arrived && !_hasPlayedArrivedSound) {
+      _hasPlayedArrivedSound = true;
+
+      await _tripAudioPlayer.stop();
+      await _tripAudioPlayer.play(
+        AssetSource('audio/fa/driver_arrived.mp3'),
+        volume: 1.0,
+      );
+    }
+  } catch (e) {
+    debugPrint('Trip status audio error: $e');
+  }
   }
 
   void startTrip() async {
