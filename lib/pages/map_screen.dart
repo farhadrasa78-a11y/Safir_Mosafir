@@ -10,7 +10,6 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:http/http.dart' as http;
 import 'package:easy_localization/easy_localization.dart';
 
@@ -20,9 +19,7 @@ import 'package:safir_passengers/models/address_models.dart';
 import 'package:safir_passengers/global/global_var.dart'; 
 import 'package:safir_passengers/global/trip_var.dart';
 import 'package:safir_passengers/theme/app_colors.dart';
-import 'package:safir_passengers/widgets/payment_dialog.dart';
 import 'package:safir_passengers/widgets/rate_driver_sheet.dart';
-import 'package:safir_passengers/widgets/live_location_marker.dart';
 import 'search_destination_place.dart';
 
 import 'map_files/map_controller_logic.dart';
@@ -77,6 +74,30 @@ Future<Uint8List> widgetToImageBytes(Widget widget) async {
   return byteData!.buffer.asUint8List();
 }
 
+/// 🚗 ویجت مخصوص نمایش مارکر ماشین راننده روی نقشه
+class DriverCarMarker extends StatelessWidget {
+  const DriverCarMarker({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: Image.asset(
+        'assets/images/car_top_view.png', // آدرس عکس ماشین در پروژه شما
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(
+            Icons.directions_car_rounded,
+            size: 38,
+            color: Color(0xFF0066FF),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class SafirMapScreen extends StatefulWidget {
   final String serviceType;
   final String? pickerMode;
@@ -112,6 +133,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   Symbol? _driverLiveSymbol;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _driverLocationStreamSubscription;
   String? _assignedDriverId;
+  Uint8List? _cachedDriverCarBytes; // بایت‌های کش‌شده برای جلوگیری از افت فریم
 
   bool _isMapMoving = false;
   bool _isProgrammaticMove = false;
@@ -119,7 +141,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   Timer? _debounceTimer;
 
   bool _hasNotification = false; 
-  String _rideForWhomKey = "for_myself"; 
 
   int _selectedCategory = 0; 
   int _selectedVehicleType = 0; 
@@ -256,34 +277,33 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     });
   }
 
-    Future<void> _updateDriverMarkerOnMap(LatLng position, double heading) async {
+  /// 🚀 بروزرسانی مارکر ماشین راننده روی نقشه با چرخش جهت حرکت
+  Future<void> _updateDriverMarkerOnMap(LatLng position, double heading) async {
     if (_mapController == null) return;
 
     try {
-      // ۱. ساخت بایت‌های تصویر از ویجت جدید LiveLocationMarker
-      final bytes = await widgetToImageBytes(
-        LiveLocationMarker(heading: heading),
-      );
+      // ۱. اگر بایت‌های ماشین هنوز کش نشده، یکبار رندر می‌شود
+      _cachedDriverCarBytes ??= await widgetToImageBytes(const DriverCarMarker());
 
-      // ۲. اضافه/بروزرسانی تصویر مارکر در مپ‌لیبره
-      await _mapController!.addImage('driver-live-marker', bytes);
+      // ۲. اضافه/بروزرسانی تصویر ماشین در مپ‌لیبره
+      await _mapController!.addImage('driver-car-icon', _cachedDriverCarBytes!);
 
-      // ۳. اگر سمبل از قبل روی نقشه بود، آن را حذف می‌کنیم تا سمبل جدید جایگزین شود
+      // ۳. اگر سمبل از قبل روی نقشه بود، حذف می‌کنیم
       if (_driverLiveSymbol != null) {
         await _mapController!.removeSymbol(_driverLiveSymbol!);
       }
 
-      // ۴. ساخت سمبل جدید با اعمال موقعیت و زاویه چرخش (iconRotate)
+      // ۴. اضافه کردن مارکر ماشین به همراه زاویه چرخش (iconRotate)
       _driverLiveSymbol = await _mapController!.addSymbol(
         SymbolOptions(
           geometry: position,
-          iconImage: 'driver-live-marker',
+          iconImage: 'driver-car-icon',
           iconAnchor: 'center',
-          iconRotate: heading, // 🚀 زاویه چرخش جهت حرکت ماشین روی خط مسیر
+          iconRotate: heading, // 🚀 چرخش دقیق ماشین در جهت مسیر حرکت
         ),
       );
 
-      // ۵. (اختیاری) اگر در مرحله ۴ (سفر جاری) هستیم، دوربین با حرکت ماشین نرم جابه‌جا شود
+      // ۵. اگر در مرحله سفر جاری هستیم، دوربین دنبال راننده می‌رود
       if (_currentStep == 4) {
         _mapController!.animateCamera(
           CameraUpdate.newLatLng(position),
@@ -293,7 +313,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       debugPrint("Error updating driver live marker: $e");
     }
   }
-
 
   Future<void> _stopListeningToDriverLocation() async {
     await _driverLocationStreamSubscription?.cancel();
@@ -963,7 +982,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // 🗺️ ۱. نقشه تمام صفحه (تا بالای گوشی بدون نوار سفید)
+          // 🗺️ ۱. نقشه تمام صفحه
           RepaintBoundary(
             child: MapLibreMap(
               initialCameraPosition: CameraPosition(
@@ -1094,7 +1113,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
-          // 🔘 ۳. دکمه‌های شناور بالای صفحه (دقیقاً مطابق تصویر نمونه شما)
+          // 🔘 ۳. دکمه‌های شناور بالای صفحه
           Positioned(
             top: statusBarHeight + 8,
             left: 16,
@@ -1206,7 +1225,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
             ),
           ),
 
-          // 📄 ۴. باتم‌شیت‌ها بر اساس مراحل (بدون تداخل)
+          // 📄 ۴. باتم‌شیت‌ها بر اساس مراحل
           if (_currentStep == 0 || _currentStep == 1)
             SmartLocationSheet(
               currentStep: _currentStep,
