@@ -278,40 +278,55 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   }
 
   /// 🚀 بروزرسانی مارکر ماشین راننده روی نقشه با چرخش جهت حرکت
-  Future<void> _updateDriverMarkerOnMap(LatLng position, double heading) async {
-    if (_mapController == null) return;
+  Future<void> _updateDriverMarkerOnMap(
+  LatLng position,
+  double heading,
+) async {
+  final controller = _mapController;
+  if (controller == null) return;
 
-    try {
-      // ۱. اگر بایت‌های ماشین هنوز کش نشده، یکبار رندر می‌شود
-      _cachedDriverCarBytes ??= await widgetToImageBytes(const DriverCarMarker());
+  try {
+    _cachedDriverCarBytes ??= await widgetToImageBytes(
+      const DriverCarMarker(),
+    );
 
-      // ۲. اضافه/بروزرسانی تصویر ماشین در مپ‌لیبره
-      await _mapController!.addImage('driver-car-icon', _cachedDriverCarBytes!);
+    await controller.addImage(
+      'driver-car-icon',
+      _cachedDriverCarBytes!,
+    );
 
-      // ۳. اگر سمبل از قبل روی نقشه بود، حذف می‌کنیم
-      if (_driverLiveSymbol != null) {
-        await _mapController!.removeSymbol(_driverLiveSymbol!);
-      }
+    final options = SymbolOptions(
+      geometry: position,
+      iconImage: 'driver-car-icon',
+      iconAnchor: 'center',
+      iconRotate: heading,
+      iconAllowOverlap: true,
+      iconIgnorePlacement: true,
+    );
 
-      // ۴. اضافه کردن مارکر ماشین به همراه زاویه چرخش (iconRotate)
-      _driverLiveSymbol = await _mapController!.addSymbol(
-        SymbolOptions(
-          geometry: position,
-          iconImage: 'driver-car-icon',
-          iconAnchor: 'center',
-          iconRotate: heading, // 🚀 چرخش دقیق ماشین در جهت مسیر حرکت
+    if (_driverLiveSymbol == null) {
+      _driverLiveSymbol = await controller.addSymbol(options);
+    } else {
+      await controller.updateSymbol(_driverLiveSymbol!, options);
+    }
+
+    if (_currentStep == 4) {
+      _isProgrammaticMove = true;
+
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: position,
+            zoom: 17.8,
+            bearing: heading,
+            tilt: 45.0,
+          ),
         ),
       );
-
-      // ۵. اگر در مرحله سفر جاری هستیم، دوربین دنبال راننده می‌رود
-      if (_currentStep == 4) {
-        _mapController!.animateCamera(
-          CameraUpdate.newLatLng(position),
-        );
-      }
-    } catch (e) {
-      debugPrint("Error updating driver live marker: $e");
     }
+  } catch (e) {
+    debugPrint('Error updating driver live marker: $e');
+  }
   }
 
   Future<void> _stopListeningToDriverLocation() async {
