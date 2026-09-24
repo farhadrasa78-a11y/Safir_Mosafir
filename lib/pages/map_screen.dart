@@ -256,31 +256,44 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     });
   }
 
-  Future<void> _updateDriverMarkerOnMap(LatLng position, double heading) async {
+    Future<void> _updateDriverMarkerOnMap(LatLng position, double heading) async {
     if (_mapController == null) return;
 
     try {
+      // ۱. ساخت بایت‌های تصویر از ویجت جدید LiveLocationMarker
       final bytes = await widgetToImageBytes(
         LiveLocationMarker(heading: heading),
       );
 
+      // ۲. اضافه/بروزرسانی تصویر مارکر در مپ‌لیبره
       await _mapController!.addImage('driver-live-marker', bytes);
 
+      // ۳. اگر سمبل از قبل روی نقشه بود، آن را حذف می‌کنیم تا سمبل جدید جایگزین شود
       if (_driverLiveSymbol != null) {
         await _mapController!.removeSymbol(_driverLiveSymbol!);
       }
 
+      // ۴. ساخت سمبل جدید با اعمال موقعیت و زاویه چرخش (iconRotate)
       _driverLiveSymbol = await _mapController!.addSymbol(
         SymbolOptions(
           geometry: position,
           iconImage: 'driver-live-marker',
           iconAnchor: 'center',
+          iconRotate: heading, // 🚀 زاویه چرخش جهت حرکت ماشین روی خط مسیر
         ),
       );
+
+      // ۵. (اختیاری) اگر در مرحله ۴ (سفر جاری) هستیم، دوربین با حرکت ماشین نرم جابه‌جا شود
+      if (_currentStep == 4) {
+        _mapController!.animateCamera(
+          CameraUpdate.newLatLng(position),
+        );
+      }
     } catch (e) {
       debugPrint("Error updating driver live marker: $e");
     }
   }
+
 
   Future<void> _stopListeningToDriverLocation() async {
     await _driverLocationStreamSubscription?.cancel();
