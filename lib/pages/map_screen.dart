@@ -84,7 +84,7 @@ class DriverCarMarker extends StatelessWidget {
       width: 48,
       height: 48,
       child: Image.asset(
-        'assets/images/car_top_view.png', // آدرس عکس ماشین در پروژه شما
+        'assets/images/tracking_car.png', // آدرس عکس ماشین در پروژه شما
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
           return const Icon(
