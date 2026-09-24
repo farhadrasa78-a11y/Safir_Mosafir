@@ -1005,9 +1005,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 zoom: 15.0,
               ),
               styleString: 'assets/map/style.json',
-              myLocationEnabled: true,
-              myLocationTrackingMode: MyLocationTrackingMode.tracking,
-              myLocationRenderMode: MyLocationRenderMode.normal,
               trackCameraPosition: true,
               onMapCreated: (controller) {
                 _mapController = controller;
