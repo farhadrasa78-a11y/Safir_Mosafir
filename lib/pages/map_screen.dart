@@ -795,6 +795,9 @@ bool _hasPlayedArrivedSound = false;
     }
 
     setState(() => _currentStep = 3);
+    _hasPlayedAcceptedSound = false;
+    _hasPlayedArrivedSound = false;
+    _lastTripStatus = null;
 
     try {
       tripRequestRef = FirebaseFirestore.instance.collection('rides').doc();
@@ -857,6 +860,10 @@ bool _hasPlayedArrivedSound = false;
         var data = snapshot.data() as Map<String, dynamic>;
         String tripStatus = data["status"] ?? TripStatus.searching;
         String driverId = data["driver_id"] ?? data["driverId"] ?? "";
+        if (_lastTripStatus != tripStatus) {
+       _lastTripStatus = tripStatus;
+       _playTripStatusSound(tripStatus);
+        }
 
         if (mounted) {
           setState(() {
