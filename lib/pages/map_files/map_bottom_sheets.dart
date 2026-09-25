@@ -84,7 +84,7 @@ class MapBottomSheets {
             minChildSize: 0.33,
             maxChildSize: 0.58,
             snap: true,
-            snapSizes: const [],
+            snapSizes: const [0.33, 0.58],
             expand: false,
             builder: (context, scrollController) {
               return Container(
@@ -499,6 +499,7 @@ class MapBottomSheets {
                     context,
                     onCancel,
                     currentRideId: currentRideId,
+                    isDriverAssigned: false,
                   );
                 },
                 child: Text(
@@ -517,32 +518,55 @@ class MapBottomSheets {
     );
   }
 
-  // 🔴 دیالوگ دلایل لغو آسنکرون و سریع
+  // 🔴 دیالوگ دلایل لغو — قبل/بعد از قبول راننده متفاوت است
   static void _showCancelReasonDialog(
     BuildContext context,
     VoidCallback onConfirmCancel, {
     String? currentRideId,
+    bool isDriverAssigned = false,
   }) {
     String? selectedReasonKey;
 
-    final List<Map<String, String>> reasons = [
+    final List<Map<String, String>> searchingReasons = [
       {
         'key': 'cancel_reason_hurry',
-        'fallback': 'عجله داشتم و راننده‌ای درخواستم را قبول نکرد.'
+        'fallback': 'cancel_reason_hurry'.tr()
       },
       {
         'key': 'cancel_reason_changed_mind',
-        'fallback': 'از سفر منصرف شدم.'
+        'fallback': 'cancel_reason_changed_mind'.tr()
       },
       {
         'key': 'cancel_reason_modify_trip',
-        'fallback': 'می‌خواهم تغییراتی در سفر ایجاد کنم.'
+        'fallback': 'cancel_reason_modify_trip'.tr()
       },
       {
         'key': 'cancel_reason_other',
-        'fallback': 'دلایل دیگر'
+        'fallback': 'cancel_reason_other'.tr()
       },
     ];
+
+    final List<Map<String, String>> afterAcceptReasons = [
+      {
+        'key': 'cancel_reason_driver_too_far',
+        'fallback': 'cancel_reason_driver_too_far'.tr()
+      },
+      {
+        'key': 'cancel_reason_no_longer_needed',
+        'fallback': 'cancel_reason_no_longer_needed'.tr()
+      },
+      {
+        'key': 'cancel_reason_wrong_address',
+        'fallback': 'cancel_reason_wrong_address'.tr()
+      },
+      {
+        'key': 'cancel_reason_other',
+        'fallback': 'cancel_reason_other'.tr()
+      },
+    ];
+
+    final List<Map<String, String>> reasons =
+        isDriverAssigned ? afterAcceptReasons : searchingReasons;
 
     showModalBottomSheet(
       context: context,
@@ -591,6 +615,22 @@ class MapBottomSheets {
                       ),
                     ],
                   ),
+                  if (isDriverAssigned) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.amber.shade200),
+                      ),
+                      child: Text(
+                        'cancel_after_accept_warning'.tr(),
+                        style:
+                            TextStyle(fontSize: 12, color: Colors.amber.shade900),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Text(
                     'select_cancel_reason_title'.tr(),
@@ -603,9 +643,6 @@ class MapBottomSheets {
                   const SizedBox(height: 12),
                   ...reasons.map((item) {
                     String titleText = item['key']!.tr();
-                    if (titleText == item['key']) {
-                      titleText = item['fallback']!;
-                    }
 
                     return RadioListTile<String>(
                       title: Text(
@@ -649,23 +686,36 @@ class MapBottomSheets {
                                   }
                                   onConfirmCancel();
 
-                                  if (currentRideId != null && currentRideId.isNotEmpty) {
+                                  if (currentRideId != null &&
+                                      currentRideId.isNotEmpty) {
                                     try {
-                                      WriteBatch batch = FirebaseFirestore.instance.batch();
-                                      DocumentReference rideRef = FirebaseFirestore.instance.collection('rides').doc(currentRideId);
-                                      
+                                      WriteBatch batch =
+                                          FirebaseFirestore.instance.batch();
+                                      DocumentReference rideRef =
+                                          FirebaseFirestore.instance
+                                              .collection('rides')
+                                              .doc(currentRideId);
+
                                       batch.update(rideRef, {
                                         'status': 'cancelled_by_passenger',
                                         'cancelReason': selectedReasonKey,
-                                        'cancelledAt': FieldValue.serverTimestamp(),
+                                        'cancelledAfterDriverAssigned':
+                                            isDriverAssigned,
+                                        'cancelledAt':
+                                            FieldValue.serverTimestamp(),
                                       });
 
-                                      DocumentReference adminReportRef = FirebaseFirestore.instance.collection('reports').doc();
+                                      DocumentReference adminReportRef =
+                                          FirebaseFirestore.instance
+                                              .collection('reports')
+                                              .doc();
                                       batch.set(adminReportRef, {
                                         'tripId': currentRideId,
                                         'type': 'cancellation',
                                         'reason': selectedReasonKey,
-                                        'timestamp': FieldValue.serverTimestamp(),
+                                        'afterDriverAssigned': isDriverAssigned,
+                                        'timestamp':
+                                            FieldValue.serverTimestamp(),
                                       });
 
                                       await batch.commit();
@@ -732,13 +782,13 @@ class MapBottomSheets {
               const SizedBox(height: 16),
               const Icon(Icons.account_balance_wallet_rounded, size: 48, color: AppColors.primaryBrand),
               const SizedBox(height: 12),
-              const Text(
-                'تسویه حساب سفر',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              Text(
+                'payment_settlement_title'.tr(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
-                'مبلغ قابل پرداخت: $amount افغانی',
+                '${'payable_amount_label'.tr()}: $amount ${'currency_afg'.tr()}',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryBrand),
               ),
               const SizedBox(height: 20),
@@ -749,14 +799,14 @@ class MapBottomSheets {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.amber.shade200),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.amber, size: 20),
-                    SizedBox(width: 8),
+                    const Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'در صورت عدم پرداخت، این مبلغ به عنوان بدهکاری در حساب شما ثبت شده و سفر بعدی شما قفل خواهد شد.',
-                        style: TextStyle(fontSize: 12, color: Colors.black87),
+                        'payment_unpaid_warning_msg'.tr(),
+                        style: const TextStyle(fontSize: 12, color: Colors.black87),
                       ),
                     ),
                   ],
@@ -796,14 +846,14 @@ class MapBottomSheets {
 
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('تسویه حساب با موفقیت انجام شد.')),
+                          SnackBar(content: Text('payment_success_msg'.tr())),
                         );
                       }
                     }
                   },
-                  child: const Text(
-                    'تایید و پرداخت نقدی',
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  child: Text(
+                    'confirm_cash_payment_btn'.tr(),
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -814,7 +864,7 @@ class MapBottomSheets {
     );
   }
 
-    // 🚕 مرحله ۴: پذیرش راننده، زمان رسیدن و اطلاعات کامل سفر
+  // 🚕 مرحله ۴: پذیرش راننده، زمان رسیدن و اطلاعات کامل سفر
   static Widget buildStep4(
     Color safirColor, {
     String tripId = '',
@@ -829,7 +879,7 @@ class MapBottomSheets {
     String carDetailsDriver = '',
     String photoDriver = '',
     String phoneNumberDriver = '',
-    String estimatedArrivalTime = '۵ دقیقه', // زمان تخمینی رسیدن
+    String estimatedArrivalTime = '5',
     VoidCallback? onCancelTrip,
   }) {
     return Positioned.fill(
@@ -838,17 +888,18 @@ class MapBottomSheets {
         minChildSize: 0.22,
         maxChildSize: 0.65,
         snap: true,
+        snapSizes: const [0.22, 0.38, 0.65],
         expand: false,
         builder: (context, scrollController) {
           final Map<String, dynamic> driverData = {
             'tripId': tripId,
-            'full_name': nameDriver.isNotEmpty ? nameDriver : "راننده سفیر",
-            'car_model': carDetailsDriver.isNotEmpty ? carDetailsDriver : "خودرو سفیر",
-            'car_color': carColorDriver.isNotEmpty ? carColorDriver : 'سفید',
+            'full_name': nameDriver.isNotEmpty ? nameDriver : "driver_default_name".tr(),
+            'car_model': carDetailsDriver.isNotEmpty ? carDetailsDriver : "car_default_model".tr(),
+            'car_color': carColorDriver.isNotEmpty ? carColorDriver : 'car_default_color'.tr(),
             'photo': photoDriver,
             'fare_amount': tripFareAmount,
-            'plate_province': plateProvinceDriver.isNotEmpty ? plateProvinceDriver : 'کابل',
-            'plate_category': plateCategoryDriver.isNotEmpty ? plateCategoryDriver : 'ش',
+            'plate_province': plateProvinceDriver.isNotEmpty ? plateProvinceDriver : 'plate_default_province'.tr(),
+            'plate_category': plateCategoryDriver.isNotEmpty ? plateCategoryDriver : 'sh',
             'plate_farsi_num': plateFarsiNumDriver.isNotEmpty ? plateFarsiNumDriver : plateNumDriver,
             'plate_num': plateNumDriver,
             'is_temp_plate': isTempPlateDriver,
@@ -871,7 +922,6 @@ class MapBottomSheets {
               controller: scrollController,
               padding: EdgeInsets.zero,
               children: [
-                // ۱. هدر کشویی باریک بالای شیت
                 Center(
                   child: Container(
                     margin: const EdgeInsets.only(top: 10, bottom: 8),
@@ -883,8 +933,6 @@ class MapBottomSheets {
                     ),
                   ),
                 ),
-
-                // ۲. بخش چسبیده زمان رسیدن راننده (مشابه تصویر جدید)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
@@ -893,8 +941,8 @@ class MapBottomSheets {
                       Icon(Icons.access_time_filled, color: safirColor, size: 22),
                       const SizedBox(width: 8),
                       Text(
-                        "$estimatedArrivalTime تا رسیدن سفیر...",
-                        style: TextStyle(
+                        'driver_arrival_time_msg'.tr(args: [estimatedArrivalTime]),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
@@ -904,8 +952,6 @@ class MapBottomSheets {
                   ),
                 ),
                 const Divider(height: 1, thickness: 0.8),
-
-                // ۳. کارت اطلاعات راننده (عکس، اسم، پلاک و دکمه پرداخت)
                 DriverInfoCard(
                   driverData: driverData,
                   onCallPressed: () {
@@ -921,7 +967,7 @@ class MapBottomSheets {
                       MaterialPageRoute(
                         builder: (context) => ChatPage(
                           tripId: tripId,
-                          driverName: nameDriver.isNotEmpty ? nameDriver : "راننده سفیر",
+                          driverName: nameDriver.isNotEmpty ? nameDriver : "driver_default_name".tr(),
                           driverPhoto: photoDriver,
                         ),
                       ),
@@ -932,8 +978,6 @@ class MapBottomSheets {
                     _showPaymentSheet(context, tripId, tripFareAmount);
                   },
                 ),
-
-                // ۴. دکمه لغو سفر با فاصله ۲۰ پیکسل (با بالا کشیدن کامل شیت ظاهر می‌شود)
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
                   child: SizedBox(
@@ -948,13 +992,18 @@ class MapBottomSheets {
                       onPressed: () {
                         HapticFeedback.mediumImpact();
                         if (onCancelTrip != null) {
-                          _showCancelReasonDialog(context, onCancelTrip, currentRideId: tripId);
+                          _showCancelReasonDialog(
+                            context,
+                            onCancelTrip,
+                            currentRideId: tripId,
+                            isDriverAssigned: true,
+                          );
                         }
                       },
                       icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent, size: 20),
-                      label: const Text(
-                        'لغو سفر فعلی',
-                        style: TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.w600),
+                      label: Text(
+                        'cancel_current_trip_btn'.tr(),
+                        style: const TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
@@ -966,7 +1015,6 @@ class MapBottomSheets {
       ),
     );
   }
-
 
   static void showTripOptions(BuildContext context, TripOptionsSheet sheetContent) {
     showModalBottomSheet(
