@@ -193,18 +193,18 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 
   List<LatLng> _routePolylinePoints = [];
   List<LatLng> _driverTripPolylinePoints = [];
-LatLng? _lastDriverLatLng;
+  LatLng? _lastDriverLatLng;
 
-bool _isDriverTripRouteVisible = false;
-bool _isFetchingDriverTripRoute = false;
+  bool _isDriverTripRouteVisible = false;
+  bool _isFetchingDriverTripRoute = false;
 
   DocumentReference? tripRequestRef;
   StreamSubscription<DocumentSnapshot>? tripStreamSubscription;
   final AudioPlayer _tripAudioPlayer = AudioPlayer();
 
-String? _lastTripStatus;
-bool _hasPlayedAcceptedSound = false;
-bool _hasPlayedArrivedSound = false;
+  String? _lastTripStatus;
+  bool _hasPlayedAcceptedSound = false;
+  bool _hasPlayedArrivedSound = false;
 
   double actualFareAmount = 50.0;
   double? bidAmount;
@@ -291,162 +291,164 @@ bool _hasPlayedArrivedSound = false;
 
   /// 🚀 بروزرسانی مارکر ماشین راننده روی نقشه با چرخش جهت حرکت
   Future<Uint8List?> _loadCarIconBytes() async {
-  if (_cachedDriverCarBytes != null) return _cachedDriverCarBytes;
+    if (_cachedDriverCarBytes != null) return _cachedDriverCarBytes;
 
-  try {
-    final ByteData data = await rootBundle.load('assets/images/tracking_car.png');
-    _cachedDriverCarBytes = data.buffer.asUint8List();
-    return _cachedDriverCarBytes;
-  } catch (e) {
-    debugPrint('Error loading car icon asset: $e');
-    return null;
-  }
-}
-
-Future<void> _updateDriverMarkerOnMap(
-  LatLng position,
-  double heading,
-) async {
-  final controller = _mapController;
-  if (controller == null) return;
-
-  final bool isFirstDriverPosition = _lastDriverLatLng == null;
-
-  final double movedDistance = isFirstDriverPosition
-      ? double.infinity
-      : Geolocator.distanceBetween(
-          _lastDriverLatLng!.latitude,
-          _lastDriverLatLng!.longitude,
-          position.latitude,
-          position.longitude,
-        );
-
-  _lastDriverLatLng = position;
-
-  try {
-    final Uint8List? carBytes = await _loadCarIconBytes();
-    if (carBytes == null) return;
-
-    await controller.addImage('driver-car-icon', carBytes);
-
-    final SymbolOptions options = SymbolOptions(
-      geometry: position,
-      iconImage: 'driver-car-icon',
-      iconAnchor: 'center',
-      iconRotate: heading,
-      iconSize: 1.2,
-    );
-
-    if (_driverLiveSymbol == null) {
-      _driverLiveSymbol = await controller.addSymbol(options);
-    } else {
-      await controller.updateSymbol(_driverLiveSymbol!, options);
+    try {
+      final ByteData data = await rootBundle.load('assets/images/tracking_car.png');
+      _cachedDriverCarBytes = data.buffer.asUint8List();
+      return _cachedDriverCarBytes;
+    } catch (e) {
+      debugPrint('Error loading car icon asset: $e');
+      return null;
     }
-
-    if (!_isDriverTripRouteVisible || movedDistance >= 50) {
-      await _drawDriverTripRoute(position);
-    }
-  } catch (e) {
-    debugPrint('Error updating driver live marker: $e');
   }
-}
+
+  Future<void> _updateDriverMarkerOnMap(
+    LatLng position,
+    double heading,
+  ) async {
+    final controller = _mapController;
+    if (controller == null) return;
+
+    final bool isFirstDriverPosition = _lastDriverLatLng == null;
+
+    final double movedDistance = isFirstDriverPosition
+        ? double.infinity
+        : Geolocator.distanceBetween(
+            _lastDriverLatLng!.latitude,
+            _lastDriverLatLng!.longitude,
+            position.latitude,
+            position.longitude,
+          );
+
+    _lastDriverLatLng = position;
+
+    try {
+      final Uint8List? carBytes = await _loadCarIconBytes();
+      if (carBytes == null) return;
+
+      await controller.addImage('driver-car-icon', carBytes);
+
+      final SymbolOptions options = SymbolOptions(
+        geometry: position,
+        iconImage: 'driver-car-icon',
+        iconAnchor: 'center',
+        iconRotate: heading,
+        iconSize: 1.2,
+      );
+
+      if (_driverLiveSymbol == null) {
+        _driverLiveSymbol = await controller.addSymbol(options);
+      } else {
+        await controller.updateSymbol(_driverLiveSymbol!, options);
+      }
+
+      if (!_isDriverTripRouteVisible || movedDistance >= 50) {
+        await _drawDriverTripRoute(position);
+      }
+    } catch (e) {
+      debugPrint('Error updating driver live marker: $e');
+    }
+  }
+
   Future<List<LatLng>> _getOsrmPoints(
-  LatLng from,
-  LatLng to,
-) async {
-  final url = Uri.parse(
-    'https://router.project-osrm.org/route/v1/driving/'
-    '${from.longitude},${from.latitude};'
-    '${to.longitude},${to.latitude}'
-    '?overview=full&geometries=geojson',
-  );
+    LatLng from,
+    LatLng to,
+  ) async {
+    final url = Uri.parse(
+      'https://router.project-osrm.org/route/v1/driving/'
+      '${from.longitude},${from.latitude};'
+      '${to.longitude},${to.latitude}'
+      '?overview=full&geometries=geojson',
+    );
 
-  final response = await http.get(url);
+    final response = await http.get(url);
 
-  if (response.statusCode != 200) {
-    throw Exception('OSRM route request failed');
+    if (response.statusCode != 200) {
+      throw Exception('OSRM route request failed');
+    }
+
+    final Map<String, dynamic> data =
+        jsonDecode(response.body) as Map<String, dynamic>;
+
+    final List routes = data['routes'] as List;
+
+    if (routes.isEmpty) {
+      throw Exception('No route found');
+    }
+
+    final List coordinates =
+        routes.first['geometry']['coordinates'] as List;
+
+    return coordinates.map((point) {
+      return LatLng(
+        (point[1] as num).toDouble(),
+        (point[0] as num).toDouble(),
+      );
+    }).toList();
   }
 
-  final Map<String, dynamic> data =
-      jsonDecode(response.body) as Map<String, dynamic>;
+  Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
+    if (_isFetchingDriverTripRoute || _mapController == null) return;
+    if (_originLatLng == null || _destinationLatLng == null) return;
 
-  final List routes = data['routes'] as List;
+    _isFetchingDriverTripRoute = true;
 
-  if (routes.isEmpty) {
-    throw Exception('No route found');
+    try {
+      final List<LatLng> driverToOrigin = await _getOsrmPoints(
+        driverPosition,
+        _originLatLng!,
+      );
+
+      final List<LatLng> originToDestination = await _getOsrmPoints(
+        _originLatLng!,
+        _destinationLatLng!,
+      );
+
+      final List<LatLng> fullRoute = <LatLng>[
+        ...driverToOrigin,
+        ...originToDestination.skip(1),
+      ];
+
+      if (!mounted || _mapController == null) return;
+
+      _driverTripPolylinePoints = fullRoute;
+      _isDriverTripRouteVisible = true;
+
+      await _mapController!.clearLines();
+
+      await _mapController!.addLine(
+        LineOptions(
+          geometry: fullRoute,
+          lineColor: "#0066FF",
+          lineWidth: 5.5,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error drawing driver trip route: $e');
+    } finally {
+      _isFetchingDriverTripRoute = false;
+    }
   }
-
-  final List coordinates =
-      routes.first['geometry']['coordinates'] as List;
-
-  return coordinates.map((point) {
-    return LatLng(
-      (point[1] as num).toDouble(),
-      (point[0] as num).toDouble(),
-    );
-  }).toList();
-}
-
-Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
-  if (_isFetchingDriverTripRoute || _mapController == null) return;
-  if (_originLatLng == null || _destinationLatLng == null) return;
-
-  _isFetchingDriverTripRoute = true;
-
-  try {
-    final List<LatLng> driverToOrigin = await _getOsrmPoints(
-      driverPosition,
-      _originLatLng!,
-    );
-
-    final List<LatLng> originToDestination = await _getOsrmPoints(
-      _originLatLng!,
-      _destinationLatLng!,
-    );
-
-    final List<LatLng> fullRoute = <LatLng>[
-      ...driverToOrigin,
-      ...originToDestination.skip(1),
-    ];
-
-    if (!mounted || _mapController == null) return;
-
-    _driverTripPolylinePoints = fullRoute;
-    _isDriverTripRouteVisible = true;
-
-    await _mapController!.clearLines();
-
-    await _mapController!.addLine(
-      LineOptions(
-        geometry: fullRoute,
-        lineColor: "#0066FF",
-        lineWidth: 5.5,
-      ),
-    );
-  } catch (e) {
-    debugPrint('Error drawing driver trip route: $e');   } finally {
-    _isFetchingDriverTripRoute = false;
-  }
-}
 
   Future<void> _stopListeningToDriverLocation() async {
-  await _driverLocationStreamSubscription?.cancel();
-  _driverLocationStreamSubscription = null;
-  _assignedDriverId = null;
+    await _driverLocationStreamSubscription?.cancel();
+    _driverLocationStreamSubscription = null;
+    _assignedDriverId = null;
 
-  _lastDriverLatLng = null;
-  _driverTripPolylinePoints.clear();
-  _isDriverTripRouteVisible = false;
-  _isFetchingDriverTripRoute = false;
+    _lastDriverLatLng = null;
+    _driverTripPolylinePoints.clear();
+    _isDriverTripRouteVisible = false;
+    _isFetchingDriverTripRoute = false;
 
-  if (_driverLiveSymbol != null && _mapController != null) {
-    await _mapController!.removeSymbol(_driverLiveSymbol!);
-    _driverLiveSymbol = null;
-  }
+    if (_driverLiveSymbol != null && _mapController != null) {
+      await _mapController!.removeSymbol(_driverLiveSymbol!);
+      _driverLiveSymbol = null;
+    }
 
-  if (_mapController != null) {
-    await _mapController!.clearLines();
-  }
+    if (_mapController != null) {
+      await _mapController!.clearLines();
+    }
   }
 
   Future<void> _startLiveLocationUpdates() async {
@@ -721,13 +723,14 @@ Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
       _fetchRoute();
     }
   }
-  Future<void> _clearPreviewRoute() async {
-  _routePolylinePoints.clear();
 
-  if (_mapController != null) {
-    await _mapController!.clearLines();
+  Future<void> _clearPreviewRoute() async {
+    _routePolylinePoints.clear();
+
+    if (_mapController != null) {
+      await _mapController!.clearLines();
+    }
   }
-}
 
   void _fetchRoute() {
     var appInfo = Provider.of<AppInfo>(context, listen: false);
@@ -860,30 +863,31 @@ Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
       ),
     );
   }
+
   Future<void> _playTripStatusSound(String tripStatus) async {
-  try {
-    if (tripStatus == TripStatus.accepted && !_hasPlayedAcceptedSound) {
-      _hasPlayedAcceptedSound = true;
+    try {
+      if (tripStatus == TripStatus.accepted && !_hasPlayedAcceptedSound) {
+        _hasPlayedAcceptedSound = true;
 
-      await _tripAudioPlayer.stop();
-      await _tripAudioPlayer.play(
-        AssetSource('audio/fa/driver_accepted.mp3'),
-        volume: 1.0,
-      );
+        await _tripAudioPlayer.stop();
+        await _tripAudioPlayer.play(
+          AssetSource('audio/fa/driver_accepted.mp3'),
+          volume: 1.0,
+        );
+      }
+
+      if (tripStatus == TripStatus.arrived && !_hasPlayedArrivedSound) {
+        _hasPlayedArrivedSound = true;
+
+        await _tripAudioPlayer.stop();
+        await _tripAudioPlayer.play(
+          AssetSource('audio/fa/driver_arrived.mp3'),
+          volume: 1.0,
+        );
+      }
+    } catch (e) {
+      debugPrint('Trip status audio error: $e');
     }
-
-    if (tripStatus == TripStatus.arrived && !_hasPlayedArrivedSound) {
-      _hasPlayedArrivedSound = true;
-
-      await _tripAudioPlayer.stop();
-      await _tripAudioPlayer.play(
-        AssetSource('audio/fa/driver_arrived.mp3'),
-        volume: 1.0,
-      );
-    }
-  } catch (e) {
-    debugPrint('Trip status audio error: $e');
-  }
   }
 
   void startTrip() async {
@@ -905,13 +909,13 @@ Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
 
     await _clearPreviewRoute();
 
-setState(() {
-  _driverTripPolylinePoints.clear();
-  _lastDriverLatLng = null;
-  _isDriverTripRouteVisible = false;
-  _isFetchingDriverTripRoute = false;
-  _currentStep = 3;
-});
+    setState(() {
+      _driverTripPolylinePoints.clear();
+      _lastDriverLatLng = null;
+      _isDriverTripRouteVisible = false;
+      _isFetchingDriverTripRoute = false;
+      _currentStep = 3;
+    });
     _hasPlayedAcceptedSound = false;
     _hasPlayedArrivedSound = false;
     _lastTripStatus = null;
@@ -978,8 +982,8 @@ setState(() {
         String tripStatus = data["status"] ?? TripStatus.searching;
         String driverId = data["driver_id"] ?? data["driverId"] ?? "";
         if (_lastTripStatus != tripStatus) {
-       _lastTripStatus = tripStatus;
-       _playTripStatusSound(tripStatus);
+          _lastTripStatus = tripStatus;
+          _playTripStatusSound(tripStatus);
         }
 
         if (mounted) {
@@ -1017,11 +1021,11 @@ setState(() {
               });
 
               if (driverId.isNotEmpty && driverId != "waiting") {
-             _listenToDriverLiveLocation(driverId);
+                _listenToDriverLiveLocation(driverId);
+              }
             }
-           } // پایان شرط accepted / arrived / onTrip
 
-             if (tripStatus == TripStatus.arrived) {
+            if (tripStatus == TripStatus.arrived) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text(
@@ -1147,396 +1151,418 @@ setState(() {
     Color activePinColor = _currentStep == 0 ? AppColors.originBlue : AppColors.primaryBrand;
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          // 🗺️ ۱. نقشه تمام صفحه
-          RepaintBoundary(
-            child: MapLibreMap(
-              initialCameraPosition: CameraPosition(
-                target: widget.targetLocation ?? _currentUserLatLng,
-                zoom: 15.0,
-              ),
-              styleString: 'assets/map/style.json',
-              myLocationEnabled: true,
-              myLocationTrackingMode: MyLocationTrackingMode.tracking,
-              myLocationRenderMode: MyLocationRenderMode.normal,
-              trackCameraPosition: true,
-              rotateGesturesEnabled: false,
-              tiltGesturesEnabled: false,
-              onMapCreated: (controller) {
-                _mapController = controller;
-                _isProgrammaticMove = true;
-                if (widget.targetLocation != null) {
-                  _animatedMapMove(widget.targetLocation!, 17.8);
-                }
-              },
-              onCameraMove: (CameraPosition position) {
-                if (!_isProgrammaticMove) {
-                  if (!_isMapMoving) {
-                    _isMapMoving = true;
-                    if (_isSheetExpanded) {
-                      setState(() {
-                        _isSheetExpanded = false;
-                      });
+    // بررسی اختلال موقعیت مکانی (مثلاً دقت بیش از ۳۰ متر یا دقت صفر)
+    bool isGpsDistorted = _currentGpsAccuracy > 30 || _currentGpsAccuracy == 0.0;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.white,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Stack(
+          children: [
+            // 🗺️ ۱. نقشه تمام صفحه
+            RepaintBoundary(
+              child: MapLibreMap(
+                initialCameraPosition: CameraPosition(
+                  target: widget.targetLocation ?? _currentUserLatLng,
+                  zoom: 15.0,
+                ),
+                styleString: 'assets/map/style.json',
+                myLocationEnabled: true,
+                myLocationTrackingMode: MyLocationTrackingMode.tracking,
+                myLocationRenderMode: MyLocationRenderMode.normal,
+                trackCameraPosition: true,
+                rotateGesturesEnabled: false,
+                tiltGesturesEnabled: false,
+                onMapCreated: (controller) {
+                  _mapController = controller;
+                  _isProgrammaticMove = true;
+                  if (widget.targetLocation != null) {
+                    _animatedMapMove(widget.targetLocation!, 17.8);
+                  }
+                },
+                onCameraMove: (CameraPosition position) {
+                  if (!_isProgrammaticMove) {
+                    if (!_isMapMoving) {
+                      _isMapMoving = true;
+                      if (_isSheetExpanded) {
+                        setState(() {
+                          _isSheetExpanded = false;
+                        });
+                      }
                     }
                   }
-                }
-              },
-              onCameraIdle: () {
-                final bool wasProgrammaticMove = _isProgrammaticMove;
-                _isProgrammaticMove = false;
+                },
+                onCameraIdle: () {
+                  final bool wasProgrammaticMove = _isProgrammaticMove;
+                  _isProgrammaticMove = false;
 
-                if (_isMapMoving && mounted) {
-                  setState(() {
-                    _isMapMoving = false;
-                  });
-                }
+                  if (_isMapMoving && mounted) {
+                    setState(() {
+                      _isMapMoving = false;
+                    });
+                  }
 
-                if (!wasProgrammaticMove && _currentStep < 2 && _mapController != null) {
-                  _updateAddressFromCamera(
-                    _mapController!.cameraPosition!.target,
-                  );
-                }
-              },
-              onMapClick: (_, __) {},
+                  if (!wasProgrammaticMove && _currentStep < 2 && _mapController != null) {
+                    _updateAddressFromCamera(
+                      _mapController!.cameraPosition!.target,
+                    );
+                  }
+                },
+                onMapClick: (_, __) {},
+              ),
             ),
-          ),
 
-          // 📍 ۲. پین شناور در وسط نقشه
-          if (_currentStep < 2)
-            IgnorePointer(
-              child: Center(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 160),
-                      width: _isMapMoving ? 42 : 32,
-                      height: _isMapMoving ? 42 : 32,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _isMapMoving
-                            ? Colors.black.withOpacity(0.08)
-                            : Colors.black.withOpacity(0.15),
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 5,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.40),
-                            shape: BoxShape.circle,
+            // 📍 ۲. پین شناور در وسط نقشه
+            if (_currentStep < 2)
+              IgnorePointer(
+                child: Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 160),
+                        width: _isMapMoving ? 42 : 32,
+                        height: _isMapMoving ? 42 : 32,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _isMapMoving
+                              ? Colors.black.withOpacity(0.08)
+                              : Colors.black.withOpacity(0.15),
+                        ),
+                        child: Center(
+                          child: Container(
+                            width: 5,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.40),
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 160),
-                      curve: Curves.easeOutCubic,
-                      transform: Matrix4.translationValues(
-                        0,
-                        _isMapMoving ? -45.0 : -20.0,
-                        0,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: activePinColor,
-                              shape: _currentStep == 0 ? BoxShape.circle : BoxShape.rectangle,
-                              borderRadius: _currentStep == 0 ? null : BorderRadius.circular(8),
-                              border: Border.all(color: Colors.white, width: 2),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Container(
-                                width: 7,
-                                height: 7,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: _currentStep == 0 ? BoxShape.circle : BoxShape.rectangle,
-                                  borderRadius: _currentStep == 0 ? null : BorderRadius.circular(2),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 160),
+                        curve: Curves.easeOutCubic,
+                        transform: Matrix4.translationValues(
+                          0,
+                          _isMapMoving ? -45.0 : -20.0,
+                          0,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: activePinColor,
+                                shape: _currentStep == 0 ? BoxShape.circle : BoxShape.rectangle,
+                                borderRadius: _currentStep == 0 ? null : BorderRadius.circular(8),
+                                border: Border.all(color: Colors.white, width: 2),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Container(
+                                  width: 7,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: _currentStep == 0 ? BoxShape.circle : BoxShape.rectangle,
+                                    borderRadius: _currentStep == 0 ? null : BorderRadius.circular(2),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          Container(
-                            width: 2.0,
-                            height: 18,
-                            color: const Color(0xFF333333),
+                            Container(
+                              width: 2.0,
+                              height: 18,
+                              color: const Color(0xFF333333),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // 🔘 ۳. دکمه‌های شناور بالای صفحه (خانه سمت راست، پروفایل سمت چپ)
+            Positioned(
+              top: statusBarHeight + 8,
+              left: 16,
+              right: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // دکمه خانه / بازگشت شناور سمت چپ
+                  GestureDetector(
+                    onTap: _handleBackAction,
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
                           ),
                         ],
                       ),
+                      child: Icon(
+                        _currentStep == 0 ? Icons.home_outlined : Icons.arrow_back,
+                        color: Colors.grey[800],
+                        size: 26,
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  // دکمه پروفایل شناور سمت راست
+                  GestureDetector(
+                    onTap: _showAdvancedProfile,
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            color: Colors.grey[800],
+                            size: 26,
+                          ),
+                          if (_hasNotification)
+                            Positioned(
+                              top: 3,
+                              right: 3,
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: Colors.redAccent,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
-          // 🔘 ۳. دکمه‌های شناور بالای صفحه
-          Positioned(
-            top: statusBarHeight + 8,
-            left: 16,
-            right: 16,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // دکمه پروفایل شناور سمت چپ
-                GestureDetector(
-                  onTap: _showAdvancedProfile,
+            // ⚠️ هشدار اختلال در موقعیت مکانی
+            if (isGpsDistorted && _currentStep < 2)
+              Positioned(
+                top: statusBarHeight + 68,
+                left: 20,
+                right: 20,
+                child: Center(
                   child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: const BoxDecoration(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black12,
-                          blurRadius: 10,
+                          blurRadius: 8,
                           offset: Offset(0, 3),
                         ),
                       ],
                     ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      clipBehavior: Clip.none,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.person_outline,
-                          color: Colors.grey[800],
-                          size: 26,
+                        const Icon(
+                          Icons.gps_fixed_rounded,
+                          color: Color(0xFFE67E22),
+                          size: 20,
                         ),
-                        if (_hasNotification)
-                          Positioned(
-                            top: 3,
-                            right: 3,
-                            child: Container(
-                              width: 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: Colors.redAccent,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                            ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'اختلال در موقعیت مکانی',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[800],
                           ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // دکمه بیضی "برای خودم" در وسط
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.keyboard_arrow_down, size: 22, color: Colors.green.shade700),
-                      const SizedBox(width: 6),
-                      Text(
-                        'برای خودم',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // دکمه خانه / بازگشت شناور سمت راست
-                GestureDetector(
-                  onTap: _handleBackAction,
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          offset: Offset(0, 3),
                         ),
                       ],
                     ),
-                    child: Icon(
-                      _currentStep == 0 ? Icons.home_outlined : Icons.arrow_back,
-                      color: Colors.grey[800],
-                      size: 26,
-                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
 
-          // 📄 ۴. باتم‌شیت‌ها بر اساس مراحل
-          if (_currentStep == 0 || _currentStep == 1)
-            SmartLocationSheet(
-              currentStep: _currentStep,
-              currentAddress: currentOrigin,
-              currentDestination: currentDestination,
-              isMapIdle: !_isMapMoving, 
-              isExpanded: _isSheetExpanded,
-              onExpandChanged: (expanded) {
-                setState(() => _isSheetExpanded = expanded);
-              },
-              onConfirmStep: () {
-                if (_currentStep == 0) {
-                  _confirmOrigin();
-                } else {
-                  _confirmDestination();
-                }
-              },
-              onSearchOriginTap: (addr) async {
-                var response = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (c) => const SearchDestinationPlace()),
-                );
-                if (response == "placeSelected") {
-                  _confirmOrigin();
-                }
-              },
-              onSearchDestinationTap: () async {
-                if (widget.serviceType == 'intercity') {
-                  IntercitySheets.showCityPicker(
-                    context: context,
-                    targetCities: _intercityCities,
-                    onCitySelected: (selectedCity) {
-                      LatLng cityLatLng = LatLng(selectedCity['lat'], selectedCity['lng']);
-                      _animatedMapMove(cityLatLng, 13.0);
-                    },
-                  );
-                } else {
+            // 📄 ۴. باتم‌شیت‌ها بر اساس مراحل
+            if (_currentStep == 0 || _currentStep == 1)
+              SmartLocationSheet(
+                currentStep: _currentStep,
+                currentAddress: currentOrigin,
+                currentDestination: currentDestination,
+                isMapIdle: !_isMapMoving, 
+                isExpanded: _isSheetExpanded,
+                onExpandChanged: (expanded) {
+                  setState(() => _isSheetExpanded = expanded);
+                },
+                onConfirmStep: () {
+                  if (_currentStep == 0) {
+                    _confirmOrigin();
+                  } else {
+                    _confirmDestination();
+                  }
+                },
+                onSearchOriginTap: (addr) async {
                   var response = await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (c) => const SearchDestinationPlace()),
                   );
                   if (response == "placeSelected") {
-                    if (widget.serviceType == 'cargo') {
-                      _confirmDestination();
-                    } else {
-                      _fetchRoute();
-                      setState(() => _currentStep = 2);
+                    _confirmOrigin();
+                  }
+                },
+                onSearchDestinationTap: () async {
+                  if (widget.serviceType == 'intercity') {
+                    IntercitySheets.showCityPicker(
+                      context: context,
+                      targetCities: _intercityCities,
+                      onCitySelected: (selectedCity) {
+                        LatLng cityLatLng = LatLng(selectedCity['lat'], selectedCity['lng']);
+                        _animatedMapMove(cityLatLng, 13.0);
+                      },
+                    );
+                  } else {
+                    var response = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (c) => const SearchDestinationPlace()),
+                    );
+                    if (response == "placeSelected") {
+                      if (widget.serviceType == 'cargo') {
+                        _confirmDestination();
+                      } else {
+                        _fetchRoute();
+                        setState(() => _currentStep = 2);
+                      }
                     }
                   }
-                }
-              },
-              onGpsTap: _handleGpsTap,
-            ),
+                },
+                onGpsTap: _handleGpsTap,
+              ),
 
-          if (_currentStep == 2)
-            widget.serviceType == 'cargo'
-                ? CargoSheets.buildCargoSummarySheet(
-                    context: context,
-                    fareAmount: actualFareAmount,
-                    distanceInKm: _tripDistanceInKm,
-                    selectedVehicleType: _cargoSelectedVehicle,
-                    onVehicleSelected: (vehicleId) {
-                      setState(() => _cargoSelectedVehicle = vehicleId);
-                    },
-                    paymentPayer: _cargoPaymentPayer,
-                    onPayerChanged: (payer) {
-                      setState(() => _cargoPaymentPayer = payer);
-                    },
-                    onRequestTrip: () => startTrip(),
-                  )
-                : widget.serviceType == 'intercity'
-                    ? IntercitySheets.buildStep2IntercitySheet(
-                        context: context,
-                        fareAmount: actualFareAmount,
-                        distanceInKm: _tripDistanceInKm,
-                        travelDate: _intercityTravelDate,
-                        passengerCount: _intercityPassengers,
-                        onDateSelected: (date) => setState(() => _intercityTravelDate = date),
-                        onPassengersChanged: (count) => setState(() => _intercityPassengers = count),
-                        onRequestTrip: () => startTrip(),
-                      )
-                    : MapBottomSheets.buildStep2(
-                        selectedCategory: _selectedCategory,
-                        selectedVehicleType: _selectedVehicleType,
-                        actualFareAmount: actualFareAmount,
-                        distanceInKm: _tripDistanceInKm,
-                        safirColor: AppColors.primaryBrand,
-                        hasActiveTripOptions: _hasActiveTripOptions,
-                        isScheduled: _isScheduled,
-                        hasPromoCode: _hasPromoCode,
-                        onCategoryChanged: (cat) {
-                          setState(() {
-                            _selectedCategory = cat;
-                            _selectedVehicleType = 0;
-                            selectedVehicle = cat == 0 ? "Car" : "Bike";
-                          });
-                          _fetchRoute();
-                        },
-                        onVehicleSelected: (index, vType) {
-                          setState(() {
-                            _selectedVehicleType = index;
-                            selectedVehicle = vType;
-                          });
-                          _fetchRoute();
-                        },
-                        onRequestTrip: () => startTrip(),
-                        onTripOptionsTap: _openTripOptionsSheet,
-                        onScheduleTap: _openScheduleSheet,
-                        onPromoCodeTap: _openPromoCodeSheet,
-                      ),
+            if (_currentStep == 2)
+              widget.serviceType == 'cargo'
+                  ? CargoSheets.buildCargoSummarySheet(
+                      context: context,
+                      fareAmount: actualFareAmount,
+                      distanceInKm: _tripDistanceInKm,
+                      selectedVehicleType: _cargoSelectedVehicle,
+                      onVehicleSelected: (vehicleId) {
+                        setState(() => _cargoSelectedVehicle = vehicleId);
+                      },
+                      paymentPayer: _cargoPaymentPayer,
+                      onPayerChanged: (payer) {
+                        setState(() => _cargoPaymentPayer = payer);
+                      },
+                      onRequestTrip: () => startTrip(),
+                    )
+                  : widget.serviceType == 'intercity'
+                      ? IntercitySheets.buildStep2IntercitySheet(
+                          context: context,
+                          fareAmount: actualFareAmount,
+                          distanceInKm: _tripDistanceInKm,
+                          travelDate: _intercityTravelDate,
+                          passengerCount: _intercityPassengers,
+                          onDateSelected: (date) => setState(() => _intercityTravelDate = date),
+                          onPassengersChanged: (count) => setState(() => _intercityPassengers = count),
+                          onRequestTrip: () => startTrip(),
+                        )
+                      : MapBottomSheets.buildStep2(
+                          selectedCategory: _selectedCategory,
+                          selectedVehicleType: _selectedVehicleType,
+                          actualFareAmount: actualFareAmount,
+                          distanceInKm: _tripDistanceInKm,
+                          safirColor: AppColors.primaryBrand,
+                          hasActiveTripOptions: _hasActiveTripOptions,
+                          isScheduled: _isScheduled,
+                          hasPromoCode: _hasPromoCode,
+                          onCategoryChanged: (cat) {
+                            setState(() {
+                              _selectedCategory = cat;
+                              _selectedVehicleType = 0;
+                              selectedVehicle = cat == 0 ? "Car" : "Bike";
+                            });
+                            _fetchRoute();
+                          },
+                          onVehicleSelected: (index, vType) {
+                            setState(() {
+                              _selectedVehicleType = index;
+                              selectedVehicle = vType;
+                            });
+                            _fetchRoute();
+                          },
+                          onRequestTrip: () => startTrip(),
+                          onTripOptionsTap: _openTripOptionsSheet,
+                          onScheduleTap: _openScheduleSheet,
+                          onPromoCodeTap: _openPromoCodeSheet,
+                        ),
 
-          if (_currentStep == 3) ...[
-            MapBottomSheets.buildStep3(
-              safirColor: AppColors.primaryBrand,
-              originAddress: currentOrigin,
-              destinationAddress: currentDestination,
-              fareAmount: actualFareAmount,
-              onCancel: cancelTrip,
-              onBidPricePressed: () {},
-            ),
-          ] else if (_currentStep == 4) ...[
-            MapBottomSheets.buildStep4(
-              AppColors.primaryBrand,
-              tripId: tripRequestRef?.id ?? "",
-              nameDriver: nameDriver,
-              photoDriver: photoDriver,
-              phoneNumberDriver: phoneNumberDriver,
-              carDetailsDriver: carDetailsDriver,
-              carColorDriver: _driverCarColor,
-              plateProvinceDriver: _driverPlateProvince,
-              plateCategoryDriver: _driverPlateCategory,
-              plateFarsiNumDriver: _driverPlateFarsiNum,
-              plateNumDriver: _driverPlateNum,
-              isTempPlateDriver: _driverIsTempPlate,
-              tripFareAmount: actualFareAmount,
-              estimatedArrivalTime: _tripDurationText.isNotEmpty ? _tripDurationText : "۵ دقیقه",
-              onCancelTrip: cancelTrip,
-            ),
+            if (_currentStep == 3) ...[
+              MapBottomSheets.buildStep3(
+                safirColor: AppColors.primaryBrand,
+                originAddress: currentOrigin,
+                destinationAddress: currentDestination,
+                fareAmount: actualFareAmount,
+                onCancel: cancelTrip,
+                onBidPricePressed: () {},
+              ),
+            ] else if (_currentStep == 4) ...[
+              MapBottomSheets.buildStep4(
+                AppColors.primaryBrand,
+                tripId: tripRequestRef?.id ?? "",
+                nameDriver: nameDriver,
+                photoDriver: photoDriver,
+                phoneNumberDriver: phoneNumberDriver,
+                carDetailsDriver: carDetailsDriver,
+                carColorDriver: _driverCarColor,
+                plateProvinceDriver: _driverPlateProvince,
+                plateCategoryDriver: _driverPlateCategory,
+                plateFarsiNumDriver: _driverPlateFarsiNum,
+                plateNumDriver: _driverPlateNum,
+                isTempPlateDriver: _driverIsTempPlate,
+                tripFareAmount: actualFareAmount,
+                estimatedArrivalTime: _tripDurationText.isNotEmpty ? _tripDurationText : "۵ دقیقه",
+                onCancelTrip: cancelTrip,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
