@@ -192,6 +192,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   String _estimatedArrivalTime = "--:--";
 
   List<LatLng> _routePolylinePoints = [];
+  List<LatLng> _driverTripPolylinePoints = [];
+LatLng? _lastDriverLatLng;
+
+bool _isDriverTripRouteVisible = false;
+bool _isFetchingDriverTripRoute = false;
 
   DocumentReference? tripRequestRef;
   StreamSubscription<DocumentSnapshot>? tripStreamSubscription;
@@ -305,6 +310,19 @@ Future<void> _updateDriverMarkerOnMap(
   final controller = _mapController;
   if (controller == null) return;
 
+  final bool isFirstDriverPosition = _lastDriverLatLng == null;
+
+  final double movedDistance = isFirstDriverPosition
+      ? double.infinity
+      : Geolocator.distanceBetween(
+          _lastDriverLatLng!.latitude,
+          _lastDriverLatLng!.longitude,
+          position.latitude,
+          position.longitude,
+        );
+
+  _lastDriverLatLng = position;
+
   try {
     final Uint8List? carBytes = await _loadCarIconBytes();
     if (carBytes == null) return;
@@ -324,11 +342,92 @@ Future<void> _updateDriverMarkerOnMap(
     } else {
       await controller.updateSymbol(_driverLiveSymbol!, options);
     }
+
+    if (!_isDriverTripRouteVisible || movedDistance >= 50) {
+      await _drawDriverTripRoute(position);
+    }
   } catch (e) {
     debugPrint('Error updating driver live marker: $e');
   }
 }
+  Future<List<LatLng>> _getOsrmPoints(
+  LatLng from,
+  LatLng to,
+) async {
+  final url = Uri.parse(
+    'https://router.project-osrm.org/route/v1/driving/'
+    '${from.longitude},${from.latitude};'
+    '${to.longitude},${to.latitude}'
+    '?overview=full&geometries=geojson',
+  );
 
+  final response = await http.get(url);
+
+  if (response.statusCode != 200) {
+    throw Exception('OSRM route request failed');
+  }
+
+  final Map<String, dynamic> data =
+      jsonDecode(response.body) as Map<String, dynamic>;
+
+  final List routes = data['routes'] as List;
+
+  if (routes.isEmpty) {
+    throw Exception('No route found');
+  }
+
+  final List coordinates =
+      routes.first['geometry']['coordinates'] as List;
+
+  return coordinates.map((point) {
+    return LatLng(
+      (point[1] as num).toDouble(),
+      (point[0] as num).toDouble(),
+    );
+  }).toList();
+}
+
+Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
+  if (_isFetchingDriverTripRoute || _mapController == null) return;
+  if (_originLatLng == null || _destinationLatLng == null) return;
+
+  _isFetchingDriverTripRoute = true;
+
+  try {
+    final List<LatLng> driverToOrigin = await _getOsrmPoints(
+      driverPosition,
+      _originLatLng!,
+    );
+
+    final List<LatLng> originToDestination = await _getOsrmPoints(
+      _originLatLng!,
+      _destinationLatLng!,
+    );
+
+    final List<LatLng> fullRoute = <LatLng>[
+      ...driverToOrigin,
+      ...originToDestination.skip(1),
+    ];
+
+    if (!mounted || _mapController == null) return;
+
+    _driverTripPolylinePoints = fullRoute;
+    _isDriverTripRouteVisible = true;
+
+    await _mapController!.clearLines();
+
+    await _mapController!.addLine(
+      LineOptions(
+        geometry: fullRoute,
+        lineColor: "#0066FF",
+        lineWidth: 5.5,
+      ),
+    );
+  } catch (e) {
+    debugPrint('Error drawing driver trip route: $e');   } finally {
+    _isFetchingDriverTripRoute = false;
+  }
+}
 
   Future<void> _stopListeningToDriverLocation() async {
     await _driverLocationStreamSubscription?.cancel();
@@ -613,6 +712,13 @@ Future<void> _updateDriverMarkerOnMap(
       _fetchRoute();
     }
   }
+  Future<void> _clearPreviewRoute() async {
+  _routePolylinePoints.clear();
+
+  if (_mapController != null) {
+    await _mapController!.clearLines();
+  }
+}
 
   void _fetchRoute() {
     var appInfo = Provider.of<AppInfo>(context, listen: false);
