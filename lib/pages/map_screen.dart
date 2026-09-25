@@ -1018,9 +1018,10 @@ setState(() {
 
               if (driverId.isNotEmpty && driverId != "waiting") {
              _listenToDriverLiveLocation(driverId);
-              }
+            }
+           } // پایان شرط accepted / arrived / onTrip
 
-            if (tripStatus == TripStatus.arrived) {
+             if (tripStatus == TripStatus.arrived) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text(
