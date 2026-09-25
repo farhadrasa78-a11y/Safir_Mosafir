@@ -1163,6 +1163,8 @@ setState(() {
               myLocationTrackingMode: MyLocationTrackingMode.tracking,
               myLocationRenderMode: MyLocationRenderMode.normal,
               trackCameraPosition: true,
+              rotateGesturesEnabled: false,
+              tiltGesturesEnabled: false,
               onMapCreated: (controller) {
                 _mapController = controller;
                 _isProgrammaticMove = true;
