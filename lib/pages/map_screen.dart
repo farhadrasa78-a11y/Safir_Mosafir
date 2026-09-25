@@ -367,7 +367,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         iconAnchor: 'center',
         iconRotate: finalHeading,
         iconSize: 1.2,
-        iconRotationAlignment: 'map',
       );
 
       if (_driverLiveSymbol == null) {
