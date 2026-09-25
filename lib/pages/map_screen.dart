@@ -85,7 +85,7 @@ class DriverCarMarker extends StatelessWidget {
       width: 48,
       height: 48,
       child: Image.asset(
-        'assets/images/tracking_car.png', // آدرس عکس ماشین در پروژه شما
+        'assets/images/tracking_car.png',
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
           return const Icon(
@@ -134,7 +134,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   Symbol? _driverLiveSymbol;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _driverLocationStreamSubscription;
   String? _assignedDriverId;
-  Uint8List? _cachedDriverCarBytes; // بایت‌های کش‌شده برای جلوگیری از افت فریم
+  Uint8List? _cachedDriverCarBytes;
 
   bool _isMapMoving = false;
   bool _isProgrammaticMove = false;
@@ -289,7 +289,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     });
   }
 
-  /// 🚀 بروزرسانی مارکر ماشین راننده روی نقشه با چرخش جهت حرکت
   Future<Uint8List?> _loadCarIconBytes() async {
     if (_cachedDriverCarBytes != null) return _cachedDriverCarBytes;
 
@@ -303,25 +302,43 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   }
 
-    Future<void> _updateDriverMarkerOnMap(
+  Future<void> _updateDriverMarkerOnMap(
     LatLng position,
     double rawHeading,
   ) async {
     final controller = _mapController;
     if (controller == null) return;
 
-    // ۱. اصلاح موقعیت مکان (اصلاح خروج از خیابان)
+    // ۱. انطباق موقعیت مکانی با مسیر خط آبی
     LatLng snappedPosition = position;
     if (_driverTripPolylinePoints.isNotEmpty) {
       snappedPosition = _snapToPolyline(position, _driverTripPolylinePoints);
     }
 
-    // ۲. اصلاح زاویه چرخش (صاف کردن ماشین روی مسیر)
+    // ۲. محاسبه زاویه دقیق حرکت خودرو رو به جلو
     double finalHeading = rawHeading;
     if (_driverTripPolylinePoints.isNotEmpty) {
-      int index = _driverTripPolylinePoints.indexWhere((p) => p == snappedPosition);
+      int index = -1;
+      double minDistance = double.infinity;
+
+      for (int i = 0; i < _driverTripPolylinePoints.length - 1; i++) {
+        double dist = Geolocator.distanceBetween(
+          snappedPosition.latitude,
+          snappedPosition.longitude,
+          _driverTripPolylinePoints[i].latitude,
+          _driverTripPolylinePoints[i].longitude,
+        );
+        if (dist < minDistance) {
+          minDistance = dist;
+          index = i;
+        }
+      }
+
       if (index != -1 && index < _driverTripPolylinePoints.length - 1) {
-        finalHeading = _calculateBearing(snappedPosition, _driverTripPolylinePoints[index + 1]);
+        finalHeading = _calculateBearing(
+          _driverTripPolylinePoints[index],
+          _driverTripPolylinePoints[index + 1],
+        );
       }
     }
 
@@ -345,10 +362,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       await controller.addImage('driver-car-icon', carBytes);
 
       final SymbolOptions options = SymbolOptions(
-        geometry: snappedPosition, // موقعیت چسبیده به خیابان
+        geometry: snappedPosition,
         iconImage: 'driver-car-icon',
         iconAnchor: 'center',
-        iconRotate: finalHeading,   // زاویه اصلاح شده
+        iconRotate: finalHeading,
         iconSize: 1.2,
         iconRotationAlignment: 'map',
       );
@@ -366,7 +383,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       debugPrint('Error updating driver live marker: $e');
     }
   }
-
 
   Future<List<LatLng>> _getOsrmPoints(
     LatLng from,
@@ -1168,7 +1184,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     Color activePinColor = _currentStep == 0 ? AppColors.originBlue : AppColors.primaryBrand;
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    // بررسی اختلال موقعیت مکانی (مثلاً دقت بیش از ۳۰ متر یا دقت صفر)
+    // بررسی اختلال موقعیت مکانی
     bool isGpsDistorted = _currentGpsAccuracy > 30 || _currentGpsAccuracy == 0.0;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -1314,7 +1330,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 ),
               ),
 
-            // 🔘 ۳. دکمه‌های شناور بالای صفحه (خانه سمت راست، پروفایل سمت چپ)
+            // 🔘 ۳. دکمه‌های شناور بالای صفحه
             Positioned(
               top: statusBarHeight + 8,
               left: 16,
@@ -1322,7 +1338,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // دکمه خانه / بازگشت شناور سمت چپ
                   GestureDetector(
                     onTap: _handleBackAction,
                     child: Container(
@@ -1346,8 +1361,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                       ),
                     ),
                   ),
-
-                  // دکمه پروفایل شناور سمت راست
                   GestureDetector(
                     onTap: _showAdvancedProfile,
                     child: Container(
@@ -1395,50 +1408,57 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
               ),
             ),
 
-            // ⚠️ هشدار اختلال در موقعیت مکانی
-            if (isGpsDistorted && _currentStep < 2)
+            // 📍 ۴. دکمه GPS هوشمند (ترکیب دکمه GPS با متن هشدار اختلال)
+            if (_currentStep < 2)
               Positioned(
-                top: statusBarHeight + 68,
-                left: 20,
-                right: 20,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                bottom: 220,
+                left: 16,
+                child: GestureDetector(
+                  onTap: _handleGpsTap,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isGpsDistorted ? 14 : 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: const [
                         BoxShadow(
                           color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 3),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.gps_fixed_rounded,
-                          color: Color(0xFFE67E22),
-                          size: 20,
+                          color: isGpsDistorted ? const Color(0xFFE67E22) : const Color(0xFF0066FF),
+                          size: 22,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'اختلال در موقعیت مکانی',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[800],
+                        if (isGpsDistorted) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            'اختلال در موقعیت مکانی',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
                 ),
               ),
 
-            // 📄 ۴. باتم‌شیت‌ها بر اساس مراحل
+            // 📄 ۵. باتم‌شیت‌ها بر اساس مراحل
             if (_currentStep == 0 || _currentStep == 1)
               SmartLocationSheet(
                 currentStep: _currentStep,
@@ -1583,7 +1603,8 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       ),
     );
   }
-    // 🔹 ۱. متد پیدا کردن نزدیک‌ترین نقطه روی خط آبی مسیر
+
+  // 🔹 ۱. متد پیدا کردن نزدیک‌ترین نقطه روی خط آبی مسیر
   LatLng _snapToPolyline(LatLng gpsPoint, List<LatLng> polyline) {
     if (polyline.isEmpty) return gpsPoint;
 
@@ -1626,7 +1647,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   }
 
   // 🔹 ۳. متد محاسبه زاویه صاف حرکت در امتداد مسیر خیابان
-    double _calculateBearing(LatLng start, LatLng end) {
+  double _calculateBearing(LatLng start, LatLng end) {
     double startLatRad = start.latitude * pi / 180;
     double startLngRad = start.longitude * pi / 180;
     double endLatRad = end.latitude * pi / 180;
