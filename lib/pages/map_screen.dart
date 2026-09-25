@@ -457,7 +457,7 @@ Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
       }
 
       Position initialPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
+        desiredAccuracy: LocationAccuracy.high,
       );
 
       if (mounted) {
