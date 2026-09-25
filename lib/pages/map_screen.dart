@@ -303,12 +303,27 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   }
 
-  Future<void> _updateDriverMarkerOnMap(
+    Future<void> _updateDriverMarkerOnMap(
     LatLng position,
-    double heading,
+    double rawHeading,
   ) async {
     final controller = _mapController;
     if (controller == null) return;
+
+    // ۱. اصلاح موقعیت مکان (اصلاح خروج از خیابان)
+    LatLng snappedPosition = position;
+    if (_driverTripPolylinePoints.isNotEmpty) {
+      snappedPosition = _snapToPolyline(position, _driverTripPolylinePoints);
+    }
+
+    // ۲. اصلاح زاویه چرخش (صاف کردن ماشین روی مسیر)
+    double finalHeading = rawHeading;
+    if (_driverTripPolylinePoints.isNotEmpty) {
+      int index = _driverTripPolylinePoints.indexWhere((p) => p == snappedPosition);
+      if (index != -1 && index < _driverTripPolylinePoints.length - 1) {
+        finalHeading = _calculateBearing(snappedPosition, _driverTripPolylinePoints[index + 1]);
+      }
+    }
 
     final bool isFirstDriverPosition = _lastDriverLatLng == null;
 
@@ -317,11 +332,11 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         : Geolocator.distanceBetween(
             _lastDriverLatLng!.latitude,
             _lastDriverLatLng!.longitude,
-            position.latitude,
-            position.longitude,
+            snappedPosition.latitude,
+            snappedPosition.longitude,
           );
 
-    _lastDriverLatLng = position;
+    _lastDriverLatLng = snappedPosition;
 
     try {
       final Uint8List? carBytes = await _loadCarIconBytes();
@@ -330,10 +345,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       await controller.addImage('driver-car-icon', carBytes);
 
       final SymbolOptions options = SymbolOptions(
-        geometry: position,
+        geometry: snappedPosition, // موقعیت چسبیده به خیابان
         iconImage: 'driver-car-icon',
         iconAnchor: 'center',
-        iconRotate: heading,
+        iconRotate: finalHeading,   // زاویه اصلاح شده
         iconSize: 1.2,
         iconRotationAlignment: 'map',
       );
@@ -345,12 +360,13 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       }
 
       if (!_isDriverTripRouteVisible || movedDistance >= 15) {
-        await _drawDriverTripRoute(position);
+        await _drawDriverTripRoute(snappedPosition);
       }
     } catch (e) {
       debugPrint('Error updating driver live marker: $e');
     }
   }
+
 
   Future<List<LatLng>> _getOsrmPoints(
     LatLng from,
@@ -1566,5 +1582,63 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         ),
       ),
     );
+  }
+    // 🔹 ۱. متد پیدا کردن نزدیک‌ترین نقطه روی خط آبی مسیر
+  LatLng _snapToPolyline(LatLng gpsPoint, List<LatLng> polyline) {
+    if (polyline.isEmpty) return gpsPoint;
+
+    double minDistance = double.infinity;
+    LatLng closestPoint = polyline.first;
+
+    for (int i = 0; i < polyline.length - 1; i++) {
+      LatLng p1 = polyline[i];
+      LatLng p2 = polyline[i + 1];
+
+      LatLng projected = _getClosestPointOnSegment(gpsPoint, p1, p2);
+      double distance = Geolocator.distanceBetween(
+        gpsPoint.latitude, gpsPoint.longitude,
+        projected.latitude, projected.longitude,
+      );
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPoint = projected;
+      }
+    }
+    return closestPoint;
+  }
+
+  // 🔹 ۲. متد تصویرسازی نقطه روی پاره‌خط
+  LatLng _getClosestPointOnSegment(LatLng p, LatLng a, LatLng b) {
+    double x = p.longitude, y = p.latitude;
+    double x1 = a.longitude, y1 = a.latitude;
+    double x2 = b.longitude, y2 = b.latitude;
+
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+
+    if (dx == 0 && dy == 0) return a;
+
+    double t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
+    t = t.clamp(0.0, 1.0);
+
+    return LatLng(y1 + t * dy, x1 + t * dx);
+  }
+
+  // 🔹 ۳. متد محاسبه زاویه صاف حرکت در امتداد مسیر خیابان
+    double _calculateBearing(LatLng start, LatLng end) {
+    double startLatRad = start.latitude * pi / 180;
+    double startLngRad = start.longitude * pi / 180;
+    double endLatRad = end.latitude * pi / 180;
+    double endLngRad = end.longitude * pi / 180;
+
+    double dLng = endLngRad - startLngRad;
+
+    double y = sin(dLng) * cos(endLatRad);
+    double x = cos(startLatRad) * sin(endLatRad) -
+        sin(startLatRad) * cos(endLatRad) * cos(dLng);
+
+    double bearing = atan2(y, x);
+    return (bearing * 180 / pi + 360) % 360;
   }
 }
