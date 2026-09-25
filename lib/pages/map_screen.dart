@@ -903,7 +903,15 @@ Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
       return;
     }
 
-    setState(() => _currentStep = 3);
+    await _clearPreviewRoute();
+
+setState(() {
+  _driverTripPolylinePoints.clear();
+  _lastDriverLatLng = null;
+  _isDriverTripRouteVisible = false;
+  _isFetchingDriverTripRoute = false;
+  _currentStep = 3;
+});
     _hasPlayedAcceptedSound = false;
     _hasPlayedArrivedSound = false;
     _lastTripStatus = null;
@@ -1009,11 +1017,8 @@ Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
               });
 
               if (driverId.isNotEmpty && driverId != "waiting") {
-                _listenToDriverLiveLocation(driverId);
+             _listenToDriverLiveLocation(driverId);
               }
-
-              _fetchRoute();
-            }
 
             if (tripStatus == TripStatus.arrived) {
               ScaffoldMessenger.of(context).showSnackBar(
