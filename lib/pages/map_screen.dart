@@ -303,85 +303,78 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   }
 
   Future<void> _updateDriverMarkerOnMap(
-    LatLng position,
-    double rawHeading,
-  ) async {
-    final controller = _mapController;
-    if (controller == null) return;
+  LatLng rawPosition,
+  double rawHeading,
+) async {
+  if (_mapController == null) return;
 
-    // ۱. انطباق موقعیت مکانی با مسیر خط آبی
-    LatLng snappedPosition = position;
-    if (_driverTripPolylinePoints.isNotEmpty) {
-      snappedPosition = _snapToPolyline(position, _driverTripPolylinePoints);
-    }
+  // ۱. تصویرسازی و قفل کردن نقطه GPS روی خط آبی مسیر
+  LatLng snappedPosition = rawPosition;
+  if (_driverTripPolylinePoints.isNotEmpty) {
+    snappedPosition = _snapToPolyline(rawPosition, _driverTripPolylinePoints);
+  }
 
-    // ۲. محاسبه زاویه دقیق حرکت خودرو رو به جلو
-    double finalHeading = rawHeading;
-    if (_driverTripPolylinePoints.isNotEmpty) {
-      int index = -1;
-      double minDistance = double.infinity;
+  // ۲. محاسبه زاویه دقیق جهت حرکت خودرو در امتداد مسیر خیابان
+  double finalHeading = rawHeading;
+  if (_driverTripPolylinePoints.isNotEmpty) {
+    int index = -1;
+    double minDistance = double.infinity;
 
-      for (int i = 0; i < _driverTripPolylinePoints.length - 1; i++) {
-        double dist = Geolocator.distanceBetween(
-          snappedPosition.latitude,
-          snappedPosition.longitude,
-          _driverTripPolylinePoints[i].latitude,
-          _driverTripPolylinePoints[i].longitude,
-        );
-        if (dist < minDistance) {
-          minDistance = dist;
-          index = i;
-        }
-      }
-
-      if (index != -1 && index < _driverTripPolylinePoints.length - 1) {
-        finalHeading = _calculateBearing(
-          _driverTripPolylinePoints[index],
-          _driverTripPolylinePoints[index + 1],
-        );
-      }
-    }
-
-    final bool isFirstDriverPosition = _lastDriverLatLng == null;
-
-    final double movedDistance = isFirstDriverPosition
-        ? double.infinity
-        : Geolocator.distanceBetween(
-            _lastDriverLatLng!.latitude,
-            _lastDriverLatLng!.longitude,
-            snappedPosition.latitude,
-            snappedPosition.longitude,
-          );
-
-    _lastDriverLatLng = snappedPosition;
-
-    try {
-      final Uint8List? carBytes = await _loadCarIconBytes();
-      if (carBytes == null) return;
-
-      await controller.addImage('driver-car-icon', carBytes);
-
-      final SymbolOptions options = SymbolOptions(
-        geometry: snappedPosition,
-        iconImage: 'driver-car-icon',
-        iconAnchor: 'center',
-        iconRotate: finalHeading,
-        iconSize: 1.2,
+    for (int i = 0; i < _driverTripPolylinePoints.length - 1; i++) {
+      double dist = Geolocator.distanceBetween(
+        snappedPosition.latitude,
+        snappedPosition.longitude,
+        _driverTripPolylinePoints[i].latitude,
+        _driverTripPolylinePoints[i].longitude,
       );
-
-      if (_driverLiveSymbol == null) {
-        _driverLiveSymbol = await controller.addSymbol(options);
-      } else {
-        await controller.updateSymbol(_driverLiveSymbol!, options);
+      if (dist < minDistance) {
+        minDistance = dist;
+        index = i;
       }
+    }
 
-      if (!_isDriverTripRouteVisible || movedDistance >= 15) {
-        await _drawDriverTripRoute(snappedPosition);
-      }
-    } catch (e) {
-      debugPrint('Error updating driver live marker: $e');
+    if (index != -1 && index < _driverTripPolylinePoints.length - 1) {
+      finalHeading = _calculateBearing(
+        _driverTripPolylinePoints[index],
+        _driverTripPolylinePoints[index + 1],
+      );
     }
   }
+
+  _lastDriverLatLng = snappedPosition;
+
+  try {
+    // ۳. آپدیت مختصات جدید در GeoSource
+    await _mapController!.addGeoJsonSource('driver-source', {
+      'type': 'FeatureCollection',
+      'features': [
+        {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [snappedPosition.longitude, snappedPosition.latitude],
+          },
+        }
+      ],
+    });
+
+    // ۴. آپدیت زاویه چرخش در SymbolLayer (الگوی فایل گیت‌هاب)
+    await _mapController!.setLayerProperties(
+      'driver-layer',
+      SymbolLayerProperties(
+        iconRotate: finalHeading,
+      ),
+    );
+
+    // ۵. ترسیم یا به‌روزرسانی خط آبی مسیر در صورت نیاز
+    if (!_isDriverTripRouteVisible) {
+      await _drawDriverTripRoute(snappedPosition);
+    }
+  } catch (e) {
+    debugPrint('Error updating driver layer properties: $e');
+  }
+}
+
 
   Future<List<LatLng>> _getOsrmPoints(
     LatLng from,
