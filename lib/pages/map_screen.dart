@@ -301,6 +301,39 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       return null;
     }
   }
+    // 🚗 لایه بومی MapLibre برای ماشین راننده
+  Future<void> initDriverSymbolLayer() async {
+    if (_mapController == null) return;
+
+    try {
+      final Uint8List? carBytes = await _loadCarIconBytes();
+      if (carBytes != null) {
+        await _mapController!.addImage('driver-car-icon', carBytes);
+      }
+
+      await _mapController!.addGeoJsonSource('driver-source', {
+        'type': 'FeatureCollection',
+        'features': [],
+      });
+
+      await _mapController!.addSymbolLayer(
+        'driver-source',
+        'driver-layer',
+        const SymbolLayerProperties(
+          iconImage: 'driver-car-icon',
+          iconSize: 1.2,
+          iconRotate: 0.0,
+          iconRotationAlignment: 'map', // 👈 قفل کردن زاویه به خطوط خیابان
+          iconAllowOverlap: true,      // عدم مخفی شدن با زوم یا سایر لایه‌ها
+          iconIgnorePlacement: true,  // نادیده گرفتن تصادم لایه‌ها
+          iconAnchor: 'center',
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error initializing driver layer: $e');
+    }
+  }
+
 
   Future<void> _updateDriverMarkerOnMap(
   LatLng rawPosition,
@@ -1189,7 +1222,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
-            // 🗺️ ۱. نقشه تمام صفحه
+                        // 🗺️ ۱. نقشه تمام صفحه
             RepaintBoundary(
               child: MapLibreMap(
                 initialCameraPosition: CameraPosition(
@@ -1197,7 +1230,8 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                   zoom: 15.0,
                 ),
                 styleString: 'assets/map/style.json',
-                myLocationEnabled: true,
+                // خاموش کردن دایره آبی GPS در زمان قبول سفر یا در حال سفر
+                myLocationEnabled: _currentStep < 3, 
                 myLocationTrackingMode: MyLocationTrackingMode.tracking,
                 myLocationRenderMode: MyLocationRenderMode.normal,
                 trackCameraPosition: true,
@@ -1209,6 +1243,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                   if (widget.targetLocation != null) {
                     _animatedMapMove(widget.targetLocation!, 17.8);
                   }
+                },
+                // لود ساختار لایه اختصاصی ماشین راننده
+                onStyleLoadedCallback: () async {
+                  await initDriverSymbolLayer();
                 },
                 onCameraMove: (CameraPosition position) {
                   if (!_isProgrammaticMove) {
@@ -1241,6 +1279,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
                 onMapClick: (_, __) {},
               ),
             ),
+
 
             // 📍 ۲. پین شناور در وسط نقشه
             if (_currentStep < 2)
