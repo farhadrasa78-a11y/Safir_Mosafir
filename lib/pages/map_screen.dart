@@ -430,14 +430,23 @@ Future<void> _drawDriverTripRoute(LatLng driverPosition) async {
 }
 
   Future<void> _stopListeningToDriverLocation() async {
-    await _driverLocationStreamSubscription?.cancel();
-    _driverLocationStreamSubscription = null;
-    _assignedDriverId = null;
+  await _driverLocationStreamSubscription?.cancel();
+  _driverLocationStreamSubscription = null;
+  _assignedDriverId = null;
 
-    if (_driverLiveSymbol != null && _mapController != null) {
-      await _mapController!.removeSymbol(_driverLiveSymbol!);
-      _driverLiveSymbol = null;
-    }
+  _lastDriverLatLng = null;
+  _driverTripPolylinePoints.clear();
+  _isDriverTripRouteVisible = false;
+  _isFetchingDriverTripRoute = false;
+
+  if (_driverLiveSymbol != null && _mapController != null) {
+    await _mapController!.removeSymbol(_driverLiveSymbol!);
+    _driverLiveSymbol = null;
+  }
+
+  if (_mapController != null) {
+    await _mapController!.clearLines();
+  }
   }
 
   Future<void> _startLiveLocationUpdates() async {
