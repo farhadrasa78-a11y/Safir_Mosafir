@@ -335,6 +335,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         iconAnchor: 'center',
         iconRotate: heading,
         iconSize: 1.2,
+        iconRotationAlignment: 'map',
       );
 
       if (_driverLiveSymbol == null) {
@@ -343,7 +344,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         await controller.updateSymbol(_driverLiveSymbol!, options);
       }
 
-      if (!_isDriverTripRouteVisible || movedDistance >= 50) {
+      if (!_isDriverTripRouteVisible || movedDistance >= 15) {
         await _drawDriverTripRoute(position);
       }
     } catch (e) {
