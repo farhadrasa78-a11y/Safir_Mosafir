@@ -56,6 +56,7 @@
   "phone_hint": "د موبایل شمېره",
   "full_name_label": "نوم او تخلص",
   "full_name_hint": "خپل نوم اوتخلص دننه کړئ",
+  "name_hint": "خپل نوم اوتخلص دننه کړئ",
   "default_user_name": "د سفیر کاروونکی",
   "default_passenger_name": "د سفیر مسافر",
   "welcome_passenger": "سفیر ته ښه راغلاست",
