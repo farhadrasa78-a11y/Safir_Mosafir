@@ -377,8 +377,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           iconSize: 1.15,
           iconRotate: markerBearing,
           iconAnchor: 'center',
-          iconAllowOverlap: true,
-          iconIgnorePlacement: true,
         ),
       );
       return;
@@ -391,8 +389,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
         geometry: markerPosition,
         iconRotate: markerBearing,
         iconAnchor: 'center',
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
       ),
     );
   } catch (e) {
