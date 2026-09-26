@@ -303,37 +303,18 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   }
     // 🚗 لایه بومی MapLibre برای ماشین راننده
   Future<void> initDriverSymbolLayer() async {
-    if (_mapController == null) return;
+  if (_mapController == null) return;
 
-    try {
-      final Uint8List? carBytes = await _loadCarIconBytes();
-      if (carBytes != null) {
-        await _mapController!.addImage('driver-car-icon', carBytes);
-      }
+  try {
+    final Uint8List? carBytes = await _loadCarIconBytes();
 
-      await _mapController!.addGeoJsonSource('driver-source', {
-        'type': 'FeatureCollection',
-        'features': [],
-      });
-
-      await _mapController!.addSymbolLayer(
-        'driver-source',
-        'driver-layer',
-        const SymbolLayerProperties(
-          iconImage: 'driver-car-icon',
-          iconSize: 1.2,
-          iconRotate: 0.0,
-          iconRotationAlignment: 'map', // 👈 قفل کردن زاویه به خطوط خیابان
-          iconAllowOverlap: true,      // عدم مخفی شدن با زوم یا سایر لایه‌ها
-          iconIgnorePlacement: true,  // نادیده گرفتن تصادم لایه‌ها
-          iconAnchor: 'center',
-        ),
-      );
-    } catch (e) {
-      debugPrint('Error initializing driver layer: $e');
+    if (carBytes != null) {
+      await _mapController!.addImage('driver-car-icon', carBytes);
     }
+  } catch (e) {
+    debugPrint('Error preparing driver car icon: $e');
   }
-
+  }
 
   Future<void> _updateDriverMarkerOnMap(
   LatLng rawPosition,
@@ -341,72 +322,85 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
 ) async {
   if (_mapController == null) return;
 
-  // ۱. تصویرسازی و قفل کردن نقطه GPS روی خط آبی مسیر
-  LatLng snappedPosition = rawPosition;
-  if (_driverTripPolylinePoints.isNotEmpty) {
-    snappedPosition = _snapToPolyline(rawPosition, _driverTripPolylinePoints);
-  }
-
-  // ۲. محاسبه زاویه دقیق جهت حرکت خودرو در امتداد مسیر خیابان
-  double finalHeading = rawHeading;
-  if (_driverTripPolylinePoints.isNotEmpty) {
-    int index = -1;
-    double minDistance = double.infinity;
-
-    for (int i = 0; i < _driverTripPolylinePoints.length - 1; i++) {
-      double dist = Geolocator.distanceBetween(
-        snappedPosition.latitude,
-        snappedPosition.longitude,
-        _driverTripPolylinePoints[i].latitude,
-        _driverTripPolylinePoints[i].longitude,
-      );
-      if (dist < minDistance) {
-        minDistance = dist;
-        index = i;
-      }
-    }
-
-    if (index != -1 && index < _driverTripPolylinePoints.length - 1) {
-      finalHeading = _calculateBearing(
-        _driverTripPolylinePoints[index],
-        _driverTripPolylinePoints[index + 1],
-      );
-    }
-  }
-
-  _lastDriverLatLng = snappedPosition;
-
   try {
-    // ۳. آپدیت مختصات جدید در GeoSource
-    await _mapController!.addGeoJsonSource('driver-source', {
-      'type': 'FeatureCollection',
-      'features': [
-        {
-          'type': 'Feature',
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [snappedPosition.longitude, snappedPosition.latitude],
-          },
-        }
-      ],
-    });
+    // اگر route راننده هنوز ساخته نشده، ابتدا route را می‌سازیم.
+    if (!_isDriverTripRouteVisible &&
+        !_isFetchingDriverTripRoute &&
+        _originLatLng != null &&
+        _destinationLatLng != null) {
+      await _drawDriverTripRoute(rawPosition);
+    }
 
-    // ۴. آپدیت زاویه چرخش در SymbolLayer (الگوی فایل گیت‌هاب)
-    await _mapController!.setLayerProperties(
-      'driver-layer',
-      SymbolLayerProperties(
-        iconRotate: finalHeading,
+    // GPS خام فقط وقتی به route می‌چسبد که route آماده باشد.
+    LatLng markerPosition = rawPosition;
+    double markerBearing = rawHeading;
+
+    if (_driverTripPolylinePoints.length >= 2) {
+      markerPosition = _snapToPolyline(
+        rawPosition,
+        _driverTripPolylinePoints,
+      );
+
+      int nearestSegmentIndex = 0;
+      double nearestDistance = double.infinity;
+
+      for (int i = 0; i < _driverTripPolylinePoints.length - 1; i++) {
+        final LatLng segmentStart = _driverTripPolylinePoints[i];
+
+        final double distance = Geolocator.distanceBetween(
+          markerPosition.latitude,
+          markerPosition.longitude,
+          segmentStart.latitude,
+          segmentStart.longitude,
+        );
+
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestSegmentIndex = i;
+        }
+      }
+
+      markerBearing = _calculateBearing(
+        _driverTripPolylinePoints[nearestSegmentIndex],
+        _driverTripPolylinePoints[nearestSegmentIndex + 1],
+      );
+    }
+
+    _lastDriverLatLng = markerPosition;
+
+    // اولین موقعیت: فقط یک‌بار ماشین را می‌سازیم.
+    if (_driverLiveSymbol == null) {
+      _driverLiveSymbol = await _mapController!.addSymbol(
+        SymbolOptions(
+          geometry: markerPosition,
+          iconImage: 'driver-car-icon',
+          iconSize: 1.15,
+          iconRotate: markerBearing,
+          iconRotationAlignment: 'map',
+          iconAnchor: 'center',
+          iconAllowOverlap: true,
+          iconIgnorePlacement: true,
+        ),
+      );
+      return;
+    }
+
+    // موقعیت‌های بعدی: همان Symbol قبلی را به‌روزرسانی می‌کنیم.
+    await _mapController!.updateSymbol(
+      _driverLiveSymbol!,
+      SymbolOptions(
+        geometry: markerPosition,
+        iconRotate: markerBearing,
+        iconRotationAlignment: 'map',
+        iconAnchor: 'center',
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
       ),
     );
-
-    // ۵. ترسیم یا به‌روزرسانی خط آبی مسیر در صورت نیاز
-    if (!_isDriverTripRouteVisible) {
-      await _drawDriverTripRoute(snappedPosition);
-    }
   } catch (e) {
-    debugPrint('Error updating driver layer properties: $e');
+    debugPrint('Error updating driver car symbol: $e');
   }
-}
+  }
 
 
   Future<List<LatLng>> _getOsrmPoints(
@@ -1672,7 +1666,7 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     if (dx == 0 && dy == 0) return a;
 
     double t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
-    t = t.clamp(0.0, 1.0);
+    t = t.clamp(0.0, 1.0).toDouble();
 
     return LatLng(y1 + t * dy, x1 + t * dx);
   }
