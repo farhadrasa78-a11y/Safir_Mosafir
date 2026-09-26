@@ -135,6 +135,13 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _driverLocationStreamSubscription;
   String? _assignedDriverId;
   Uint8List? _cachedDriverCarBytes;
+  late AnimationController _driverAnimationController;
+
+LatLng? _driverAnimationStart;
+LatLng? _driverAnimationEnd;
+
+double _driverAnimationStartBearing = 0.0;
+double _driverAnimationEndBearing = 0.0;
 
   bool _isMapMoving = false;
   bool _isProgrammaticMove = false;
@@ -228,6 +235,10 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
   @override
   void initState() {
     super.initState();
+    _driverAnimationController = AnimationController(
+  vsync: this,
+  duration: const Duration(milliseconds: 1000),
+)..addListener(_animateDriverSymbol);
     selectedVehicle = widget.serviceType;
     if (selectedVehicle == "Bike") {
       _selectedCategory = 1;
@@ -313,6 +324,48 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
     }
   } catch (e) {
     debugPrint('Error preparing driver car icon: $e');
+  }
+  }
+  Future<void> _animateDriverSymbol() async {
+  if (!mounted ||
+      _mapController == null ||
+      _driverLiveSymbol == null ||
+      _driverAnimationStart == null ||
+      _driverAnimationEnd == null) {
+    return;
+  }
+
+  final double t = Curves.easeInOutCubic.transform(
+    _driverAnimationController.value,
+  );
+
+  final double latitude = _driverAnimationStart!.latitude +
+      (_driverAnimationEnd!.latitude - _driverAnimationStart!.latitude) * t;
+
+  final double longitude = _driverAnimationStart!.longitude +
+      (_driverAnimationEnd!.longitude - _driverAnimationStart!.longitude) * t;
+
+  double bearingDifference =
+      _driverAnimationEndBearing - _driverAnimationStartBearing;
+
+  if (bearingDifference.abs() > 180) {
+    bearingDifference -= 360 * bearingDifference.sign;
+  }
+
+  final double bearing =
+      (_driverAnimationStartBearing + bearingDifference * t + 360) % 360;
+
+  try {
+    await _mapController!.updateSymbol(
+      _driverLiveSymbol!,
+      SymbolOptions(
+        geometry: LatLng(latitude, longitude),
+        iconRotate: bearing,
+        iconAnchor: 'center',
+      ),
+    );
+  } catch (e) {
+    debugPrint('Driver animation update error: $e');
   }
   }
 
