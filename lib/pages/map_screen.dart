@@ -540,6 +540,7 @@ double _driverAnimationEndBearing = 0.0;
   }
 
   Future<void> _stopListeningToDriverLocation() async {
+    _driverAnimationController.stop();
     await _driverLocationStreamSubscription?.cancel();
     _driverLocationStreamSubscription = null;
     _assignedDriverId = null;
