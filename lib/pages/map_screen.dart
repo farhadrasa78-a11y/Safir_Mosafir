@@ -272,6 +272,7 @@ double _driverAnimationEndBearing = 0.0;
     _receiverFloorController.dispose();
     _receiverNoteController.dispose();
     _tripAudioPlayer.dispose();
+    _driverAnimationController.dispose();
     super.dispose();
   }
 
@@ -376,7 +377,7 @@ double _driverAnimationEndBearing = 0.0;
   if (_mapController == null) return;
 
   try {
-    // اگر route راننده هنوز ساخته نشده، ابتدا route را می‌سازیم.
+    // اگر مسیر راننده هنوز ساخته نشده، ابتدا آن را بساز.
     if (!_isDriverTripRouteVisible &&
         !_isFetchingDriverTripRoute &&
         _originLatLng != null &&
@@ -384,10 +385,11 @@ double _driverAnimationEndBearing = 0.0;
       await _drawDriverTripRoute(rawPosition);
     }
 
-    // GPS خام فقط وقتی به route می‌چسبد که route آماده باشد.
     LatLng markerPosition = rawPosition;
     double markerBearing = rawHeading;
 
+    // GPS خام را روی نزدیک‌ترین نقطهٔ route قرار بده
+    // و زاویهٔ ماشین را از جهت خود route بگیر.
     if (_driverTripPolylinePoints.length >= 2) {
       markerPosition = _snapToPolyline(
         rawPosition,
@@ -398,9 +400,9 @@ double _driverAnimationEndBearing = 0.0;
       double nearestDistance = double.infinity;
 
       for (int i = 0; i < _driverTripPolylinePoints.length - 1; i++) {
-        final LatLng segmentStart = _driverTripPolylinePoints[i];
+        final segmentStart = _driverTripPolylinePoints[i];
 
-        final double distance = Geolocator.distanceBetween(
+        final distance = Geolocator.distanceBetween(
           markerPosition.latitude,
           markerPosition.longitude,
           segmentStart.latitude,
@@ -419,9 +421,7 @@ double _driverAnimationEndBearing = 0.0;
       );
     }
 
-    _lastDriverLatLng = markerPosition;
-
-    // اولین موقعیت: فقط یک‌بار ماشین را می‌سازیم.
+    // بار اول: ماشین را بساز، animation لازم نیست.
     if (_driverLiveSymbol == null) {
       _driverLiveSymbol = await _mapController!.addSymbol(
         SymbolOptions(
@@ -432,20 +432,29 @@ double _driverAnimationEndBearing = 0.0;
           iconAnchor: 'center',
         ),
       );
+
+      _lastDriverLatLng = markerPosition;
       return;
     }
 
-    // موقعیت‌های بعدی: همان Symbol قبلی را به‌روزرسانی می‌کنیم.
-    await _mapController!.updateSymbol(
-      _driverLiveSymbol!,
-      SymbolOptions(
-        geometry: markerPosition,
-        iconRotate: markerBearing,
-        iconAnchor: 'center',
-      ),
-    );
+    // آپدیت‌های بعدی: از جای فعلی به نقطهٔ جدید، نرم حرکت کن.
+    _driverAnimationStart = _lastDriverLatLng ?? markerPosition;
+    _driverAnimationEnd = markerPosition;
+    _driverAnimationStartBearing = _driverAnimationEndBearing;
+    _driverAnimationEndBearing = markerBearing;
+
+    // اگر update بعدی قبل از پایان animation رسید، حرکت قبلی را متوقف کن.
+    _driverAnimationController.stop();
+
+    // مدت یک ثانیه برای حرکت طبیعی؛ بعداً در صورت نیاز تنظیم می‌کنیم.
+    _driverAnimationController.duration =
+        const Duration(milliseconds: 1000);
+
+    _driverAnimationController.forward(from: 0.0);
+
+    _lastDriverLatLng = markerPosition;
   } catch (e) {
-    debugPrint('Error updating driver car symbol: $e');
+    debugPrint('Error updating animated driver symbol: $e');
   }
   }
 
