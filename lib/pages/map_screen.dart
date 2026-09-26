@@ -376,7 +376,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
           iconImage: 'driver-car-icon',
           iconSize: 1.15,
           iconRotate: markerBearing,
-          iconRotationAlignment: 'map',
           iconAnchor: 'center',
           iconAllowOverlap: true,
           iconIgnorePlacement: true,
@@ -391,7 +390,6 @@ class _SafirMapScreenState extends State<SafirMapScreen> with TickerProviderStat
       SymbolOptions(
         geometry: markerPosition,
         iconRotate: markerBearing,
-        iconRotationAlignment: 'map',
         iconAnchor: 'center',
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
